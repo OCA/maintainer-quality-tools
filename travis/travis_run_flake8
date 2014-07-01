@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 LINE_LENGTH=120
 
 flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401
+status1=$?
 flake8 . --max-line-length=${LINE_LENGTH} --exclude=__init__.py
+status2=$?
+exit $((${status1} && ${status2}))
