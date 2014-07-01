@@ -42,7 +42,7 @@ do
             tested_addons=$name
         fi
     else
-        echo "probably not an addon"
+        echo " -> probably not an addon"
     fi
 done
 
