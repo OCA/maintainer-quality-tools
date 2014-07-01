@@ -27,14 +27,14 @@ do
     addons_path=${repo},${addons_path}
 done
 
+
 echo "working in $TRAVIS_BUILD_DIR"
 ls ${TRAVIS_BUILD_DIR}
 for name in $(ls ${TRAVIS_BUILD_DIR});
 do
     echo "considering $name"
     stripped_name=$(echo ${name} | sed 's/_unported$//')
-    if [[ -d ${TRAVIS_BUILD_DIR}/${name} && ${name} = ${stripped_name} && -e ${TRAVIS_BUILD_DIR}/${name}/__init__.py ]]
-    then
+    if [[ check_installable ${TRAVIS_BUILD_DIR}/${name} ]]
         if [ -v tested_addons ]
         then
             tested_addons=${name},${tested_addons}
@@ -49,6 +49,7 @@ done
 psql -c 'create database openerp_test with owner openerp;' -U postgres
 # setup the base module without running th
 /usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --stop-after-init -i base
+
 command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
 --stop-after-init  --log-level test \
 --addons-path=${addons_path} \
