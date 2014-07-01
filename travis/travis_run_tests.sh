@@ -29,11 +29,11 @@ done
 
 echo "working in $TRAVIS_BUILD_DIR"
 ls ${TRAVIS_BUILD_DIR}
-for name in ${TRAVIS_BUILD_DIR}/*;
+for name in $(ls ${TRAVIS_BUILD_DIR});
 do
     echo "considering $name"
     stripped_name=$(echo ${name} | sed 's/_unported$//')
-    if [[ -d ${name} && ${name} = ${stripped_name} && -e ${name}/__init__.py ]]
+    if [[ -d ${TRAVIS_BUILD_DIR}/${name} && ${name} = ${stripped_name} && -e ${TRAVIS_BUILD_DIR}/${name}/__init__.py ]]
     then
         if [ -v tested_addons ]
         then
