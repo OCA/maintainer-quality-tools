@@ -22,7 +22,7 @@ install:
 script:
     - flake8 . --max-line-length=120 --filename=__init__.py --ignore=F401
     - flake8 . --max-line-length=120 --exclude=__init__.py
-    - $HOME/maintainer-quality-tools/travis/travis_test_script.sh 7.0 openerp_test 
+    - $HOME/maintainer-quality-tools/travis/travis_run_tests.sh 7.0 openerp_test 
 
 after_success:
   coveralls
