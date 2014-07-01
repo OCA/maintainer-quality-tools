@@ -1,0 +1,6 @@
+#!/bin/sh
+
+LINE_LENGTH=120
+
+flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401
+flake8 . --max-line-length=${LINE_LENGTH} --exclude=__init__.py
