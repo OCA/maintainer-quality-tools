@@ -44,10 +44,10 @@ psql -c 'create database openerp_test with owner openerp;' -U postgres
 command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
 --stop-after-init  --log-level test \
 --addons-path=${addons_path} \
--i ${tested_addons} | tee stdout.log"
+-i ${tested_addons}"
 
 echo ${command}
-coverage run $command
+coverage run $command | tee stdout.log
 
 if $(grep -v mail stdout.log | grep -q ERROR)
 then
