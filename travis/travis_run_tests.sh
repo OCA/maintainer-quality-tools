@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # USAGE
@@ -24,19 +24,25 @@ addons_path=/usr/share/pyshared/openerp/addons
 
 for repo in "$@" $TRAVIS_BUILD_DIR; 
 do
-    addons_path=$repo,$addons_path
+    addons_path=${repo},${addons_path}
 done
 
-for name in $TRAVIS_BUILD_DIR/*;
+echo "working in $TRAVIS_BUILD_DIR"
+ls ${TRAVIS_BUILD_DIR}
+for name in ${TRAVIS_BUILD_DIR}/*;
 do
-    if [ -e $TRAVIS_BUILD_DIR/$name/__init__.py ]
+    echo "considering $name"
+    stripped_name=$(echo ${name} | sed 's/_unported$//')
+    if [[ -d ${name} && ${name} = ${stripped_name} && -e ${name}/__init__.py ]]
     then
         if [ -v tested_addons ]
         then
-            tested_addons=$name,$tested_addons
+            tested_addons=${name},${tested_addons}
         else
             tested_addons=$name
         fi
+    else
+        echo "probably not an addon"
     fi
 done
 
