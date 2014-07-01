@@ -1,0 +1,32 @@
+language: python
+python:
+  - "2.7"
+
+virtualenv:
+  system_site_packages: true
+
+before_install:
+ - sudo apt-get install -qq graphviz
+ - git clone https://github.com/gurneyalex/maintainer-quality-tools.git $HOME/maintainer-quality-tools
+
+services:
+  - postgresql
+
+before_script:
+    - psql -c "CREATE USER openerp WITH PASSWORD 'admin';" -U postgres
+
+install:
+    - $HOME/maintainer-quality-tools/travis/travis_install_nightly.sh 7.0
+    - pip install coveralls flake8
+
+script:
+    - flake8 . --max-line-length=120 --filename=__init__.py --ignore=F401
+    - flake8 . --max-line-length=120 --exclude=__init__.py
+    - $HOME/maintainer-quality-tools/travis/travis_test_script.sh 7.0 openerp_test 
+
+after_success:
+  coveralls
+
+#notifications:
+#  email:
+#    - alexandre.fayolle@camptocamp.com
