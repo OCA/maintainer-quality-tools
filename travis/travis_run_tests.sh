@@ -47,6 +47,8 @@ do
 done
 
 psql -c 'create database openerp_test with owner openerp;' -U postgres
+# setup the base module without running th
+/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --stop-after-init -i base
 command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
 --stop-after-init  --log-level test \
 --addons-path=${addons_path} \
