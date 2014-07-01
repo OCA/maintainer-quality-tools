@@ -55,7 +55,7 @@ command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${data
 echo ${command}
 coverage run $command | tee stdout.log
 
-if $(grep -v mail stdout.log | grep -q ERROR)
+if $(grep -v mail stdout.log | grep -q "At least one test failed when loading the modules.")
 then
     exit 1
 else
