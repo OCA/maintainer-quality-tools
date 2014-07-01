@@ -15,12 +15,12 @@ services:
   - postgresql
 
 install:
-    - $HOME/maintainer-quality-tools/travis/travis_install_nightly.sh 7.0
+    - $HOME/maintainer-quality-tools/travis/travis_install_nightly 7.0
     - pip install coveralls flake8
 
 script:
     - travis_run_flake8
-    - travis_run_tests.sh 7.0 openerp_test
+    - travis_run_tests 7.0 openerp_test
 
 after_success:
   coveralls
