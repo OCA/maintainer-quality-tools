@@ -41,7 +41,7 @@ do
 done
 
 psql -c 'create database openerp_test with owner openerp;' -U postgres
-coverage run /usr/bin/openerp-server --db_user=openerp --db_password=admin --db_host=localhost -d ${database} ${options} \
+coverage run /usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
     --stop-after-init \
     --addons-path=${addons_path} \
     -i tested_addons | tee stdout.log
