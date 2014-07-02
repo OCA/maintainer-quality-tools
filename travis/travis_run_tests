@@ -59,7 +59,7 @@ psql -c 'create database openerp_test with owner openerp;' -U postgres
 /usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} --stop-after-init -i base
 
 command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
---stop-after-init  --log-level test \
+--stop-after-init  --log-level=test --test-enable \
 --addons-path=${addons_path} \
 -i ${tested_addons}"
 
