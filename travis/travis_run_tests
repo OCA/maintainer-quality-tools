@@ -35,6 +35,7 @@ do
     echo "considering $name"
     stripped_name=$(echo ${name} | sed 's/_unported$//')
     if check_installable ${TRAVIS_BUILD_DIR}/${name}
+    then
         if [ -v tested_addons ]
         then
             tested_addons=${name},${tested_addons}
