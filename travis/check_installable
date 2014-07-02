@@ -2,7 +2,7 @@
 
 import sys
 import os
-module_path = sys.argv[0]
+module_path = sys.argv[1]
 
 if module_path.endswith('_unported'):
     sys.exit(1)

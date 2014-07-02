@@ -47,6 +47,13 @@ do
     fi
 done
 
+if [ ! -v tested_addons ]
+then
+    echo "no addon to test"
+    # should we error?
+    exit 0
+fi
+
 psql -c 'create database openerp_test with owner openerp;' -U postgres
 # setup the base module without running th
 /usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --stop-after-init -i base
