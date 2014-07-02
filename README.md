@@ -35,3 +35,13 @@ Put this in your project's `.travis.yml`:
     after_success:
       coveralls
 
+If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
+
+    before_install:
+      - git clone https://github.com/OCA/a_project_x $HOME/a_project_x -b 7.0
+      - git clone https://github.com/OCA/a_project_y $HOME/a_project_y -b 7.0
+      
+And add path to the cloned repositories to the `travis_run_tests` command:
+
+    script:
+      - travis_run_tests 7.0 openerp_test $HOME/a_project_x $HOME/a_project_y
