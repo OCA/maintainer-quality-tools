@@ -11,7 +11,7 @@ for name in ['__openerp__.py', '__odoo__.py', '__terp__.py']:
     if os.path.isfile(file_name):
         with open(file_name) as fobj:
             metadata = eval(fobj.read())
-        if metadata['installable']:
+        if metadata.get('installable'):
             sys.exit(0)
         else:
             sys.exit(1)
