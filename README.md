@@ -17,9 +17,7 @@ Put this in your project's `.travis.yml`:
     
     before_install:
      - git clone https://github.com/gurneyalex/maintainer-quality-tools.git $HOME/maintainer-quality-tools
-    
-    env:
-     - PATH=$HOME/maintainer-quality-tools/travis:$PATH
+     - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
     
     services:
       - postgresql
