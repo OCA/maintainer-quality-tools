@@ -33,7 +33,7 @@ Put this in your project's `.travis.yml`:
 
 If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
 
-    before_install:
+    install:
       - git clone https://github.com/OCA/a_project_x $HOME/a_project_x -b 7.0
       - git clone https://github.com/OCA/a_project_y $HOME/a_project_y -b 7.0
       
