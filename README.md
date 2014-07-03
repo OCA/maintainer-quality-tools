@@ -16,7 +16,7 @@ Put this in your project's `.travis.yml`:
       system_site_packages: true
     
     install:
-     - git clone https://github.com/gurneyalex/maintainer-quality-tools.git $HOME/maintainer-quality-tools
+     - git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
      - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
      - $HOME/maintainer-quality-tools/travis/travis_install_nightly 7.0
      - pip install coveralls flake8
