@@ -15,16 +15,14 @@ Put this in your project's `.travis.yml`:
     virtualenv:
       system_site_packages: true
     
-    before_install:
+    install:
      - git clone https://github.com/gurneyalex/maintainer-quality-tools.git $HOME/maintainer-quality-tools
      - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
+     - $HOME/maintainer-quality-tools/travis/travis_install_nightly 7.0
+     - pip install coveralls flake8
     
     services:
       - postgresql
-    
-    install:
-        - $HOME/maintainer-quality-tools/travis/travis_install_nightly 7.0
-        - pip install coveralls flake8
     
     script:
         - travis_run_flake8
