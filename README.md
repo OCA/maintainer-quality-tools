@@ -26,7 +26,7 @@ Put this in your project's `.travis.yml`:
     
     script:
         - travis_run_flake8
-        - travis_run_tests 7.0 openerp_test
+        - travis_run_tests 7.0
     
     after_success:
       coveralls
