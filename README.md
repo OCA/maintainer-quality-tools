@@ -41,6 +41,17 @@ And add path to the cloned repositories to the `travis_run_tests` command:
 
     script:
       - travis_run_tests 7.0 openerp_test $HOME/a_project_x $HOME/a_project_y
+      
+Managing conflicting addons
+---------------------------
+
+If you need to test every module in an encapsulated manner you can use ``travis_run_tests_encapsulated.sh``:
+    
+    script:
+     - travis_run_tests_encapsulated.sh 7.0 openerp_test root_module $HOME/a_project_x
+     
+The ``root_module`` parameter corresponds to the base module you want to install for all your test.
+If you are not sure of it values simply use ``base``
 
 Sample coveralls configuration file
 ------------------------------------
