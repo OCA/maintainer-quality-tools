@@ -2,10 +2,10 @@
 
 #
 # USAGE
-# travis_run_tests.sh VERSION DB_NAME [dependency_repo_1...]
+# travis_run_tests.sh VERSION MODULE_NAME [dependency_repo_1...]
 
 version=$1
-database=$2
+module_name=$2
 shift 2
 
 case ${version} in 
@@ -57,16 +57,16 @@ then
     exit 0
 fi
 
-psql -c 'create database openerp_test with owner openerp;' -U postgres
+psql -c 'create database ${module_name} with owner openerp;' -U postgres
 # setup the base module without running the tests
 echo
 echo setting up the database
-/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i base
+/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${module_name} --addons-path=${addons_path} ${install_options} --stop-after-init -i base
 
-command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
+command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${module_name} ${options} \
 --stop-after-init  --log-level test \
 --addons-path=${addons_path} \
--i ${tested_addons}"
+-i ${module_name}"
 
 echo
 echo ${command}
