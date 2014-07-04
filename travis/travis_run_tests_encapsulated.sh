@@ -6,7 +6,8 @@
 
 version=$1
 database=$2
-shift 2
+root_module=$3
+shift 3
 
 case ${version} in 
     7.0)
@@ -56,7 +57,7 @@ fi
 
 psql -c "create database ${database} with owner openerp;" -U postgres
 # setup the base module without running th
-/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} --stop-after-init -i base
+/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} --stop-after-init -i ${root_module}
 
 touch stdout.log
 IFS=',' read -a array <<< "${tested_addons}"
