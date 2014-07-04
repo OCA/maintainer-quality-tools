@@ -30,33 +30,6 @@ do
     addons_path=${repo},${addons_path}
 done
 
-
-echo "working in $TRAVIS_BUILD_DIR"
-ls ${TRAVIS_BUILD_DIR}
-for name in $(ls ${TRAVIS_BUILD_DIR});
-do
-    echo "considering $name"
-    stripped_name=$(echo ${name} | sed 's/_unported$//')
-    if check_installable ${TRAVIS_BUILD_DIR}/${name}
-    then
-        if [ -v tested_addons ]
-        then
-            tested_addons=${name},${tested_addons}
-        else
-            tested_addons=$name
-        fi
-    else
-        echo " -> probably not an addon"
-    fi
-done
-
-if [ ! -v tested_addons ]
-then
-    echo "no addon to test"
-    # should we error?
-    exit 0
-fi
-
 psql -c 'create database ${module_name} with owner openerp;' -U postgres
 # setup the base module without running the tests
 echo
