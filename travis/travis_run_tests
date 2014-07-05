@@ -4,9 +4,10 @@
 # USAGE
 # travis_run_tests.sh VERSION DB_NAME [dependency_repo_1...]
 
+database=openerp_test 
+
 version=$1
-database=$2
-shift 2
+shift 1
 
 case ${version} in 
     7.0)
@@ -57,7 +58,7 @@ then
     exit 0
 fi
 
-psql -c 'create database openerp_test with owner openerp;' -U postgres
+psql -c "create database ${database} with owner openerp;" -U postgres
 # setup the base module without running the tests
 echo
 echo setting up the database
