@@ -2,14 +2,14 @@
 
 #
 # USAGE
-# travis_run_tests.sh VERSION DB_NAME [dependency_repo_1...]
+# travis_run_tests.sh VERSION DB_NAME ROOT_MODULE [dependency_repo_1...]
 
 version=$1
 database=$2
 root_module=$3
 shift 3
 
-case ${version} in 
+case ${version} in
     7.0)
         options="--test-enable"
         ;;
@@ -23,7 +23,7 @@ esac
 
 addons_path=/usr/share/pyshared/openerp/addons
 
-for repo in "$@" $TRAVIS_BUILD_DIR; 
+for repo in "$@" $TRAVIS_BUILD_DIR;
 do
     addons_path=${repo},${addons_path}
 done
@@ -81,4 +81,3 @@ then
 else
     exit 0
 fi
-
