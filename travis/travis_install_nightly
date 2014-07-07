@@ -6,4 +6,5 @@ sudo apt-get install -qq graphviz # needed?
 sudo pip install QUnitSuite # web unit tests fail without this
 wget http://nightly.openerp.com/${VERSION}/nightly/deb/openerp_${VERSION}-latest-1_all.deb
 sudo dpkg -i openerp_${VERSION}-latest-1_all.deb || sudo apt-get -f install
+sudo touch /usr/share/pyshared/openerp/addons/web/tests/qunitsuite/__init__.py # hack to solve QUnit test
 

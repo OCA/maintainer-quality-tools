@@ -2,25 +2,23 @@
 
 #
 # USAGE
-# travis_run_tests.sh VERSION [dependency_repo_1...]
-
-database=openerp_test 
+# travis_run_tests.sh VERSION ROOT_MODULE [dependency_repo_1...]
+database=openerp_test
 
 version=$1
-shift 1
+root_module=$2
+
+shift 2
 
 case ${version} in
     7.0)
         options="--test-enable"
-        install_options=""
         ;;
     6.1)
         options=""
-        install_options="--test-disable"
         ;;
     *)
         options=""
-        install_options=""
         ;;
 esac
 
@@ -59,20 +57,25 @@ then
 fi
 
 psql -c "create database ${database} with owner openerp;" -U postgres
-# setup the base module without running the tests
-echo
-echo setting up the database
-/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i base
+# setup the base module without running th
+/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} --stop-after-init -i ${root_module}
 
-command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
---stop-after-init  --log-level test \
---addons-path=${addons_path} \
--i ${tested_addons}"
+touch stdout.log
+IFS=',' read -a array <<< "${tested_addons}"
+for current in "${array[@]}"
+do
+    echo "Create DB to test ${current} -> createdb openerp_current_test --template=${database} -O openerp -U postgres"
+    createdb openerp_current_test --template=${database} -O openerp -U postgres
+    command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d openerp_current_test ${options} \
+    --stop-after-init  --log-level test \
+    --addons-path=${addons_path} \
+    --init=${current}"
 
-echo
-echo ${command}
-coverage run $command | tee stdout.log
-
+    echo ${command}
+    coverage run $command | tee --append stdout.log
+    echo "Drop DB after tests of ${current} -> dropdb openerp_current_test -U postgres"
+    dropdb openerp_current_test -U postgres
+done
 if $(grep -v mail stdout.log | grep -q "At least one test failed when loading the modules.")
 then
     exit 1
