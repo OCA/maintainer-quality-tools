@@ -48,7 +48,7 @@ Managing conflicting addons
 If you need to test every module in an encapsulated manner you can use ``travis_run_tests_encapsulated.sh``:
     
     script:
-     - travis_run_tests_encapsulated.sh 7.0 openerp_test root_module $HOME/a_project_x
+     - travis_run_tests_encapsulated 7.0 root_module $HOME/a_project_x
      
 The ``root_module`` parameter corresponds to the base module you want to install for all your test.
 If you are not sure of it values simply use ``base``
