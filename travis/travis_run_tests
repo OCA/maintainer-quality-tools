@@ -2,7 +2,7 @@
 
 #
 # USAGE
-# travis_run_tests.sh VERSION DB_NAME [dependency_repo_1...]
+# travis_run_tests.sh VERSION [dependency_repo_1...]
 
 version=$1
 database=$2
