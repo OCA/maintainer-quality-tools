@@ -6,7 +6,7 @@ The goal is to provide helpers to ensure the quality of Odoo addons.
 Sample travis configuration file
 ---------------------------------
 
-Put this in your project's `.travis.yml`:
+Put this in your project's `.travis.yml` ([example](https://raw.githubusercontent.com/OCA/stock-logistics-workflow/master/.travis.yml)):
 
     language: python
     python:
