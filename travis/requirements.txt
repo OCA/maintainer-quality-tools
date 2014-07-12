@@ -7,7 +7,7 @@ gdata
 gevent
 psycogreen
 Jinja2
-lxml
+#lxml - installed using apt-get
 mako
 mock
 passlib

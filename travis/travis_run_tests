@@ -10,16 +10,12 @@ version=$1
 shift 1
 
 case ${version} in 
-    7.0)
-        options="--test-enable"
-        install_options=""
-        ;;
     6.1)
         options=""
         install_options="--test-disable"
         ;;
     *)
-        options=""
+        options="--test-enable"
         install_options=""
         ;;
 esac

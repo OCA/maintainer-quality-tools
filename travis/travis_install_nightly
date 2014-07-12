@@ -4,4 +4,6 @@ ODOO_URL="https://github.com/odoo/odoo/archive/$1.tar.gz"
 echo "Installing Odoo ${ODOO_URL}"
 wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
+
+sudo apt-get install python-lxml  # because pip installation is slooow
 pip install -r $HOME/maintainer-quality-tools/travis/requirements.txt
