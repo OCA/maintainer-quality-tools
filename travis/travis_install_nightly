@@ -1,4 +1,5 @@
 #!/bin/sh
+
 ODOO_URL="https://github.com/odoo/odoo/archive/$1.tar.gz"
 echo "Installing Odoo ${ODOO_URL}"
 wget -O odoo.tar.gz ${ODOO_URL}
