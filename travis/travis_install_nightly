@@ -1,5 +1,6 @@
 #!/bin/sh
-VERSION=$1
-wget -O odoo.tar.gz https://github.com/odoo/odoo/archive/${VERSION}.tar.gz
+ODOO_URL="https://github.com/odoo/odoo/archive/$1.tar.gz"
+echo "Installing Odoo ${ODOO_URL}"
+wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
-pip install -r requirements.txt
+pip install -r $HOME/maintainer-quality-tools/travis/requirements.txt
