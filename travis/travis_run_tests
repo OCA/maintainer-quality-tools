@@ -59,7 +59,7 @@ createdb ${database}
 # setup the base module without running the tests
 echo
 echo setting up the database
-$server_path/openerp-server -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i base
+$server_path/openerp-server -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i ${tested_addons}
 
 command="$server_path/openerp-server -d ${database} ${options} \
 --stop-after-init  --log-level test \
