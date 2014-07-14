@@ -73,7 +73,7 @@ echo
 echo ${command}
 coverage run $command | tee stdout.log
 
-if $(grep -v mail stdout.log | grep -q "At least one test failed when loading the modules.")
+if $(grep -v mail stdout.log | egrep -q "(At least one test failed when loading the modules.|ERROR ${database})")
 then
     exit 1
 else
