@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -v
+
 LINE_LENGTH=120
 
 flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401 --exclude=__unported__
