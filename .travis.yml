@@ -5,8 +5,9 @@ python:
 virtualenv:
   system_site_packages: true
 
-before_install:
-    - export VERSION="8.0"
+env:
+  - VERSION="8.0"
+  - VERSION="7.0"
 
 install:
   #- git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
