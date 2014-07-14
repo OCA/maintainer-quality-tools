@@ -22,7 +22,6 @@ install:
   - cp -r ../maintainer-quality-tools/ $HOME  # for maintainer-quality-tools self tests only
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly $VERSION
-  - $HOME/maintainer-quality-tools/travis/travis_install_nightly ${VERSION}
   - pip install coveralls flake8
 
 script:
