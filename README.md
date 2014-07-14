@@ -19,7 +19,6 @@ Put this in your project's `.travis.yml`:
      - git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
      - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
      - travis_install_nightly 7.0
-     - pip install coveralls flake8
 
     script:
         - travis_run_flake8
