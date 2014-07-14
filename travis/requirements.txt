@@ -33,6 +33,3 @@ vatnumber
 vobject
 werkzeug
 xlwt
-
-# tests
-QUnitSuite

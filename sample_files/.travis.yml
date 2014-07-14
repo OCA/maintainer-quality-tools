@@ -13,7 +13,6 @@ install:
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly $VERSION
   - $HOME/maintainer-quality-tools/travis/travis_install_nightly ${VERSION}
-  - pip install coveralls flake8
 
 script:
   - travis_run_flake8

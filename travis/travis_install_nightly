@@ -6,4 +6,6 @@ wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
 
 sudo apt-get install python-lxml  # because pip installation is slooow
+
+pip install QUnitSuite flake8 coveralls
 pip install -r $HOME/maintainer-quality-tools/travis/requirements.txt
