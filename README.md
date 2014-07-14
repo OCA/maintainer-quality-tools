@@ -37,7 +37,7 @@ If your project depends on other OCA/Github repositories simply add the followin
 And add path to the cloned repositories to the `travis_run_tests` command:
 
     script:
-      - travis_run_tests 7.0 openerp_test $HOME/a_project_x $HOME/a_project_y
+      - travis_run_tests 7.0 $HOME/a_project_x $HOME/a_project_y
 
 Sample coveralls configuration file
 ------------------------------------
