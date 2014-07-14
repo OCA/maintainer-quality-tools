@@ -6,8 +6,8 @@ The goal is to provide helpers to ensure the quality of Odoo addons.
 Sample travis configuration file (for version 7.0)
 --------------------------------------------------
 
-Copy this repo's `.travis.yml` to your project, edit it's `install` section 
-uncommenting the first line and removing the second (`cp ...`).
+To setup the TravisCI continuous integration for your project, just copy the
+content of the `/sample_files` to your project’s root directory.
 
 If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
 
