@@ -20,8 +20,13 @@ case ${version} in
         ;;
 esac
 
-server_path="../odoo-$version"
+: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
+IFS="/" read -a REPO <<< "$ODOO_REPO"
+
+server_path="../${REPO[1]}-$version"
 addons_path="$server_path/addons"
+echo "Using repo $ODOO_REPO and addons path $addons_path"
+
 
 for repo in "$@" $TRAVIS_BUILD_DIR; 
 do
