@@ -6,27 +6,8 @@ The goal is to provide helpers to ensure the quality of Odoo addons.
 Sample travis configuration file (for version 7.0)
 --------------------------------------------------
 
-Put this in your project's `.travis.yml`:
-
-    language: python
-    python:
-      - "2.7"
-
-    virtualenv:
-      system_site_packages: true
-
-    install:
-     - git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
-     - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-     - travis_install_nightly 7.0
-     - pip install coveralls flake8
-
-    script:
-        - travis_run_flake8
-        - travis_run_tests 7.0
-    
-    after_success:
-      coveralls
+To setup the TravisCI continuous integration for your project, just copy the
+content of the `/sample_files` to your project’s root directory.
 
 If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
 

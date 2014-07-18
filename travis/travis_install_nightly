@@ -1,9 +1,11 @@
 #!/bin/sh
 
-VERSION=$1
-# Install the nightly version of OpenERP
-sudo apt-get install -qq graphviz # needed?
-sudo pip install QUnitSuite # web unit tests fail without this
-wget http://nightly.openerp.com/${VERSION}/nightly/deb/openerp_${VERSION}-latest-1_all.deb
-sudo dpkg -i openerp_${VERSION}-latest-1_all.deb || sudo apt-get -f install
+ODOO_URL="https://github.com/odoo/odoo/archive/$1.tar.gz"
+echo "Installing Odoo ${ODOO_URL}"
+wget -O odoo.tar.gz ${ODOO_URL}
+tar -xf odoo.tar.gz -C ../
 
+sudo apt-get install python-lxml  # because pip installation is slooow
+
+pip install QUnitSuite flake8 coveralls
+pip install -r $HOME/maintainer-quality-tools/travis/requirements.txt

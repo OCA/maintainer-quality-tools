@@ -10,21 +10,18 @@ version=$1
 shift 1
 
 case ${version} in 
-    7.0)
-        options="--test-enable"
-        install_options=""
-        ;;
     6.1)
         options=""
         install_options="--test-disable"
         ;;
     *)
-        options=""
+        options="--test-enable"
         install_options=""
         ;;
 esac
 
-addons_path=/usr/share/pyshared/openerp/addons
+server_path="../odoo-$version"
+addons_path="$server_path/addons"
 
 for repo in "$@" $TRAVIS_BUILD_DIR; 
 do
@@ -58,25 +55,33 @@ then
     exit 0
 fi
 
-psql -c "create database ${database} with owner openerp;" -U postgres
+createdb ${database}
 # setup the base module without running the tests
 echo
 echo setting up the database
-/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i ${tested_addons}
+$server_path/openerp-server -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i ${tested_addons}
 
-command="/usr/bin/openerp-server --db_user=openerp --db_password=admin -d ${database} ${options} \
+command="$server_path/openerp-server -d ${database} ${options} \
 --stop-after-init  --log-level test \
 --addons-path=${addons_path} \
 -i ${tested_addons}"
 
 echo
 echo ${command}
-coverage run $command | tee stdout.log
 
-if $(grep -v mail stdout.log | egrep -q "(At least one test failed when loading the modules.|ERROR ${database})")
-then
-    exit 1
-else
-    exit 0
-fi
+case ${version} in 
+    5.0|6.0|6.1|7.0)
+        coverage run $command | tee stdout.log
 
+        if $(grep -v mail stdout.log | egrep -q "(At least one test failed when loading the modules.|ERROR ${database})")
+        then
+            exit 1
+        else
+            exit 0
+        fi
+        ;;
+    *)
+        coverage run $command
+        exit $?
+        ;;
+esac

@@ -4,14 +4,14 @@ import sys
 import os
 module_path = sys.argv[1]
 
-if module_path.endswith('_unported'):
+if '__unported__' in module_path or not os.path.isdir(module_path):
     sys.exit(1)
 for name in ['__openerp__.py', '__odoo__.py', '__terp__.py']:
     file_name = os.path.join(module_path, name)
     if os.path.isfile(file_name):
         with open(file_name) as fobj:
             metadata = eval(fobj.read())
-        if metadata.get('installable'):
+        if metadata.get('installable', True):
             sys.exit(0)
         else:
             sys.exit(1)
