@@ -13,13 +13,13 @@ to your project’s root directory.
 If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
 
     install:
-      - git clone https://github.com/OCA/a_project_x $HOME/a_project_x -b 7.0
-      - git clone https://github.com/OCA/a_project_y $HOME/a_project_y -b 7.0
+      - git clone https://github.com/OCA/a_project_x ${HOME}/a_project_x -b ${VERSION}
+      - git clone https://github.com/OCA/a_project_y ${HOME}/a_project_y -b ${VERSION}
 
 And add path to the cloned repositories to the `travis_run_tests` command:
 
     script:
-      - travis_run_tests 7.0 $HOME/a_project_x $HOME/a_project_y
+      - travis_run_tests ${VERSION} $HOME/a_project_x ${HOME}/a_project_y
 
 Sample coveralls configuration file
 ------------------------------------
@@ -31,7 +31,7 @@ project:
 
     [report]
     include =
-        */OCA/<YOUR_PROJECT_NAME_HERE>/*
+        */<YOUR_PROJECT_NAME_HERE>/*
 
     omit =
         */tests/*
