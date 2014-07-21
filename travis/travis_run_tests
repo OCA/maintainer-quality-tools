@@ -24,24 +24,22 @@ IFS="/" read -a REPO <<< "$ODOO_REPO"
 server_path="../${REPO[1]}-${VERSION}"
 addons_path="`get-addons ${TRAVIS_BUILD_DIR} ${HOME} ${server_path}/addons`"
 
+if [ -z "${EXCLUDE}" ] ; then
+    tested_addons="`get-addons -m ${TRAVIS_BUILD_DIR}`"
+else
+    tested_addons="`get-addons -m -e ${EXCLUDE} ${TRAVIS_BUILD_DIR}`"
+fi
+
 echo "Working in ${TRAVIS_BUILD_DIR}"
 ls ${TRAVIS_BUILD_DIR}
 echo "Using repo ${ODOO_REP} and addons path ${addons_path}"
+echo "Modules to test: ${tested_addons}"
 
-tested_addons="`get-addons -m ${TRAVIS_BUILD_DIR}`"
 
-
-if [ ! -v tested_addons ]
-then
-    echo "no addon to test"
-    # should we error?
-    exit 0
-fi
-
-createdb ${database}
 # setup the base module without running the tests
 echo
-echo setting up the database
+echo "Setting up the database"
+createdb ${database}
 $server_path/openerp-server -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i ${tested_addons}
 
 command="$server_path/openerp-server -d ${database} ${options} \
