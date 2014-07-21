@@ -2,14 +2,12 @@
 
 #
 # USAGE
-# travis_run_tests.sh VERSION [dependency_repo_1...]
+# travis_run_tests.sh
 
 database=openerp_test 
 
-version=$1
-shift 1
 
-case ${version} in 
+case ${VERSION} in 
     6.1)
         options=""
         install_options="--test-disable"
@@ -23,35 +21,15 @@ esac
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "$ODOO_REPO"
 
-server_path="../${REPO[1]}-$version"
-addons_path="$server_path/addons"
-echo "Using repo $ODOO_REPO and addons path $addons_path"
+server_path="../${REPO[1]}-${VERSION}"
+addons_path="`get-addons ${TRAVIS_BUILD_DIR} ${HOME} ${server_path}/addons`"
 
-
-for repo in "$@" $TRAVIS_BUILD_DIR; 
-do
-    addons_path=${repo},${addons_path}
-done
-
-
-echo "working in $TRAVIS_BUILD_DIR"
+echo "Working in ${TRAVIS_BUILD_DIR}"
 ls ${TRAVIS_BUILD_DIR}
-for name in $(ls ${TRAVIS_BUILD_DIR});
-do
-    echo "considering $name"
-    stripped_name=$(echo ${name} | sed 's/_unported$//')
-    if check_installable ${TRAVIS_BUILD_DIR}/${name}
-    then
-        if [ -v tested_addons ]
-        then
-            tested_addons=${name},${tested_addons}
-        else
-            tested_addons=$name
-        fi
-    else
-        echo " -> probably not an addon"
-    fi
-done
+echo "Using repo ${ODOO_REP} and addons path ${addons_path}"
+
+tested_addons="`get-addons -m ${TRAVIS_BUILD_DIR}`"
+
 
 if [ ! -v tested_addons ]
 then
@@ -71,10 +49,10 @@ command="$server_path/openerp-server -d ${database} ${options} \
 --addons-path=${addons_path} \
 -i ${tested_addons}"
 
-echo
-echo ${command}
+echo "Server initialization command:"
+echo "${command}"
 
-case ${version} in 
+case ${VERSION} in 
     5.0|6.0|6.1|7.0)
         coverage run $command | tee stdout.log
 

@@ -19,8 +19,8 @@ env:
   # - VERSION="6.0"  # Test script not ready for v6.0
 
 install:
-  #- git clone https://github.com/OCA/maintainer-quality-tools.git $HOME/maintainer-quality-tools
-  - cp -r ../maintainer-quality-tools/ $HOME  # for maintainer-quality-tools self tests only
+  - cp -r ../maintainer-quality-tools/ $HOME
+  - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly $VERSION
 
@@ -28,5 +28,5 @@ script:
   - travis_run_flake8
   - travis_run_tests ${VERSION}
 
-after_success:
-  coveralls
+#after_success:
+#  coveralls
