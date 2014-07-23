@@ -1,6 +1,9 @@
 #!/bin/bash
 
-ODOO_URL="https://github.com/odoo/odoo/archive/$1.tar.gz"
+: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
+IFS="/" read -a REPO <<< "${ODOO_REPO}"
+ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${1}.tar.gz"
+
 echo "Installing Odoo ${ODOO_URL}"
 wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
