@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/OCA/maintainer-quality-tools.svg)](https://travis-ci.org/OCA/maintainer-quality-tools)
+
 QA Tools for Odoo maintainers
 =============================
 
