@@ -2,5 +2,7 @@
 {
     'name': 'Empty module for tests',
     'version': '1.0',
-    'depends': ['base'],
+    'depends': [
+        'base',
+        'partner_auto_salesman'],
 }

@@ -16,15 +16,13 @@ If your project depends on other OCA/Github repositories simply add the followin
       - git clone https://github.com/OCA/a_project_x ${HOME}/a_project_x -b ${VERSION}
       - git clone https://github.com/OCA/a_project_y ${HOME}/a_project_y -b ${VERSION}
 
-And add path to the cloned repositories to the `travis_run_tests` command:
+The addons path used will automatically consider these repositories.
 
-    script:
-      - travis_run_tests ${VERSION} $HOME/a_project_x ${HOME}/a_project_y
 
 Sample coveralls configuration file
 ------------------------------------
 
-You can use the following sample (also available in the travis directory) to
+You can use the following sample (also available in the `sample_files` directory) to
 configure the reporting by coveralls.io. Copy it to `.coveragerc` in the root
 of your project, and change the include value to match the name of your
 project:
