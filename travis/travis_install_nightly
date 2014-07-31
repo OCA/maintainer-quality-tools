@@ -14,7 +14,7 @@ echo "Installing Odoo ${ODOO_URL}"
 wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
 
-sudo apt-get install python-lxml  # because pip installation is slooow
+sudo apt-get -q install python-lxml  # because pip installation is slooow
 
-pip install QUnitSuite flake8 coveralls
-pip install -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+pip install -q QUnitSuite flake8 coveralls
+pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt

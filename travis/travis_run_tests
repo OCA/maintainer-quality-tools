@@ -3,7 +3,7 @@
 # USAGE
 # travis_run_tests.sh
 
-database=openerp_test 
+database=openerp_test
 
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
