@@ -1,11 +1,15 @@
 #!/bin/bash
-
 #
 # USAGE
 # travis_run_tests.sh
 
-database=openerp_test 
+database=openerp_test
 
+# For backward compatibility, take version from parameter if it's not globally set
+if [ "x${VERSION}" == "x" ] ; then
+    VERSION="${1}"
+    echo "WARNING: no env variable set for VERSION. Using '${1}'."
+fi
 
 case ${VERSION} in 
     6.1)

@@ -16,18 +16,19 @@ env:
   - VERSION="7.0" ODOO_REPO="odoo/odoo"
   - VERSION="7.0" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
   - VERSION="6.1"
+  - VERSION=""  # test falback to script argument
   # - VERSION="6.0"  # Test script not ready for v6.0
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - git clone https://github.com/OCA/partner-contact ${HOME}/department -b ${VERSION}
-  - travis_install_nightly $VERSION
+  - git clone https://github.com/OCA/partner-contact ${HOME}/department -b 8.0 # only used if VERSION not set in env
+  - travis_install_nightly 8.0 # only used if VERSION not set in env
 
 script:
   - travis_run_flake8
-  - travis_run_tests ${VERSION}
+  - travis_run_tests 8.0 #only used if VERSION not set in env
 
 #after_success:
 #  coveralls

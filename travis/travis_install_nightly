@@ -1,14 +1,20 @@
 #!/bin/bash
 
+# For backward compatibility, take version from parameter if it's not globally set
+if [ "x${VERSION}" == "x" ] ; then
+    VERSION="${1}"
+    echo "WARNING: no env variable set for VERSION. Using '${1}'."
+fi
+
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
-ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${1}.tar.gz"
+ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
 
 echo "Installing Odoo ${ODOO_URL}"
 wget -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ../
 
-sudo apt-get install python-lxml  # because pip installation is slooow
+sudo apt-get -q install python-lxml  # because pip installation is slooow
 
-pip install QUnitSuite flake8 coveralls
-pip install -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+pip install -q QUnitSuite flake8 coveralls
+pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
