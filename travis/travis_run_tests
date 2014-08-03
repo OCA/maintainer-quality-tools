@@ -66,23 +66,20 @@ def main():
     print(command)
 
     try:
-        if odoo_version <= "7.0":
-            subprocess.check_call(command + " | tee stdout.log", shell=True)
-            # Find errors, except from failed mails
-            stdout = open("stdout.log").readlines()
-            errors = [
-                x for x in stdout
-                if "mail" not in x
-                and ("ERROR %s" % database in x
-                     or "At least one test failed" in x)]
-            if errors:
-                result = 1
-        else:
-            subprocess.check_call(command, shell=True)
-        result = 0
+        # Run test command; unbuffer keeps output colors
+        subprocess.check_call("unbuffer " + command + " | tee stdout.log", shell=True)
+        # Find errors, except from failed mails
+        stdout = open("stdout.log").readlines()
+        errors = [
+            x for x in stdout
+            if "mail" not in x
+            and ("ERROR %s" % database in x
+                 or "At least one test failed" in x)]
+        if errors:
+            exit(1)
+        exit(0)
     except subprocess.CalledProcessError:
-        result = 1
-    exit(result)
+        exit(1)
 
 
 if __name__ == '__main__':
