@@ -10,6 +10,19 @@ from getaddons import get_addons
 from getaddons import get_modules
 
 
+def has_test_errors(stdout, database):
+    """
+    Check a list of log lines for test errors.
+    Extension point to detect false positives.
+    """
+    errors = [
+        x for x in stdout
+        if "mail" not in x
+        and ("ERROR %s" % database in x
+             or "At least one test failed" in x)]
+    return len(errors)
+
+
 def main():
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
@@ -52,35 +65,30 @@ def main():
     ## setup the base module without running the tests
     print("\nCreating test instance:")
     database = "openerp_test"
-    subprocess.call("createdb " + database, shell=True)
-    subprocess.call(
-        "%s/openerp-server %s -d %s --stop-after-init "
-        "--addons-path=%s --init=%s"
-        % (server_path, install_options, database, addons_path, tested_addons),
-        shell=True)
+    subprocess.check_call("createdb %s" % database, shell=True)
 
-    print("\nRunning server tests:")
-    command = ("coverage run %s/openerp-server %s -d %s --stop-after-init "
+    cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
+               "--addons-path=%s --init=%s"
+    cmd_options = (server_path, install_options, database,
+                   addons_path, tested_addons)
+    subprocess.check_call(cmd_odoo % cmd_options, shell=True)
+
+    print("\nRunning tests:")
+    cmd_odoo = "coverage run %s/openerp-server %s -d %s --stop-after-init " \
                "--addons-path=%s --init=%s --log-level=test"
-               ) % (server_path, options, database, addons_path, tested_addons)
+    cmd_options = (server_path, options, database,
+                   addons_path, tested_addons)
+    command = cmd_odoo % cmd_options
     print(command)
-
-    try:
-        # Run test command; unbuffer keeps output colors
-        subprocess.check_call("unbuffer " + command + " | tee stdout.log", shell=True)
-        # Find errors, except from failed mails
-        stdout = open("stdout.log").readlines()
-        errors = [
-            x for x in stdout
-            if "mail" not in x
-            and ("ERROR %s" % database in x
-                 or "At least one test failed" in x)]
-        if errors:
-            exit(1)
-        exit(0)
-    except subprocess.CalledProcessError:
-        exit(1)
-
+    # Run test command; unbuffer keeps output colors
+    command_call = "unbuffer | %s | tee stdout.log" % command
+    subprocess.check_call(command_call, shell=True)
+    # Find errors, except from failed mails
+    stdout = open("stdout.log").readlines()
+    if has_test_errors(stdout, database):
+        return(1)
+    # if we get here, all is OK
+    return(0)
 
 if __name__ == '__main__':
-    main()
+    exit(main())
