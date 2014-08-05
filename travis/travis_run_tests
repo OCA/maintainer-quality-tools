@@ -1,72 +1,94 @@
-#!/bin/bash
-#
-# USAGE
-# travis_run_tests.sh
+#!/usr/bin/env python
 
-database=openerp_test
+from __future__ import unicode_literals
+from __future__ import print_function
 
-# For backward compatibility, take version from parameter if it's not globally set
-if [ "x${VERSION}" == "x" ] ; then
-    VERSION="${1}"
-    echo "WARNING: no env variable set for VERSION. Using '${1}'."
-fi
-
-case ${VERSION} in 
-    6.1)
-        options=""
-        install_options="--test-disable"
-        ;;
-    *)
-        options="--test-enable"
-        install_options=""
-        ;;
-esac
-
-: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
-IFS="/" read -a REPO <<< "$ODOO_REPO"
-
-server_path="../${REPO[1]}-${VERSION}"
-addons_path="`get-addons ${TRAVIS_BUILD_DIR} ${HOME} ${server_path}/addons`"
-
-if [ -z "${EXCLUDE}" ] ; then
-    tested_addons="`get-addons -m ${TRAVIS_BUILD_DIR}`"
-else
-    tested_addons="`get-addons -m -e ${EXCLUDE} ${TRAVIS_BUILD_DIR}`"
-fi
-
-echo "Working in ${TRAVIS_BUILD_DIR}"
-ls ${TRAVIS_BUILD_DIR}
-echo "Using repo ${ODOO_REP} and addons path ${addons_path}"
-echo "Modules to test: ${tested_addons}"
+import os
+import subprocess
+import sys
+from getaddons import get_addons
+from getaddons import get_modules
 
 
-# setup the base module without running the tests
-echo
-echo "Setting up the database"
-createdb ${database}
-$server_path/openerp-server -d ${database} --addons-path=${addons_path} ${install_options} --stop-after-init -i ${tested_addons}
+def has_test_errors(stdout, database):
+    """
+    Check a list of log lines for test errors.
+    Extension point to detect false positives.
+    """
+    errors = [
+        x for x in stdout
+        if "mail" not in x
+        and ("ERROR %s" % database in x
+             or "At least one test failed" in x)]
+    return len(errors)
 
-command="$server_path/openerp-server -d ${database} ${options} \
---stop-after-init  --log-level test \
---addons-path=${addons_path} \
--i ${tested_addons}"
 
-echo "Server initialization command:"
-echo "${command}"
+def main():
+    travis_home = os.environ.get("HOME", "~/")
+    travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
+    odoo_exclude = os.environ.get("EXCLUDE")
+    odoo_version = os.environ.get("VERSION")
+    if not odoo_version:
+        # For backward compatibility, take version from parameter
+        # if it's not globally set
+        odoo_version = sys.argv[1]
+        print("WARNING: no env variable set for VERSION. "
+              "Using '%s'" % odoo_version)
 
-case ${VERSION} in 
-    5.0|6.0|6.1|7.0)
-        coverage run $command | tee stdout.log
+    if odoo_version == "6.1":
+        options = ""
+        install_options = "--test-disable"
+    else:
+        options = "--test-enable"
+        install_options = ""
 
-        if $(grep -v mail stdout.log | egrep -q "(At least one test failed when loading the modules.|ERROR ${database})")
-        then
-            exit 1
-        else
-            exit 0
-        fi
-        ;;
-    *)
-        coverage run $command
-        exit $?
-        ;;
-esac
+    odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
+    odoo_org, odoo_repo = odoo_full.split('/')
+    server_path = "../%s-%s" % (odoo_repo, odoo_version)
+    addons_path_list = (
+        get_addons(travis_build_dir) +
+        get_addons(travis_home) +
+        get_addons(server_path + "/addons"))
+    addons_path = ','.join(addons_path_list)
+
+    tested_addons_list = get_modules(travis_build_dir)
+    if odoo_exclude:
+        tested_addons_list = [
+            x for x in tested_addons_list
+            if x not in odoo_exclude.split(',')]
+    tested_addons = ','.join(tested_addons_list)
+
+    print("Working in %s" % travis_build_dir)
+    print("Using repo %s and addons path %s" % (odoo_full, addons_path))
+    print("Modules to test: %s" % tested_addons)
+
+    ## setup the base module without running the tests
+    print("\nCreating test instance:")
+    database = "openerp_test"
+    subprocess.check_call("createdb %s" % database, shell=True)
+
+    cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
+               "--addons-path=%s --init=%s"
+    cmd_options = (server_path, install_options, database,
+                   addons_path, tested_addons)
+    subprocess.check_call(cmd_odoo % cmd_options, shell=True)
+
+    print("\nRunning tests:")
+    cmd_odoo = "coverage run %s/openerp-server %s -d %s --stop-after-init " \
+               "--addons-path=%s --init=%s --log-level=test"
+    cmd_options = (server_path, options, database,
+                   addons_path, tested_addons)
+    command = cmd_odoo % cmd_options
+    print(command)
+    # Run test command; unbuffer keeps output colors
+    command_call = "unbuffer | %s | tee stdout.log" % command
+    subprocess.check_call(command_call, shell=True)
+    # Find errors, except from failed mails
+    stdout = open("stdout.log").readlines()
+    if has_test_errors(stdout, database):
+        return(1)
+    # if we get here, all is OK
+    return(0)
+
+if __name__ == '__main__':
+    exit(main())
