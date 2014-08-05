@@ -33,6 +33,10 @@ def has_test_errors(fname, database):
     return len(errors)
 
 
+def parse_list(comma_sep_list):
+    return [x.strip() for x in comma_sep_list.split(',')]
+
+
 def main():
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
@@ -63,13 +67,15 @@ def main():
     addons_path = ','.join(addons_path_list)
 
     if odoo_include:
-        tested_addons_list = odoo_include.split(',')
+        tested_addons_list = parse_list(odoo_include)
     else:
         tested_addons_list = get_modules(travis_build_dir)
+
     if odoo_exclude:
+        exclude_list = parse_list(odoo_exclude)
         tested_addons_list = [
             x for x in tested_addons_list
-            if x not in odoo_exclude.split(',')]
+            if x not in exclude_list]
     tested_addons = ','.join(tested_addons_list)
 
     print("Working in %s" % travis_build_dir)
