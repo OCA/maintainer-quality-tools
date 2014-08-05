@@ -37,6 +37,7 @@ def main():
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     odoo_exclude = os.environ.get("EXCLUDE")
+    odoo_include = os.environ.get("INCLUDE")
     odoo_version = os.environ.get("VERSION")
     if not odoo_version:
         # For backward compatibility, take version from parameter
@@ -61,7 +62,10 @@ def main():
         get_addons(server_path + "/addons"))
     addons_path = ','.join(addons_path_list)
 
-    tested_addons_list = get_modules(travis_build_dir)
+    if odoo_include:
+        tested_addons_list = odoo_include.split(',')
+    else:
+        tested_addons_list = get_modules(travis_build_dir)
     if odoo_exclude:
         tested_addons_list = [
             x for x in tested_addons_list

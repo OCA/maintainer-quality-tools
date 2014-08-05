@@ -12,7 +12,7 @@ virtualenv:
 
 env:
   - VERSION="master" EXCLUDE="test_module"  # EXCLUDE usage example
-  - VERSION="8.0"
+  - VERSION="8.0" INCLUDE="test_module"  # INCLUDE usage example
   - VERSION="7.0" ODOO_REPO="odoo/odoo"
   - VERSION="7.0" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
   - VERSION="6.1"
