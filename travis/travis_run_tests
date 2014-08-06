@@ -81,7 +81,7 @@ def main():
     command = cmd_odoo % cmd_options
     print(command)
     # Run test command; unbuffer keeps output colors
-    command_call = "unbuffer | %s | tee stdout.log" % command
+    command_call = "unbuffer %s | tee stdout.log" % command
     subprocess.check_call(command_call, shell=True)
     # Find errors, except from failed mails
     stdout = open("stdout.log").readlines()
