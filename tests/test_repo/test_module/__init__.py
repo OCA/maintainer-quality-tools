@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-# none
+from . import dummy_model
