@@ -70,7 +70,12 @@ def main():
 
     print("Working in %s" % travis_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
-    print("Modules to test: %s" % tested_addons)
+
+    if not tested_addons:
+        print("WARNING!\nNothing to test- exiting early.")
+        return 0
+    else:
+        print("Modules to test: %s" % tested_addons)
 
     ## setup the base module without running the tests
     print("\nCreating test instance:")
