@@ -33,6 +33,7 @@ def main(test_list):
 
     return(max(results))
 
+
 if __name__ == '__main__':
     # Test list
     tests = [
