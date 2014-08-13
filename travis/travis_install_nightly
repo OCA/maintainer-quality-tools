@@ -29,4 +29,5 @@ pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 #     |___ <DependencyRepo1>/
 #     |___ <DependencyRepo2>/
 #     |...
+echo "Content of ${HOME}:"
 ls -l ${HOME}
