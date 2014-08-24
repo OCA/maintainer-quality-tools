@@ -19,4 +19,4 @@ IFS="/" read -a REPO <<< "${ODOO_REPO}"
 pylint --rcfile=../maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg ../${REPO[1]}-${VERSION}/openerp
 pylint_status=$?#return score of test
 #exit $((${pylint_status}))#TODO: Criteria to set status
-exit (0)#FIXME: success exit
+exit 0 #FIXME: success exit
