@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -v
+
+# For backward compatibility, take version from parameter if it's not globally set
+if [ "x${VERSION}" == "x" ] ; then
+    VERSION="${1}"
+    echo "WARNING: no env variable set for VERSION. Using '${1}'."
+fi
+
+if [ "x${VERSION}" == "x" ] ; then
+    VERSION="8.0"
+    echo "WARNING: no env and parameter variable set for VERSION. Using default '${VERSION}'."
+fi
+
+: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
+IFS="/" read -a REPO <<< "${ODOO_REPO}"
+
+#pylint --rcfile=../maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg ../${REPO[1]}-${VERSION}/openerp
+pylint --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" --rcfile=cfg/travis_run_pylint.cfg -d all -e C0301 -r n  ../${REPO[1]}-${VERSION}/openerp
+pylint_status=$?
+exit $((${pylint_status}))
