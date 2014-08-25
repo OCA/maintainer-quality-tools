@@ -2,6 +2,7 @@
 
 set -v
 
-pylint --rcfile=../maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg *
+PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg *
 pylint_status=$?
 exit $((${pylint_status}))
