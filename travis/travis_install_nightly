@@ -20,3 +20,11 @@ sudo apt-get -q install antiword pdftotext
 
 pip install -q QUnitSuite flake8 coveralls
 pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+
+
+#webkit patched process
+sudo apt-get -q install wkhtmltopdf
+mkdir -p /tmp/webkit_patched
+wget -O /tmp/webkit_patched/wkhtmltopdf.tar.bz2 https://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
+bzip2 -dc /tmp/webkit_patched/wkhtmltopdf.tar.bz2 | tar -xvO >/tmp/webkit_patched/webkit-patched
+sudo cp /tmp/webkit_patched/webkit-patched /usr/bin/wkhtmltopdf
