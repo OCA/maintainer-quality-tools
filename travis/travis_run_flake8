@@ -2,8 +2,10 @@
 
 set -v
 
-flake8 . --config=../maintainer-quality-tools/travis/cfg/travis_run_flake8__init__.cfg
+LINE_LENGTH=80
+
+flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401 --exclude=__unported__
 status1=$?
-flake8 . --config=../maintainer-quality-tools/travis/cfg/travis_run_flake8.cfg
+flake8 . --max-line-length=${LINE_LENGTH} --exclude=__unported__,__init__.py
 status2=$?
 exit $((${status1} || ${status2}))
