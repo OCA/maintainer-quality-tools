@@ -16,6 +16,7 @@ tar -xf odoo.tar.gz -C ../
 
 sudo apt-get -q install expect-dev  # provides unbuffer utility
 sudo apt-get -q install python-lxml  # because pip installation is slooow
+sudo apt-get -q install antiword pdftotext #Use into ../addons/document/std_index.py
 
 pip install -q QUnitSuite flake8 coveralls
 pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
