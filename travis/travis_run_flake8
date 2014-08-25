@@ -2,10 +2,10 @@
 
 set -v
 
-LINE_LENGTH=80
+FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
 
-flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401 --exclude=__unported__
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
 status1=$?
-flake8 . --max-line-length=${LINE_LENGTH} --exclude=__unported__,__init__.py
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8.cfg
 status2=$?
 exit $((${status1} || ${status2}))
