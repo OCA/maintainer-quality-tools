@@ -18,7 +18,7 @@ ERRORS_REPORT = [
     'ERROR %s' % DATABASE,
     'CRITICAL %s' % DATABASE,
     'At least one test failed',
-    #'no access rules, consider adding one',
+    'no access rules, consider adding one',
     ]
 
 
