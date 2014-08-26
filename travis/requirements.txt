@@ -33,3 +33,5 @@ vatnumber
 vobject
 werkzeug
 xlwt
+PyWebDAV
+mygengo
