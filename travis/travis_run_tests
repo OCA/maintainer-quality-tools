@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+# coding: utf-8
 
 from __future__ import print_function
+from __future__ import unicode_literals
 import subprocess
 import sys
 
@@ -14,11 +16,20 @@ def main(test_list):
         res = subprocess.call(test_w_args)
         results.append(res)
 
-    print("\nTests summary:")
-    print("="*20)
-    for test, res in zip(test_list, results):
-        print("| %s\t\t%s" % (' '.join(test), res))
-    print("="*20)
+    RED = "\033[1;31m"
+    GREEN = "\033[1;32m"
+    CLEAR = "\033[0;m"
+    fail_msg = RED + "FAIL" + CLEAR
+    success_msg = GREEN + "Success" + CLEAR
+    print()
+    print("╔" + "═"*30 + "╗")
+    print("║ Tests summary:")
+    print("╠" + "═"*30 + "╣")
+    for test, error in zip(test_list, results):
+        desc = ' '.join(test)
+        outcome = fail_msg if error else success_msg
+        print("║ %s\t\t%s" % (desc, outcome))
+    print("╚" + "═"*30 + "╝")
 
     return(max(results))
 
