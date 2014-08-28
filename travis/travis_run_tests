@@ -2,22 +2,28 @@
 
 from __future__ import print_function
 import subprocess
+import sys
 
 
 def main(test_list):
+    args = sys.argv[1:]
     results = []
     for test in test_list:
-        res = subprocess.call(test)
+        # keep backward compatibility with version as an argument
+        test_w_args = test + args
+        res = subprocess.call(test_w_args)
         results.append(res)
 
+    print("\nTests summary:")
     print("="*20)
     for test, res in zip(test_list, results):
-        print("| %s\t%s" % (' '.join(test), res))
+        print("| %s\t\t%s" % (' '.join(test), res))
     print("="*20)
 
     return(max(results))
 
 if __name__ == '__main__':
+    # Test list
     tests = [
         ['test_flake8'],
         # ['test_pylint'],
