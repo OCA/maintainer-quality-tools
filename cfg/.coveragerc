@@ -1,18 +1,20 @@
 # Config file .coveragerc
-# adapt the include for your project
 
 [report]
 include =
-    */OCA/<YOUR_PROJECT_NAME_HERE>/*
+    */build/*
 
 omit =
+    */scenario/*
+    */scenarios/*
+    */test/*
     */tests/*
     *__init__.py
+    *__openerp__.py
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
     # Have to re-enable the standard pragma
     pragma: no cover
-
     # Don't complain about null context checking
     if context is None:
