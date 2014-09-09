@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -v
+
+FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
+
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
+status1=$?
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8.cfg
+status2=$?
+exit $((${status1} || ${status2}))
