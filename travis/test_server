@@ -9,26 +9,45 @@ from getaddons import get_addons
 from getaddons import get_modules
 
 
-def has_test_errors(fname, database):
+DATABASE = "openerp_test"
+
+
+def has_test_errors(fname, dbname, odoo_version):
     """
     Check a list of log lines for test errors.
     Extension point to detect false positives.
     """
-    print("--------")
+    # Rules defining checks to perform
+    ERRORS_IGNORE = [
+        'Mail delivery failed',
+        'failed sending mail',
+        ]
+    ERRORS_REPORT = [
+        'CRITICAL %s' % DATABASE,
+        'At least one test failed',
+        #'no access rules, consider adding one',
+        ]
+    # Only check ERROR lines before 7.0
+    if odoo_version < '7.0':
+        ERRORS_REPORT += ['ERROR %s' % dbname]
+
+    print("-"*10)
     # Read log file removing ASCII color escapes:
     # http://serverfault.com/questions/71285
     cmd = 'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" %s' % fname
     stdout = subprocess.check_output(cmd, shell=True).split('\n')
     errors = [
-        x for x in stdout
-        if "mail" not in x
-        and ("ERROR %s" % database in x
-             or "CRITICAL %s" % database in x
-             or "At least one test failed" in x)]
+        line for line in stdout
+        if any([err for err in ERRORS_REPORT if err in line])
+        and not any([msg for msg in ERRORS_IGNORE if msg in line])
+    ]
+    if not any([l for l in stdout if 'Modules loaded.' in l]):
+        errors.append("ERROR: Modules loaded message not found.")
+
     if errors:
-        print("--------")
         for e in errors:
             print(e)
+        print("-"*10)
     return len(errors)
 
 
@@ -89,7 +108,7 @@ def main():
 
     ## setup the base module without running the tests
     print("\nCreating test instance:")
-    database = "openerp_test"
+    database = DATABASE
     subprocess.check_call("createdb %s" % database, shell=True)
 
     cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
@@ -109,7 +128,7 @@ def main():
     command_call = "unbuffer %s | tee stdout.log" % command
     subprocess.check_call(command_call, shell=True)
     # Find errors, except from failed mails
-    errors = has_test_errors("stdout.log", database)
+    errors = has_test_errors("stdout.log", database, odoo_version)
     if errors:
         print("Found %d lines with errors" % errors)
         return 1
