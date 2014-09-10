@@ -10,23 +10,27 @@ from getaddons import get_modules
 
 
 DATABASE = "openerp_test"
-ERRORS_IGNORE = [
-    'Mail delivery failed',
-    'failed sending mail',
-    ]
-ERRORS_REPORT = [
-    'ERROR %s' % DATABASE,
-    'CRITICAL %s' % DATABASE,
-    'At least one test failed',
-    'no access rules, consider adding one',
-    ]
 
 
-def has_test_errors(fname):
+def has_test_errors(fname, dbname, odoo_version):
     """
     Check a list of log lines for test errors.
     Extension point to detect false positives.
     """
+    # Rules defining checks to perform
+    ERRORS_IGNORE = [
+        'Mail delivery failed',
+        'failed sending mail',
+        ]
+    ERRORS_REPORT = [
+        'CRITICAL %s' % DATABASE,
+        'At least one test failed',
+        #'no access rules, consider adding one',
+        ]
+    # Only check ERROR lines before 7.0
+    if odoo_version < '7.0':
+        ERRORS_REPORT += ['ERROR %s' % dbname]
+
     print("-"*10)
     # Read log file removing ASCII color escapes:
     # http://serverfault.com/questions/71285
@@ -124,7 +128,7 @@ def main():
     command_call = "unbuffer %s | tee stdout.log" % command
     subprocess.check_call(command_call, shell=True)
     # Find errors, except from failed mails
-    errors = has_test_errors("stdout.log")
+    errors = has_test_errors("stdout.log", database, odoo_version)
     if errors:
         print("Found %d lines with errors" % errors)
         return 1
