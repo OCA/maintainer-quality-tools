@@ -21,7 +21,7 @@ pip install -q QUnitSuite flake8 coveralls
 pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
 # Use reference .coveragerc
-cp $(HOME)/maintainer-quality-tools/cfg/.coveragerc .
+cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
 # Expected directory structure:
 #
