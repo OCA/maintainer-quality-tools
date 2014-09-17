@@ -3,7 +3,7 @@
 QA Tools for Odoo maintainers
 =============================
 
-The goal is to provide helpers to ensure the quality of Odoo addons. 
+The goal is to provide helpers to ensure the quality of Odoo addons.
 
 Sample travis configuration file (for version 7.0)
 --------------------------------------------------
@@ -21,26 +21,21 @@ If your project depends on other OCA/Github repositories simply add the followin
 The addons path used will automatically consider these repositories.
 
 
-Sample coveralls configuration file
-------------------------------------
+Module unit tests
+-----------------
 
-You can use the following sample (also available in the `sample_files` directory) to
-configure the reporting by coveralls.io. Copy it to `.coveragerc` in the root
-of your project, and change the include value to match the name of your
-project:
+The quality tools now are also capable to test each module individually.
+This is intended to check if all dependencies are correctly defined.
+This is activated through the `UNIT_TEST` directive.
+For current repositories to benefit this, an additional line should be added to the `env:` section,
+similar to this one:
 
-    [report]
-    include =
-        */<YOUR_PROJECT_NAME_HERE>/*
+    - VERSION="8.0" UNIT_TEST="1"
 
-    omit =
-        */tests/*
-        *__init__.py
 
-    # Regexes for lines to exclude from consideration
-    exclude_lines =
-        # Have to re-enable the standard pragma
-        pragma: no cover
+Coveralls configuration file
+----------------------------
 
-        # Don't complain about null context checking
-        if context is None:
+Coveralls provides information on the test coverage of your modules.
+Currently the Coveralls configuration is automatic, so you don’t need to include a `.coveragerc`
+to the repository. Please note that if you do, it will be ignored.
