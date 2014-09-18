@@ -159,7 +159,7 @@ def main():
 
     preinstall_modules = 'mail' if odoo_unittest else tested_addons
     cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
-               "--addons-path=%s --init=%s"
+               "--addons-path=%s --init=%s --log-level=warn"
     cmd_options = (server_path, install_options, dbtemplate,
                    addons_path, preinstall_modules)
     subprocess.check_call(cmd_odoo % cmd_options, shell=True)
@@ -180,6 +180,12 @@ def main():
         if odoo_unittest:
             subprocess.call(["dropdb", database])
             subprocess.call(["createdb", "-T", dbtemplate, database])
+            # preinstall unit tested module to avoid testing dependencies
+            cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
+                       "--addons-path=%s --init=%s --log-level=error"
+            cmd_options = (server_path, install_options, database,
+                           addons_path, to_test)
+            subprocess.check_call(cmd_odoo % cmd_options, shell=True)
 
         cmd_odoo = "coverage run %s/openerp-server %s -d %s" \
                    " --stop-after-init --log-level=%s" \
