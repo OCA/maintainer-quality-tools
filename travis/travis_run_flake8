@@ -1,11 +1,3 @@
 #!/bin/bash
-
-set -v
-
-LINE_LENGTH=80
-
-flake8 . --max-line-length=${LINE_LENGTH} --filename=__init__.py --ignore=F401 --exclude=__unported__
-status1=$?
-flake8 . --max-line-length=${LINE_LENGTH} --exclude=__unported__,__init__.py
-status2=$?
-exit $((${status1} || ${status2}))
+echo "WARNING: calling 'travis_run_flake8' is deprecated."
+echo "It can be removed from your '.travis.yml'"
