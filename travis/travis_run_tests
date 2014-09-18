@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # Test list
     tests = [
         ['test_flake8'],
-        # ['test_pylint'],
+        ['test_pylint'],
         ['test_server'],
     ]
     exit(main(tests))
