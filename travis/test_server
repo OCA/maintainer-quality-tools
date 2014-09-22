@@ -129,7 +129,7 @@ def main():
         subprocess.call(["createdb", "-T", dbtemplate, database])
 
         cmd_odoo = "coverage run %s/openerp-server %s -d %s" \
-                   " --stop-after-init --log-level=test" \
+                   " --stop-after-init --log-level=info" \
                    " --addons-path=%s --init=%s"
         cmd_options = (server_path, options, database,
                        addons_path, to_test)
