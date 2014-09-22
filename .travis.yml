@@ -18,6 +18,7 @@ env:
   - VERSION="6.1"
   - VERSION=""  # test falback to script argument
   # - VERSION="6.0"  # Test script not ready for v6.0
+  - VERSION="8.0" UNIT_TEST="1"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME

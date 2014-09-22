@@ -33,11 +33,12 @@ def main(test_list):
 
     return(max(results))
 
+
 if __name__ == '__main__':
     # Test list
     tests = [
         ['test_flake8'],
-        # ['test_pylint'],
+        ['test_pylint'],
         ['test_server'],
     ]
     exit(main(tests))
