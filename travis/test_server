@@ -43,7 +43,7 @@ def has_test_errors(fname, dbname, odoo_version):
             if isinstance(pattern_list[i], basestring):
                 regex = re.compile(pattern_list[i])
                 pattern_list[i] = lambda x: regex.match(x['message'])
-            elif isinstance(pattern_list[i], re.RegexObject):
+            elif hasattr(pattern_list[i], 'match'):
                 regex = pattern_list[i]
                 pattern_list[i] = lambda x: regex.match(x['message'])
 
