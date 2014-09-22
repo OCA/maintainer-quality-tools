@@ -100,7 +100,7 @@ def main():
 
     print("\nRunning tests:")
     cmd_odoo = "coverage run %s/openerp-server %s -d %s --stop-after-init " \
-               "--addons-path=%s --init=%s --log-level=test"
+               "--addons-path=%s --init=%s --log-level=info"
     cmd_options = (server_path, options, database,
                    addons_path, tested_addons)
     command = cmd_odoo % cmd_options
