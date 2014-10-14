@@ -69,9 +69,9 @@ def main():
               "Using '%s'" % odoo_version)
 
     if odoo_version == "6.1":
-        install_options += "--test-disable"
+        install_options = ''.join([install_options,' ' if install_options else '', "--test-disable"])
     else:
-        options += "--test-enable"
+        options = ''.join([options,' ' if options else '', "--test-enable"])
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     odoo_org, odoo_repo = odoo_full.split('/')
