@@ -11,6 +11,8 @@ virtualenv:
   system_site_packages: true
 
 env:
+  - VERSION="8.0" OPTIONS="--log-level=debug"  # OPTIONS usage example
+  - VERSION="8.0" INSTALL_OPTIONS="--log-level=info"
   - VERSION="master" EXCLUDE="test_module"  # EXCLUDE usage example
   - VERSION="8.0" INCLUDE="test_module"  # INCLUDE usage example
   - VERSION="7.0" ODOO_REPO="odoo/odoo"
