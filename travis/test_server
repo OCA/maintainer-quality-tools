@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import re
 import os
 import subprocess
 import sys
@@ -15,35 +16,80 @@ def has_test_errors(fname, dbname, odoo_version):
     Extension point to detect false positives.
     """
     # Rules defining checks to perform
+    # this can be
+    # - a string which will be checked in a simple substring match
+    # - a regex object that will be matched against the whole message
+    # - a callable that receives a dictionary of the form
+    #     {
+    #         'loglevel': ...,
+    #         'message': ....,
+    #     }
     ERRORS_IGNORE = [
         'Mail delivery failed',
         'failed sending mail',
         ]
     ERRORS_REPORT = [
-        'CRITICAL %s' % dbname,
+        lambda x: x['loglevel'] == 'CRITICAL',
         'At least one test failed',
         'no access rules, consider adding one',
         ]
     # Only check ERROR lines before 7.0
     if odoo_version < '7.0':
-        ERRORS_REPORT += ['ERROR %s' % dbname]
+        ERRORS_REPORT.append(
+            lambda x: x['loglevel'] == 'ERROR')
+
+    def make_pattern_list_callable(pattern_list):
+        for i in range(len(pattern_list)):
+            if isinstance(pattern_list[i], basestring):
+                regex = re.compile(pattern_list[i])
+                pattern_list[i] = lambda x: regex.match(x['message'])
+            elif hasattr(pattern_list[i], 'match'):
+                regex = pattern_list[i]
+                pattern_list[i] = lambda x: regex.match(x['message'])
+
+    make_pattern_list_callable(ERRORS_IGNORE)
+    make_pattern_list_callable(ERRORS_REPORT)
 
     print("-"*10)
     # Read log file removing ASCII color escapes:
     # http://serverfault.com/questions/71285
-    cmd = 'sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" %s' % fname
-    stdout = subprocess.check_output(cmd, shell=True).split('\n')
-    errors = [
-        line for line in stdout
-        if any([err for err in ERRORS_REPORT if err in line])
-        and not any([msg for msg in ERRORS_IGNORE if msg in line])
-    ]
-    if not any([l for l in stdout if 'Modules loaded.' in l]):
-        errors.append("ERROR: Modules loaded message not found.")
+    color_regex = re.compile(r'\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]')
+    log_start_regex = re.compile(
+        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \d+ (?P<loglevel>\w+) '
+        '(?P<db>(%s)|([?])) (?P<logger>\S+): (?P<message>.*)$' % dbname)
+    log_records = []
+    last_log_record = dict.fromkeys(log_start_regex.groupindex.keys())
+    with open(fname) as log:
+        for line in log:
+            line = color_regex.sub('', line)
+            match = log_start_regex.match(line)
+            if match:
+                last_log_record = match.groupdict()
+                log_records.append(last_log_record)
+            else:
+                last_log_record['message'] = '%s\n%s' % (
+                    last_log_record['message'], line.rstrip('\n')
+                )
+    errors = []
+    for log_record in log_records:
+        ignore = False
+        for ignore_pattern in ERRORS_IGNORE:
+            if ignore_pattern(log_record):
+                ignore = True
+                break
+        if ignore:
+            break
+        for report_pattern in ERRORS_REPORT:
+            if report_pattern(log_record):
+                errors.append(log_record['message'])
+                break
+
+    if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+        errors.append({'message': "Modules loaded message not found."})
 
     if errors:
         for e in errors:
-            print(e)
+            print(e['message'])
         print("-"*10)
     return len(errors)
 
