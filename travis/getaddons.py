@@ -13,7 +13,7 @@ import sys
 def is_module(path):
     if not os.path.isdir(path):
         return False
-    manifs = ['__openerp__.py', '__odoo__.py', '__terp.py__', '__init__.py']
+    manifs = ['__openerp__.py', '__odoo__.py', '__terp__.py', '__init__.py']
     files = os.listdir(path)
     filtered = [x for x in files if x in manifs]
     res = len(filtered) == 2 and '__init__.py' in filtered
