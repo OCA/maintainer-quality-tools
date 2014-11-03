@@ -154,33 +154,49 @@ def main():
 
     ## setup the base module without running the tests
     print("\nCreating test instance:")
-    dbtemplate = "openerp_template"
+    dbtemplate = "openerp_test"
     subprocess.check_call("createdb %s" % dbtemplate, shell=True)
 
     preinstall_modules = 'mail' if odoo_unittest else tested_addons
     cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
-               "--addons-path=%s --init=%s"
+               "--addons-path=%s --init=%s --log-level=warn"
     cmd_options = (server_path, install_options, dbtemplate,
                    addons_path, preinstall_modules)
     subprocess.check_call(cmd_odoo % cmd_options, shell=True)
 
     # Running tests
-    database = "openerp_test"
     if odoo_unittest:
+        database = "openerp_unittest"
+        subprocess.call(["createdb", "-T", dbtemplate, database])
         to_test_list = tested_addons_list
+        log_level = "warn"
+        cmd_coverage = ""  # don't calculate coverage
     else:
+        database = "openerp_test"
         to_test_list = [tested_addons]
+        log_level = "test"
+        cmd_coverage = "coverage run "
 
     for to_test in to_test_list:
-        print("\nTesting %s:" % to_test)
-        subprocess.call(["dropdb", database])
-        subprocess.call(["createdb", "-T", dbtemplate, database])
+        print("\n" + "="*40)
+        print("Testing %s:" % to_test)
+        if odoo_unittest:
+            subprocess.call(["dropdb", database])
+            subprocess.call(["createdb", "-T", dbtemplate, database])
+            # preinstall unit tested module to avoid testing dependencies
+            cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
+                       "--addons-path=%s --init=%s --log-level=error"
+            cmd_options = (server_path, install_options, database,
+                           addons_path, to_test)
+            command = cmd_odoo % cmd_options
+            print(command)
+            subprocess.check_call(command, shell=True)
 
-        cmd_odoo = "coverage run %s/openerp-server %s -d %s" \
-                   " --stop-after-init --log-level=info" \
+        cmd_odoo = "%s%s/openerp-server %s -d %s" \
+                   " --stop-after-init --log-level=%s" \
                    " --addons-path=%s --init=%s"
-        cmd_options = (server_path, options, database,
-                       addons_path, to_test)
+        cmd_options = (cmd_coverage, server_path, options, database,
+                       log_level, addons_path, to_test)
         command = cmd_odoo % cmd_options
         print(command)
         # Run test command; unbuffer keeps output colors
