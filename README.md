@@ -37,5 +37,21 @@ Coveralls configuration file
 ----------------------------
 
 Coveralls provides information on the test coverage of your modules.
-Currently the Coveralls configuration is automatic, so you don’t need to include a `.coveragerc`
-to the repository. Please note that if you do, it will be ignored.
+Currently the Coveralls configuration is automatic, so you don't need to include a `.coveragerc`
+to the repository. Please note that if you do it, it will be ignored.
+
+
+Isolated pylint+flake8 checks
+-----------------------------
+If you want to make a build exclusive for these checks, you can add a line
+on the `env:` section of the .travis.yml file with this content:
+
+    - LINT_CHECK="1"
+
+You will get a faster answer about these questions and also a fast view over
+semaphore icons in Travis build view.
+
+To avoid making again these checks on other builds, you have to add
+LINT_CHECK="0" variable on the line:
+
+    - VERSION="7.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
