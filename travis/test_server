@@ -14,7 +14,7 @@ RED = "\033[1;31m"
 CLEAR = "\033[0;m"
 GREEN = "\033[1;32m"
 
-def has_test_errors(fname, dbname, odoo_version):
+def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
     Check a list of log lines for test errors.
     Extension point to detect false positives.
@@ -88,8 +88,9 @@ def has_test_errors(fname, dbname, odoo_version):
                 errors.append(log_record['message'])
                 break
 
-    if not [r for r in log_records if 'Modules loaded.' == r['message']]:
-        errors.append({'message': "Modules loaded message not found."})
+    if check_loaded:
+        if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+            errors.append({'message': "Modules loaded message not found."})
 
     if errors:
         for e in errors:
@@ -189,8 +190,8 @@ def main():
                          "--addons-path", addons_path,
                          ] + options + ["--update", None]
 
-        commands = (cmd_odoo_install,
-                    cmd_odoo_test,
+        commands = ((cmd_odoo_install, False),
+                    (cmd_odoo_test, True),
                     )
     else:
         to_test_list = [tested_addons]
@@ -201,13 +202,13 @@ def main():
                          "--log-level=info",
                          "--addons-path", addons_path,
                          ] + options + ["--init", None]
-        commands = (cmd_odoo_test,
+        commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
         subprocess.call(["createdb", "-T", dbtemplate, database])
-        for command in commands:
+        for command, check_loaded in commands:
             command[-1] = to_test
             print(' '.join(command))
             # Run test command; unbuffer keeps output colors
@@ -221,7 +222,7 @@ def main():
                     print(line.strip())
             returncode = pipe.wait()
             # Find errors, except from failed mails
-            errors = has_test_errors("stdout.log", database, odoo_version)
+            errors = has_test_errors("stdout.log", database, odoo_version, check_loaded)
             if errors:
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
