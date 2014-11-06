@@ -10,9 +10,6 @@ from getaddons import get_addons
 from getaddons import get_modules
 from travis_helpers import success_msg, fail_msg
 
-RED = "\033[1;31m"
-CLEAR = "\033[0;m"
-GREEN = "\033[1;32m"
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
