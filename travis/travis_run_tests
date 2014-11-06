@@ -5,7 +5,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import subprocess
 import sys
-
+from .helpers import success_msg, fail_msg
 
 def main(test_list):
     args = sys.argv[1:]
@@ -16,11 +16,6 @@ def main(test_list):
         res = subprocess.call(test_w_args)
         results.append(res)
 
-    RED = "\033[1;31m"
-    GREEN = "\033[1;32m"
-    CLEAR = "\033[0;m"
-    fail_msg = RED + "FAIL" + CLEAR
-    success_msg = GREEN + "Success" + CLEAR
     print()
     print("╔" + "═"*30 + "╗")
     print("║ Tests summary:")

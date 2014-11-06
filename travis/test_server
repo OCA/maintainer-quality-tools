@@ -8,7 +8,11 @@ import subprocess
 import sys
 from getaddons import get_addons
 from getaddons import get_modules
+from .helpers import success_msg, fail_msg
 
+RED = "\033[1;31m"
+CLEAR = "\033[0;m"
+GREEN = "\033[1;32m"
 
 def has_test_errors(fname, dbname, odoo_version):
     """
@@ -199,7 +203,7 @@ def main():
                          ] + options + ["--init", None]
         commands = (cmd_odoo_test,
                     )
-
+    all_errors = []
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
         subprocess.call(["createdb", "-T", dbtemplate, database])
@@ -216,15 +220,24 @@ def main():
                     stdout.write(line)
                     print(line.strip())
             returncode = pipe.wait()
-            print("Command exited with code %s" % returncode)
             # Find errors, except from failed mails
             errors = has_test_errors("stdout.log", database, odoo_version)
             if errors:
-                print("Found %d lines with errors" % errors)
-                return 1
+                all_errors.append(to_test)
+                print(fail_msg, "Found %d lines with errors" % errors)
             if returncode != 0:
-                return 1
+                all_errors.append(to_test)
+                print(fail_msg, "Command exited with code %s" % returncode)
         subprocess.call(["dropdb", database])
+
+    print('Module test summary')
+    for to_test in to_test_list:
+        if to_test in all_errors:
+            print(fail_msg, to_test)
+        else:
+            print(success_msg, to_test)
+    if all_errors:
+        return 1
     # if we get here, all is OK
     return 0
 
