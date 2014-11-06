@@ -8,7 +8,7 @@ import subprocess
 import sys
 from getaddons import get_addons
 from getaddons import get_modules
-from .helpers import success_msg, fail_msg
+from travis_helpers import success_msg, fail_msg
 
 RED = "\033[1;31m"
 CLEAR = "\033[0;m"
