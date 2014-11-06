@@ -118,8 +118,13 @@ def main():
 
     if odoo_version == "6.1":
         install_options += ["--test-disable"]
+        test_loglevel = 'test'
     else:
         options += ["--test-enable"]
+        if odoo_version == '7.0':
+            test_loglevel = 'test'
+        else:
+            test_loglevel = 'info'
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     odoo_org, odoo_repo = odoo_full.split('/')
@@ -183,7 +188,7 @@ def main():
                          "%s/openerp-server" % server_path,
                          "-d", database,
                          "--stop-after-init",
-                         "--log-level=info",
+                         "--log-level", test_loglevel,
                          "--addons-path", addons_path,
                          ] + options + ["--update", None]
 
@@ -196,7 +201,7 @@ def main():
                          "%s/openerp-server" % server_path,
                          "-d", database,
                          "--stop-after-init",
-                         "--log-level=info",
+                         "--log-level", test_loglevel,
                          "--addons-path", addons_path,
                          ] + options + ["--init", None]
         commands = ((cmd_odoo_test, True),
