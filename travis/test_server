@@ -8,9 +8,10 @@ import subprocess
 import sys
 from getaddons import get_addons
 from getaddons import get_modules
+from travis_helpers import success_msg, fail_msg
 
 
-def has_test_errors(fname, dbname, odoo_version):
+def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
     Check a list of log lines for test errors.
     Extension point to detect false positives.
@@ -84,8 +85,9 @@ def has_test_errors(fname, dbname, odoo_version):
                 errors.append(log_record['message'])
                 break
 
-    if not [r for r in log_records if 'Modules loaded.' == r['message']]:
-        errors.append({'message': "Modules loaded message not found."})
+    if check_loaded:
+        if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+            errors.append({'message': "Modules loaded message not found."})
 
     if errors:
         for e in errors:
@@ -105,8 +107,8 @@ def main():
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     odoo_version = os.environ.get("VERSION")
-    options = os.environ.get("OPTIONS", "")
-    install_options = os.environ.get("INSTALL_OPTIONS", "")
+    options = os.environ.get("OPTIONS", "").split()
+    install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -115,11 +117,14 @@ def main():
               "Using '%s'" % odoo_version)
 
     if odoo_version == "6.1":
-        install_options = ''.join([install_options,
-                                   ' ' if install_options else '',
-                                   "--test-disable"])
+        install_options += ["--test-disable"]
+        test_loglevel = 'test'
     else:
-        options = ''.join([options, ' ' if options else '', "--test-enable"])
+        options += ["--test-enable"]
+        if odoo_version == '7.0':
+            test_loglevel = 'test'
+        else:
+            test_loglevel = 'info'
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     odoo_org, odoo_repo = odoo_full.split('/')
@@ -155,42 +160,87 @@ def main():
     ## setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"
-    subprocess.check_call("createdb %s" % dbtemplate, shell=True)
+    subprocess.check_call(["createdb", dbtemplate])
 
     preinstall_modules = 'mail' if odoo_unittest else tested_addons
-    cmd_odoo = "%s/openerp-server %s -d %s --stop-after-init " \
-               "--addons-path=%s --init=%s"
-    cmd_options = (server_path, install_options, dbtemplate,
-                   addons_path, preinstall_modules)
-    subprocess.check_call(cmd_odoo % cmd_options, shell=True)
+    cmd_odoo = ["%s/openerp-server" % server_path,
+                "-d", dbtemplate,
+                "--log-level=warn",
+                "--stop-after-init", \
+                "--addons-path", addons_path,
+                "--init", preinstall_modules,
+                ] + install_options
+    print(" ".join(cmd_odoo))
+    subprocess.check_call(cmd_odoo)
 
     # Running tests
     database = "openerp_test"
     if odoo_unittest:
         to_test_list = tested_addons_list
+        cmd_odoo_install = ["%s/openerp-server" % server_path,
+                            "-d", database,
+                            "--stop-after-init",
+                            "--log-level=warn",
+                            "--addons-path", addons_path,
+                            ] + install_options + ["--init", None]
+
+        cmd_odoo_test = ["coverage", "run",
+                         "%s/openerp-server" % server_path,
+                         "-d", database,
+                         "--stop-after-init",
+                         "--log-level", test_loglevel,
+                         "--addons-path", addons_path,
+                         ] + options + ["--update", None]
+
+        commands = ((cmd_odoo_install, False),
+                    (cmd_odoo_test, True),
+                    )
     else:
         to_test_list = [tested_addons]
-
+        cmd_odoo_test = ["coverage", "run",
+                         "%s/openerp-server" % server_path,
+                         "-d", database,
+                         "--stop-after-init",
+                         "--log-level", test_loglevel,
+                         "--addons-path", addons_path,
+                         ] + options + ["--init", None]
+        commands = ((cmd_odoo_test, True),
+                    )
+    all_errors = []
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
-        subprocess.call(["dropdb", database])
         subprocess.call(["createdb", "-T", dbtemplate, database])
+        for command, check_loaded in commands:
+            command[-1] = to_test
+            print(' '.join(command))
+            # Run test command; unbuffer keeps output colors
+            command_call = ["unbuffer"] + command
+            pipe = subprocess.Popen(command_call,
+                                    stderr=subprocess.STDOUT,
+                                    stdout=subprocess.PIPE)
+            with open('stdout.log', 'w') as stdout:
+                for line in pipe.stdout:
+                    stdout.write(line)
+                    print(line.strip())
+            returncode = pipe.wait()
+            # Find errors, except from failed mails
+            errors = has_test_errors("stdout.log", database, odoo_version, check_loaded)
+            if errors:
+                all_errors.append(to_test)
+                print(fail_msg, "Found %d lines with errors" % errors)
+            if returncode != 0:
+                all_errors.append(to_test)
+                print(fail_msg, "Command exited with code %s" % returncode)
+        subprocess.call(["dropdb", database])
 
-        cmd_odoo = "coverage run %s/openerp-server %s -d %s" \
-                   " --stop-after-init --log-level=info" \
-                   " --addons-path=%s --init=%s"
-        cmd_options = (server_path, options, database,
-                       addons_path, to_test)
-        command = cmd_odoo % cmd_options
-        print(command)
-        # Run test command; unbuffer keeps output colors
-        command_call = "unbuffer %s | tee stdout.log" % command
-        subprocess.check_call(command_call, shell=True)
-        # Find errors, except from failed mails
-        errors = has_test_errors("stdout.log", database, odoo_version)
-        if errors:
-            print("Found %d lines with errors" % errors)
-            return 1
+    print('Module test summary')
+    for to_test in to_test_list:
+        if to_test in all_errors:
+            print(fail_msg, to_test)
+        else:
+            print(success_msg, to_test)
+    if all_errors:
+        return 1
     # if we get here, all is OK
     return 0
 
