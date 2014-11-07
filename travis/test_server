@@ -167,7 +167,7 @@ def main():
     cmd_odoo = ["%s/openerp-server" % server_path,
                 "-d", dbtemplate,
                 "--log-level=warn",
-                "--stop-after-init", \
+                "--stop-after-init",
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
                 ] + install_options
@@ -226,7 +226,8 @@ def main():
                     print(line.strip())
             returncode = pipe.wait()
             # Find errors, except from failed mails
-            errors = has_test_errors("stdout.log", database, odoo_version, check_loaded)
+            errors = has_test_errors(
+                "stdout.log", database, odoo_version, check_loaded)
             if errors:
                 counted_errors += errors
                 all_errors.append(to_test)
@@ -242,7 +243,9 @@ def main():
             print(fail_msg, to_test)
         else:
             print(success_msg, to_test)
-    if counted_errors != expected_errors :
+    if counted_errors != expected_errors:
+        print("Expected %d errors, found %d!"
+              % (expected_errors, counted_errors))
         return 1
     # if we get here, all is OK
     return 0
