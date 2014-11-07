@@ -5,11 +5,11 @@ set -v
 MODULES_TO_TEST=$TRAVIS_BUILD_DIR
 PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
 
-#Fix pylint path. More info: https://www.mail-archive.com/code-quality@python.org/msg00294.html
+# Fix pylint path. More info: https://www.mail-archive.com/code-quality@python.org/msg00294.html
 export PYTHONPATH=${PYTHONPATH}:${MODULES_TO_TEST}
 touch $MODULES_TO_TEST/__init__.py
 
-#Set openerp in global path to fix "import" from addons
+# Set openerp in global path to fix "import" from addons
 if [ "x${VERSION}" == "x" ] ; then
     VERSION="${1}"
     echo "WARNING: no env variable set for VERSION. Using '${1}'."
@@ -19,7 +19,10 @@ fi
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
 
+# Adding custom plugins to PYTHONPATH
+export PYTHONPATH=${PYTHONPATH}:${HOME}/maintainer-quality-tools/travis/pylint_plugins
+
 #run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg --load-plugins odoolint ${MODULES_TO_TEST}
 pylint_status=$?
 exit $((${pylint_status}))
