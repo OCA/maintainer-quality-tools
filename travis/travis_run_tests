@@ -17,14 +17,14 @@ def main(test_list):
         results.append(res)
 
     print()
-    print("╔" + "═"*30 + "╗")
-    print("║ Tests summary:")
-    print("╠" + "═"*30 + "╣")
+    print("+" + "="*39)
+    print("|  Tests summary:")
+    print("|" + "-"*39)
     for test, error in zip(test_list, results):
         desc = ' '.join(test)
         outcome = fail_msg if error else success_msg
-        print("║ %s\t\t%s" % (desc, outcome))
-    print("╚" + "═"*30 + "╝")
+        print("| {0:<28}{1}".format(desc, outcome))
+    print("+" + "="*39)
 
     return(max(results))
 
