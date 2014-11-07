@@ -244,7 +244,7 @@ def main():
             print(fail_msg, to_test)
         else:
             print(success_msg, to_test)
-    if counted_errors != expected_errors:
+    if expected_errors and counted_errors != expected_errors:
         print("Expected %d errors, found %d!"
               % (expected_errors, counted_errors))
         return 1

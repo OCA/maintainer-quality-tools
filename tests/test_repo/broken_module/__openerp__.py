@@ -4,5 +4,6 @@
     'version': '1.0',
     'depends': ['base'],
     'data': [],
+    'test': ['test.yml'],
     'installable': True,
 }
