@@ -11,7 +11,7 @@ virtualenv:
   system_site_packages: true
 
 env:
-  - VERSION="8.0" INCLUDE="broken_module" EXPECTED_ERRORS="1"  # test errors are detected
+  - VERSION="8.0" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
   - VERSION="master" EXCLUDE="broken_module"  # EXCLUDE usage example - update with erroring modules list
   - VERSION="8.0" INCLUDE="test_module,second_module" OPTIONS="--log-level=debug"  # OPTIONS usage example
   - VERSION="8.0" INCLUDE="test_module,second_module" INSTALL_OPTIONS="--log-level=info"

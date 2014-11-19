@@ -109,7 +109,7 @@ def main():
     odoo_include = os.environ.get("INCLUDE")
     options = os.environ.get("OPTIONS", "").split()
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
-    expected_errors = int(os.environ.get("EXPECTED_ERRORS", "0"))
+    expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
     if not odoo_version:
         # For backward compatibility, take version from parameter
