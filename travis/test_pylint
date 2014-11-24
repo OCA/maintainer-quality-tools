@@ -19,10 +19,7 @@ fi
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
 
-# Adding custom plugins to PYTHONPATH
-export PYTHONPATH=${PYTHONPATH}:${HOME}/maintainer-quality-tools/travis/pylint_plugins
-
 #run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg --load-plugins odoolint ${MODULES_TO_TEST}
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
 pylint_status=$?
 exit $((${pylint_status}))
