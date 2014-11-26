@@ -26,6 +26,8 @@ pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
+shippable_install_nightly.py
+
 # Expected directory structure:
 #
 #    HOME/
