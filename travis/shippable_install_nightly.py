@@ -69,14 +69,13 @@ def get_cmd_on_custom_image():
 
 def main():
     env = {}
-    cmd_strs_starts = [
-        'SHIPPABLE_CMD_DI_',
-        'SHIPPABLE_CMD_CI_'
-    ]
+    cmd_strs_starts = []
     if is_shippable_default_image():
-        env = get_cmd_on_custom_image()
-    elif is_shippable:
+        cmd_strs_starts.append('SHIPPABLE_CMD_DI_')
         env = get_cmd_on_default_image()
+    elif is_shippable:
+        cmd_strs_starts.append('SHIPPABLE_CMD_CI_')
+        env = get_cmd_on_custom_image()
     if env:
         run_env_cmd.run_env_strs_starts(
             ','.join(cmd_strs_starts),
