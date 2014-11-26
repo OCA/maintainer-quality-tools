@@ -65,13 +65,15 @@ def run_env_str_starts(str_starts, environ, fname_sh):
     os.chmod(fname_sh, st.st_mode | stat.S_IEXEC)
     sys.stdout.write("Running %s file with content: %s" %\
         (fname_sh, open(fname_sh, "r").read()))
-    return os.system(fname_sh)
+    # return os.system(fname_sh)  # Don't work fine. 
+    #         Execute directly file from bash script file.
+    return True
 
 
-def run_env_strs_starts(strs_starts, environ):
+def run_env_strs_starts(strs_starts, environ, fname_sh):
     cmd_strs_starts = get_cmd_strs_starts(strs_starts)
     for cmd_str_starts in cmd_strs_starts:
-        run_env_str_starts(cmd_str_starts, environ)
+        run_env_str_starts(cmd_str_starts, environ, fname_sh)
     return True
 
 
@@ -95,16 +97,14 @@ def main():
                         " You can use comma to add many"
                         " string of startswith. Default get environment variable 'CMD_STRS_STARTS'",
                         required=False)
-    parser.add_argument('fname-sh',
-                        dest='fname_sh',
-                        help="File name of sh to write.",
-                        default="/tmp/delete.sh"
+    parser.add_argument('fnamesh',
+                        help="File name of sh to create.",
                         )
     args = parser.parse_args()
     strs_startswith = args.strs_startswith
     if not strs_startswith:
         raise Exception("Not defined string's startswith")
-    run_env_strs_starts(strs_startswith, os.environ, args.fname_sh)
+    run_env_strs_starts(strs_startswith, os.environ, args.fnamesh)
 
 if __name__ == '__main__':
     exit(main())
