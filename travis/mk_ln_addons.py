@@ -24,6 +24,8 @@ def main():
         print "cmd", cmd
         os.system(' '.join(cmd))
 
+    #TODO: Same modules of odoo/addons and same modules of build_dir
+
 
 if __name__ == '__main__':
     exit(main())

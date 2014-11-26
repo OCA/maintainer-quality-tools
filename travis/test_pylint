@@ -23,6 +23,6 @@ $(dirname ${BASH_SOURCE[0]})/mk_ln_addons
 ls -la ${HOME}/${REPO[1]}-${VERSION}/openerp/addons
 
 #run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST} -d C0103
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST} -d C0103,F0401,I0011
 pylint_status=$?
 exit $((${pylint_status}))
