@@ -34,7 +34,7 @@ def run_env_str_starts(str_starts, environ):
         sys.stdout.write("Running cmd %s [%s]\n" % (
             env_shippable_cmd,
             environ[env_shippable_cmd]))
-        status = subprocess.call(cmd)
+        status = os.system(cmd)
         sys.stdout.write("cmd finished "
                          "exited with status %s\n" % (status))
     return True
