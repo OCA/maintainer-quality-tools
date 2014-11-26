@@ -174,7 +174,8 @@ def main():
                 + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
-    open(os.path.join(server_path, 'server.log'), "r").read()
+    with open(os.path.join(server_path, 'server.log'), "r") as f:
+        print(f.read())
 
     # Running tests
     database = "openerp_test"
