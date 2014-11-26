@@ -57,16 +57,21 @@ def main():
                                      "'echo \"world\"'"
 
                                      " ./run_env_cmd "
-                                     " MY_CMD_,OTHER_CMD_")
-    parser.add_argument('string_startswith',
-                        default=False,
+                                     " -ss MY_CMD_,OTHER_CMD_")
+    parser.add_argument('--string-startswith', '-ss',
+                        dest='strs_startswith',
+                        default=os.environ.get('CMD_STRS_STARTS'),
                         help="String with startswith of"
                         " name of variable to run command."
                         " e.g. SHPPABLE_CMD_"
                         " You can use comma to add many"
-                        " string of startswith")
+                        " string of startswith. Default get environment variable 'CMD_STRS_STARTS'",
+                        required=False)
     args = parser.parse_args()
-    run_env_strs_starts(args.string_startswith, os.environ)
+    strs_startswith = args.strs_startswith
+    if not strs_startswith:
+        raise Exception("Not defined string's startswith")
+    run_env_strs_starts(strs_startswith, os.environ)
 
 if __name__ == '__main__':
     exit(main())
