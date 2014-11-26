@@ -51,7 +51,7 @@ def get_env_to_export(environ):
         if value.startswith("'")\
            and value.endswith("'"):
             value = value.strip("'")
-        if value:
+        if value and key:
             value = '"' + value.replace('"', '\\"') + '"'
             export_str += 'export %s=%s\n' % (key, value)
     return export_str
