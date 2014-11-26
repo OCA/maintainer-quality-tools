@@ -3,7 +3,7 @@
 
 import argparse
 import os
-import subprocess
+#import subprocess
 import sys
 
 
@@ -30,7 +30,8 @@ def run_env_str_starts(str_starts, environ):
         sys.stdout.write("Not found environment variables with"
                          " startwiths [%s]\n" % (str_starts))
     for env_shippable_cmd in env_shippable_cmd_list:
-        cmd = ['sh', '-c', environ[env_shippable_cmd]]
+        #cmd = ['sh', '-c', environ[env_shippable_cmd]]
+        cmd = environ[env_shippable_cmd]
         sys.stdout.write("Running cmd %s [%s]\n" % (
             env_shippable_cmd,
             environ[env_shippable_cmd]))
