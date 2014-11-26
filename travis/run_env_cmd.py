@@ -63,8 +63,8 @@ def run_env_str_starts(str_starts, environ, fname_sh):
             fsh.write(os.environ[env_shippable_cmd] + "\n")
     st = os.stat(fname_sh)
     os.chmod(fname_sh, st.st_mode | stat.S_IEXEC)
-    sys.stdout.write("Running %s file with content: %s" %\
-        (fname_sh, open(fname_sh, "r").read()))
+    #sys.stdout.write("Running %s file with content: %s" %\
+        #(fname_sh, open(fname_sh, "r").read()))
     # return os.system(fname_sh)  # Don't work fine. 
     #         Execute directly file from bash script file.
     return True
