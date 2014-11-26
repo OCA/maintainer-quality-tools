@@ -6,3 +6,4 @@ export SHIPPABLE_CMD_CI_30_PSQL_START='sudo su -c "sudo -u postgres /usr/lib/pos
 export SHIPPABLE_CMD_CI_40_FIX_ROOT_ODOO="find ${HOME} -name server.py -exec sed -i \"s/== 'root'/== 'force_root'/g\" {} \;"
 export CMD_STRS_STARTS="SHIPPABLE_CMD_DI_,SHIPPABLE_CMD_CI"
 $(dirname ${BASH_SOURCE[0]})/run_env_cmd
+$(dirname ${BASH_SOURCE[0]})/script_run_from_env_cmd.sh
