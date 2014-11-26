@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export SHIPPABLE_CMD_DI_10_BZR_INSTALL="sudo apt-get update && sudo apt-get install -yf bzr"
+export SHIPPABLE_CMD_CI_20_FIX_POSTGRES_SSL="""sudo mkdir -p /etc/ssl/private-copy \
+        && sudo mkdir -p /etc/ssl/private \
+        && sudo mv /etc/ssl/private/ /etc/ssl/private-copy/ \
+        && sudo rm -rf /etc/ssl/private \
+        && sudo mv /etc/ssl/private-copy /etc/ssl/private \
+        && sudo chmod -R 0700 /etc/ssl/private \
+        && sudo chown -R postgres /etc/ssl/private"""
+export SHIPPABLE_CMD_CI_30_PSQL_START='sudo su -c "sudo -u postgres /usr/lib/postgresql/9.3/bin/postgres -c "config_file=/etc/postgresql/9.3/main/postgresql.conf" > /tmp/pg.log 2>&1 & sleep 5s"'
+export SHIPPABLE_CMD_CI_40_FIX_ROOT_ODOO="find ${HOME} -name server.py -exec sed -i \"s/== 'root'/== 'force_root'/g\" {} \;"
+export CMD_STRS_STARTS="SHIPPABLE_CMD_DI_,SHIPPABLE_CMD_CI"
+./run_env_cmd
