@@ -51,12 +51,11 @@ def get_env_to_export(environ):
         export_str += 'export %s=%s\n'%(key, value)
     return export_str
 
-def run_env_str_starts(str_starts, environ):
+def run_env_str_starts(str_starts, environ, fname_sh):
     env_shippable_cmd_list = get_env_str_starts(str_starts, environ)
     if not env_shippable_cmd_list:
         sys.stdout.write("Not found environment variables with"
                          " startwiths [%s]\n" % (str_starts))
-    fname_sh = '/tmp/script_run_from_env_cmd.sh'
     export_str = get_env_to_export(environ)
     with open(fname_sh, "w") as fsh:
         fsh.write(export_str)
@@ -96,11 +95,16 @@ def main():
                         " You can use comma to add many"
                         " string of startswith. Default get environment variable 'CMD_STRS_STARTS'",
                         required=False)
+    parser.add_argument('fname-sh',
+                        dest='fname_sh',
+                        help="File name of sh to write.",
+                        default="/tmp/delete.sh"
+                        )
     args = parser.parse_args()
     strs_startswith = args.strs_startswith
     if not strs_startswith:
         raise Exception("Not defined string's startswith")
-    run_env_strs_starts(strs_startswith, os.environ)
+    run_env_strs_starts(strs_startswith, os.environ, args.fname_sh)
 
 if __name__ == '__main__':
     exit(main())
