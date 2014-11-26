@@ -12,7 +12,7 @@ def main():
         if os.path.isdir(os.path.join(path, dirname)):
             dirnames.append(dirname)
     odoo_path = os.path.join(path, os.environ.get('ODOO_REPO', '/').split('/')[1]\
-        + os.environ.get('VERSION', ''))
+        + "-" + os.environ.get('VERSION', ''))
     if odoo_path in dirnames:
         dirnames.pop(odoo_path)
     for dirname in dirnames:
