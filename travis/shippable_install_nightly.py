@@ -46,13 +46,7 @@ def get_cmd_on_default_image():
 
 def get_cmd_on_custom_image():
     cmd = {
-        'SHIPPABLE_CMD_CI_20_PSQL_START':
-            'sudo su -c "sudo -u postgres '
-            '/usr/lib/postgresql/9.3/bin/postgres'
-            ' -c "config_file=/etc/postgresql/'
-            '9.3/main/postgresql.conf"'
-            ' > /tmp/pg.log 2>&1 & sleep 5s"',
-        'SHIPPABLE_CMD_CI_30_FIX_POSTGRES_SSL':
+        'SHIPPABLE_CMD_CI_20_FIX_POSTGRES_SSL':
             'sudo mkdir -p /etc/ssl/private-copy'
             ' && sudo mkdir -p /etc/ssl/private'
             ' && sudo mv /etc/ssl/private/ /etc/ssl/private-copy/'
@@ -60,6 +54,12 @@ def get_cmd_on_custom_image():
             ' && sudo mv /etc/ssl/private-copy /etc/ssl/private'
             ' && sudo chmod -R 0700 /etc/ssl/private'
             ' && sudo chown -R postgres /etc/ssl/private',
+        'SHIPPABLE_CMD_CI_30_PSQL_START':
+            'sudo su -c "sudo -u postgres '
+            '/usr/lib/postgresql/9.3/bin/postgres'
+            ' -c "config_file=/etc/postgresql/'
+            '9.3/main/postgresql.conf"'
+            ' > /tmp/pg.log 2>&1 & sleep 5s"',
         'SHIPPABLE_CMD_CI_40_FIX_ROOT_ODOO':
             'find ${HOME} -name server.py -exec'
             ' sed -i "s/== \'root\'/== \'force_root\'/g" {} \;'
