@@ -3,7 +3,7 @@
 export SHIPPABLE_CMD_DI_10_BZR_INSTALL="sudo apt-get update && sudo apt-get install -yf bzr"
 export SHIPPABLE_CMD_CI_20_FIX_POSTGRES_SSL="""sudo mkdir -p /etc/ssl/private-copy \
         && sudo mkdir -p /etc/ssl/private \
-        && sudo mv /etc/ssl/private/ /etc/ssl/private-copy/ \
+        && sudo mv /etc/ssl/private/* /etc/ssl/private-copy/ \
         && sudo rm -rf /etc/ssl/private \
         && sudo mv /etc/ssl/private-copy /etc/ssl/private \
         && sudo chmod -R 0700 /etc/ssl/private \
