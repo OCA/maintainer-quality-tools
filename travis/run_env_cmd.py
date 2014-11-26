@@ -44,7 +44,9 @@ def ____run_env_str_starts(str_starts, environ):
 def get_env_to_export(environ):
     export_str = ""
     for key, value in environ.iteritems():
-        value = value.strip('"')
+        if value.startswith('"')\
+        and value.endswith('"'):
+            value = value.strip('"')
         value = '"' + value.replace('"', '\\"') + '"'
         export_str += 'export %s=%s\n'%(key, value)
     return export_str
