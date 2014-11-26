@@ -17,7 +17,8 @@ def main():
         dirnames.pop(odoo_path)
     for dirname in dirnames:
         cmd = ["ln", "-s", os.path.join(dirname, '*'),
-             os.path.join(odoo_path, '.')]
+             os.path.join(odoo_path, 'addons', '.')]
+        print "cmd", cmd
         os.system(' '.join(cmd))
 
 
