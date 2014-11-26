@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+
+import argparse
+import os
+import subprocess
+import sys
+
+
+def get_cmd_strs_starts(cmd_strs_starts):
+    cmd_strs_starts_list = []
+    if cmd_strs_starts:
+        cmd_strs_starts_list = [cmd_str_starts.strip()
+                                for cmd_str_starts
+                                in cmd_strs_starts.split(',')]
+    return cmd_strs_starts_list
+
+
+def get_env_str_starts(str_starts, environ):
+    env_shippable_cmd_list = []
+    for env_name in sorted(environ.keys()):
+        if env_name.startswith(str_starts):
+            env_shippable_cmd_list.append(env_name)
+    return env_shippable_cmd_list
+
+
+def run_env_str_starts(str_starts, environ):
+    env_shippable_cmd_list = get_env_str_starts(str_starts, environ)
+    if not env_shippable_cmd_list:
+        sys.stdout.write("Not found environment variables with"
+                         " startwiths [%s]\n" % (str_starts))
+    for env_shippable_cmd in env_shippable_cmd_list:
+        cmd = ['sh', '-c', environ[env_shippable_cmd]]
+        sys.stdout.write("Running cmd %s [%s]\n" % (
+            env_shippable_cmd,
+            environ[env_shippable_cmd]))
+        subprocess.call(cmd)
+        sys.stdout.write("cmd finished\n")
+    return True
+
+
+def run_env_strs_starts(strs_starts, environ):
+    cmd_strs_starts = get_cmd_strs_starts(strs_starts)
+    for cmd_str_starts in cmd_strs_starts:
+        run_env_str_starts(cmd_str_starts, environ)
+    return True
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Script to run command"
+                                     " from environ variables."
+                                     " e.g. .............. "
+                                     "MY_CMD_ECHO_HELLO="
+                                     "'echo \"Hello\"'"
+                                     " OTHER_CMD_ECHO_WORLD="
+                                     "'echo \"world\"'"
+
+                                     " ./run_env_cmd "
+                                     " MY_CMD_,OTHER_CMD_")
+    parser.add_argument('string_startswith',
+                        default=False,
+                        help="String with startswith of"
+                        " name of variable to run command."
+                        " e.g. SHPPABLE_CMD_"
+                        " You can use comma to add many"
+                        " string of startswith")
+    args = parser.parse_args()
+    run_env_strs_starts(args.string_startswith, os.environ)
+
+if __name__ == '__main__':
+    exit(main())
