@@ -56,7 +56,7 @@ def run_env_str_starts(str_starts, environ):
     if not env_shippable_cmd_list:
         sys.stdout.write("Not found environment variables with"
                          " startwiths [%s]\n" % (str_starts))
-    fname_sh = 'script_run_from_env_cmd.sh'
+    fname_sh = '/tmp/script_run_from_env_cmd.sh'
     export_str = get_env_to_export(environ)
     with open(fname_sh, "w") as fsh:
         fsh.write(export_str)
