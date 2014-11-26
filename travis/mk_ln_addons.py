@@ -13,8 +13,11 @@ def main():
             dirnames.append(os.path.join(path, dirname))
     odoo_path = os.path.join(path, os.environ.get('ODOO_REPO', '/').split('/')[1]\
         + "-" + os.environ.get('VERSION', ''))
-    if odoo_path in dirnames:
-        dirnames.pop(odoo_path)
+    try:
+        pos = dirnames.index(odoo_path)
+        dirnames.pop(pos)
+    except ValueError:
+        pass
     for dirname in dirnames:
         cmd = ["ln", "-s", os.path.join(dirname, '*'),
              os.path.join(odoo_path, 'openerp', 'addons', '.')]
