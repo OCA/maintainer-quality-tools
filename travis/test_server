@@ -169,9 +169,12 @@ def main():
                 "--stop-after-init", \
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
-                ] + install_options
+                "--logfile=" +\
+                    os.path.join(server_path, 'server.log')]\
+                + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
+    open(os.path.join(server_path, 'server.log'), "r").read()
 
     # Running tests
     database = "openerp_test"
