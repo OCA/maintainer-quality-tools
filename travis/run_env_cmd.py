@@ -24,23 +24,6 @@ def get_env_str_starts(str_starts, environ):
     return env_shippable_cmd_list
 
 
-def ____run_env_str_starts(str_starts, environ):
-    env_shippable_cmd_list = get_env_str_starts(str_starts, environ)
-    if not env_shippable_cmd_list:
-        sys.stdout.write("Not found environment variables with"
-                         " startwiths [%s]\n" % (str_starts))
-    for env_shippable_cmd in env_shippable_cmd_list:
-        # cmd = ['sh', '-c', environ[env_shippable_cmd]]
-        cmd = environ[env_shippable_cmd]
-        sys.stdout.write("Running cmd %s [%s]\n" % (
-            env_shippable_cmd,
-            environ[env_shippable_cmd]))
-        status = os.system(cmd)
-        sys.stdout.write("cmd finished "
-                         "exited with status %s\n" % (status))
-    return True
-
-
 def get_env_to_export(environ):
     export_str = ""
     for key, value in environ.iteritems():
