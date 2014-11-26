@@ -26,6 +26,8 @@ pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
+wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
+
 # Expected directory structure:
 #
 #    HOME/
