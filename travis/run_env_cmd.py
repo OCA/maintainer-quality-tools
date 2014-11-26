@@ -3,7 +3,7 @@
 
 import argparse
 import os
-#import subprocess
+import stat
 import sys
 
 
@@ -24,7 +24,7 @@ def get_env_str_starts(str_starts, environ):
     return env_shippable_cmd_list
 
 
-def run_env_str_starts(str_starts, environ):
+def ____run_env_str_starts(str_starts, environ):
     env_shippable_cmd_list = get_env_str_starts(str_starts, environ)
     if not env_shippable_cmd_list:
         sys.stdout.write("Not found environment variables with"
@@ -39,6 +39,32 @@ def run_env_str_starts(str_starts, environ):
         sys.stdout.write("cmd finished "
                          "exited with status %s\n" % (status))
     return True
+
+
+def get_env_to_export(environ):
+    export_str = ""
+    for key, value in environ.iteritems():
+        value = value.strip('"')
+        value = '"' + value.replace('"', '\\"') + '"'
+        export_str += 'export %s=%s\n'%(key, value)
+    return export_str
+
+def run_env_str_starts(str_starts, environ):
+    env_shippable_cmd_list = get_env_str_starts(str_starts, environ)
+    if not env_shippable_cmd_list:
+        sys.stdout.write("Not found environment variables with"
+                         " startwiths [%s]\n" % (str_starts))
+    fname_sh = 'script_run_from_env_cmd.sh'
+    export_str = get_env_to_export(environ)
+    with open(fname_sh, "w") as fsh:
+        fsh.write(export_str)
+        for env_shippable_cmd in env_shippable_cmd_list:
+            fsh.write(os.environ[env_shippable_cmd] + "\n")
+    st = os.stat(fname_sh)
+    os.chmod(fname_sh, st.st_mode | stat.S_IEXEC)
+    sys.stdout.write("Running %s file with content: %s" %\
+        (fname_sh, open(fname_sh, "r").read()))
+    return os.system(fname_sh)
 
 
 def run_env_strs_starts(strs_starts, environ):
