@@ -20,6 +20,6 @@ IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export PYTHONPATH=${PYTHONPATH}:"${HOME}/${REPO[1]}-${VERSION}"
 
 #run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST} -d C0103
 pylint_status=$?
 exit $((${pylint_status}))
