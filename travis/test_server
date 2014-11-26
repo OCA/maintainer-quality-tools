@@ -174,6 +174,8 @@ def main():
                 + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
+    print("Printing logfile: \n")
+    print(os.path.isfile(os.path.join(server_path, 'server.log'))
     with open(os.path.join(server_path, 'server.log'), "r") as f:
         print(f.read())
 
