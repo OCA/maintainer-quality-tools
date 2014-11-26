@@ -47,13 +47,13 @@ def get_cmd_on_default_image():
 def get_cmd_on_custom_image():
     cmd = {
         'SHIPPABLE_CMD_CI_20_FIX_POSTGRES_SSL':
-            'sudo mkdir -p /etc/ssl/private-copy'
-            ' && sudo mkdir -p /etc/ssl/private'
-            ' && sudo mv /etc/ssl/private/ /etc/ssl/private-copy/'
-            ' && sudo rm -rf /etc/ssl/private'
-            ' && sudo mv /etc/ssl/private-copy /etc/ssl/private'
-            ' && sudo chmod -R 0700 /etc/ssl/private'
-            ' && sudo chown -R postgres /etc/ssl/private',
+            'sudo mkdir -p /etc/ssl/private-copy;'
+            ' sudo mkdir -p /etc/ssl/private;'
+            ' sudo mv /etc/ssl/private/ /etc/ssl/private-copy/;'
+            ' sudo rm -rf /etc/ssl/private;'
+            ' sudo mv /etc/ssl/private-copy /etc/ssl/private;'
+            ' sudo chmod -R 0700 /etc/ssl/private;'
+            ' sudo chown -R postgres /etc/ssl/private',
         'SHIPPABLE_CMD_CI_30_PSQL_START':
             'sudo su -c "sudo -u postgres '
             '/usr/lib/postgresql/9.3/bin/postgres'
