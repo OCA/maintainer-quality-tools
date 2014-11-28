@@ -165,7 +165,7 @@ def main():
     preinstall_modules = 'mail' if odoo_unittest else tested_addons
     cmd_odoo = ["%s/openerp-server" % server_path,
                 "-d", dbtemplate,
-                "--log-level=warn",
+                "--log-level=debug",
                 "--stop-after-init", \
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
@@ -186,7 +186,7 @@ def main():
         cmd_odoo_install = ["%s/openerp-server" % server_path,
                             "-d", database,
                             "--stop-after-init",
-                            "--log-level=warn",
+                            "--log-level=debug",
                             "--addons-path", addons_path,
                             ] + install_options + ["--init", None]
 
