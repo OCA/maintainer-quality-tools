@@ -10,8 +10,10 @@ from getaddons import get_addons
 from getaddons import get_modules
 from travis_helpers import success_msg, fail_msg
 
-fname_log = os.path.join(travis_home, 'server.log')
+
 travis_home = os.environ.get("HOME", "~/")
+fname_log = os.path.join(travis_home, 'server.log')
+
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
