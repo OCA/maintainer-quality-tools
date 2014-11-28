@@ -10,6 +10,8 @@ from getaddons import get_addons
 from getaddons import get_modules
 from travis_helpers import success_msg, fail_msg
 
+fname_log = os.path.join(travis_home, 'server.log')
+travis_home = os.environ.get("HOME", "~/")
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
@@ -101,7 +103,6 @@ def parse_list(comma_sep_list):
 
 
 def main():
-    travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     odoo_unittest = os.environ.get("UNIT_TEST")
     odoo_exclude = os.environ.get("EXCLUDE")
@@ -170,14 +171,10 @@ def main():
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
                 "--logfile=" +\
-                    os.path.join(server_path, 'server.log')]\
+                fname_log]\
                 + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
-    print("Printing logfile:")
-    print(os.path.isfile(os.path.join(server_path, 'server.log')))
-    with open(os.path.join(server_path, 'server.log'), "r") as f:
-        print(f.read())
 
     # Running tests
     database = "openerp_test"
@@ -215,6 +212,7 @@ def main():
     all_errors = []
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
+        subprocess.call(["dropdb", database])
         subprocess.call(["createdb", "-T", dbtemplate, database])
         for command, check_loaded in commands:
             command[-1] = to_test

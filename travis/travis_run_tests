@@ -3,9 +3,11 @@
 
 from __future__ import print_function
 from __future__ import unicode_literals
+import os
 import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
+from test_server import fname_log
 
 def main(test_list):
     args = sys.argv[1:]
@@ -15,6 +17,11 @@ def main(test_list):
         test_w_args = test + args
         res = subprocess.call(test_w_args)
         results.append(res)
+
+    print("Printing logfile:")
+    if os.path.isfile(fname_log):
+        with open(fname_log, "r") as f:
+            print(f.read())
 
     print()
     print("+" + "="*39)
