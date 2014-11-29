@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import os
 import subprocess
 
@@ -50,18 +51,30 @@ def git_clone_update(repo, branch, path=None):
     remote_name = 'origin'
     git_reset_remote(repo, remote_name, path)
     run_git_cmd(["fetch", remote_name], path)
-    #run_git_cmd(["checkout", "-f", branch], path=path)
+    run_git_cmd(["checkout", "-f", branch], path=path)
+    run_git_cmd(["reset", "--hard", branch], path=path)
 
 
 def main():
-    repo = "https://github.com/Vauxoo/odoo-panama.git"
-    #branch = "8.0"
-    branch = "90429bb"
-    path = "/tmp/oml1"
+    parser = argparse.ArgumentParser(
+        description="Script to download locally"
+                    " a git repository"
+                    " or if exists update it.")
+    parser.add_argument("repo_url",
+                       help="url of repository"
+                             " source of clone.")
+    parser.add_argument("path",
+                        help="Local path to save"
+                             " tree files cloned.",
+                        default='.')
+    parser.add_argument("-b", dest="branch",
+                        help="The name of the branch"
+                             "source of clone.")
+    args = parser.parse_args()
     git_clone_update(
-        repo,
-        branch,
-        path=path)
+        args.repo_url,
+        args.branch,
+        path=args.path)
 
 
 
