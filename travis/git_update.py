@@ -7,7 +7,8 @@ import subprocess
 
 def run_output(l, cwd=None):
     print "run output:", ' '.join( l ), "into", cwd
-    return subprocess.Popen(l, stdout=subprocess.PIPE, cwd=cwd).communicate()[0]
+    return subprocess.Popen(
+        l, stdout=subprocess.PIPE, cwd=cwd).communicate()[0]
 
 
 def is_git_repo(path):

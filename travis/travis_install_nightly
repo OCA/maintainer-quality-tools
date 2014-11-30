@@ -8,11 +8,12 @@ fi
 
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
-ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
+ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
 
 echo "Installing Odoo ${ODOO_URL}"
-wget -O odoo.tar.gz ${ODOO_URL}
-tar -xf odoo.tar.gz -C ${HOME}
+#wget -O odoo.tar.gz ${ODOO_URL}
+#tar -xf odoo.tar.gz -C ${HOME}
+git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
 
 sudo apt-get -q -y install expect-dev  # provides unbuffer utility
 sudo apt-get -q -y install python-lxml  # because pip installation is slooow
