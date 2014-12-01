@@ -71,7 +71,8 @@ def git_clone_update(repo, branch, path=None):
     run_git_cmd(["fetch", remote_name], path)
     run_git_cmd(["checkout", "-f",
         remote_name + '/' + branch], path=path)
-    run_git_cmd(["reset", "--hard", branch], path=path)
+    run_git_cmd(["reset", "--hard",
+        remote_name + '/' + branch], path=path)
 
 
 def main():
