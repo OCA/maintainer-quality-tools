@@ -67,7 +67,7 @@ def git_clone_update(repo, branch, path=None):
         path = os.getcwd()
         if repo_data.get('repo', False):
             path = os.path.join(path, repo_data['repo'])
-    git_reset_remote(repo, remote_name, path)
+    run_git_cmd(["remote", "add", remote_name, repo], path)
     run_git_cmd(["fetch", remote_name], path)
     run_git_cmd(["checkout", "-f",
         remote_name + '/' + branch], path=path)
