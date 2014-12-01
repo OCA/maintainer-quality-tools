@@ -21,11 +21,13 @@ def is_git_repo(path):
 def run_git_cmd(cmd, git_dir=None, path=None):
     cmd_git = ["git"]
     if git_dir:
+        real_git_dir = None
         if is_git_repo(git_dir):
             real_git_dir = git_dir
         elif is_git_repo(os.path.join(git_dir, '.git')):
             real_git_dir = os.path.join(git_dir, '.git')
-        cmd_git.append("--git-dir=" + real_git_dir)
+        if real_git_dir:
+            cmd_git.append("--git-dir=" + real_git_dir)
     cmd_git.extend(cmd)
     res = run_output(cmd_git, cwd=path)
     return res
