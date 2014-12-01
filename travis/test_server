@@ -248,6 +248,8 @@ def main():
         print("Expected %d errors, found %d!"
               % (expected_errors, counted_errors))
         return 1
+    elif counted_errors:
+        return 1
     # if we get here, all is OK
     return 0
 
