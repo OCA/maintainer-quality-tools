@@ -37,6 +37,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         lambda x: x['loglevel'] == 'CRITICAL',
         'At least one test failed',
         'no access rules, consider adding one',
+        'invalid module names, ignored',
         ]
     # Only check ERROR lines before 7.0
     if odoo_version < '7.0':
@@ -109,9 +110,10 @@ def main():
     odoo_unittest = os.environ.get("UNIT_TEST")
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
-    odoo_version = os.environ.get("VERSION")
     options = os.environ.get("OPTIONS", "").split()
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
+    expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
+    odoo_version = os.environ.get("VERSION")
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -169,7 +171,7 @@ def main():
     cmd_odoo = ["%s/openerp-server" % server_path,
                 "-d", dbtemplate,
                 "--log-level=warn",
-                "--stop-after-init", \
+                "--stop-after-init",
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
                 "--logfile=" +\
@@ -212,6 +214,7 @@ def main():
         commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
+    counted_errors = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
         subprocess.call(["dropdb", database])
@@ -230,8 +233,10 @@ def main():
                     print(line.strip())
             returncode = pipe.wait()
             # Find errors, except from failed mails
-            errors = has_test_errors("stdout.log", database, odoo_version, check_loaded)
+            errors = has_test_errors(
+                "stdout.log", database, odoo_version, check_loaded)
             if errors:
+                counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
             if returncode != 0:
@@ -245,7 +250,11 @@ def main():
             print(fail_msg, to_test)
         else:
             print(success_msg, to_test)
-    if all_errors:
+    if expected_errors and counted_errors != expected_errors:
+        print("Expected %d errors, found %d!"
+              % (expected_errors, counted_errors))
+        return 1
+    elif counted_errors != expected_errors:
         return 1
     # if we get here, all is OK
     return 0
