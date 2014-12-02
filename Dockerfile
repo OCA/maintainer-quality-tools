@@ -20,14 +20,15 @@ RUN apt-get update -q && apt-get upgrade -q \
     python-setuptools \
     git \
     vim \
+    nano \
     wget \
+    tmux \
+    htop \
     postgresql-9.3 \
     postgresql-contrib-9.3
 
-ADD travis/travis_install_nightly /tmp/travis_install_nightly
-RUN WITHOUT_ODOO=1 /tmp/travis_install_nightly
-
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+# Installing pip
+RUN cd /tmp && wget -q https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py && python get-pip.py
 
 # Add git config data to root user
 RUN git config --global user.name oca_docker \
@@ -42,7 +43,19 @@ RUN sudo mkdir -p /etc/ssl/private-copy \
         && sudo chmod -R 0700 /etc/ssl/private \
         && sudo chown -R postgres /etc/ssl/private
 
-# Create root role to postgres
+# Change to user postgres
+USER postgres
+
+# Create postgres role to root
 RUN /etc/init.d/postgresql start \
     && psql -c  "CREATE ROLE root LOGIN SUPERUSER INHERIT CREATEDB CREATEROLE;"
 
+USER root
+WORKDIR /root
+
+# Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
+RUN rm -rf $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
+
+ADD * /tmp/
+RUN WITHOUT_ODOO=1 /tmp/travis_install_nightly
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
