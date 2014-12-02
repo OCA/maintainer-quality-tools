@@ -1,0 +1,8 @@
+-
+  Inject a test error into a model
+-
+!python {model: test.model}: |
+    self.create(cr, uid, {
+        'name': 'This is a name too looo'
+            + 'o' * 100 + 'n'
+    })
