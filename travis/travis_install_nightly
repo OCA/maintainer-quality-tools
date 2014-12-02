@@ -10,9 +10,12 @@ fi
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
 
-echo "Installing Odoo ${ODOO_URL}"
-wget -O odoo.tar.gz ${ODOO_URL}
-tar -xf odoo.tar.gz -C ${HOME}
+
+if [ "x${WITHOUT_ODOO}" == "x" ] ; then
+    echo "Installing Odoo ${ODOO_URL}"
+    wget -O odoo.tar.gz ${ODOO_URL}
+    tar -xf odoo.tar.gz -C ${HOME}
+fi
 
 sudo apt-get -q -y install expect-dev  # provides unbuffer utility
 sudo apt-get -q -y install python-lxml  # because pip installation is slooow
