@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#  Start postgres
+#  Fix AUFS - https://github.com/docker/docker/issues/783#issuecomment-56013588
+sudo mkdir -p /etc/ssl/private-copy; sudo mkdir -p /etc/ssl/private; sudo mv /etc/ssl/private/* /etc/ssl/private-copy/; sudo rm -r /etc/ssl/private; sudo mv /etc/ssl/private-copy /etc/ssl/private; sudo chmod -R 0700 /etc/ssl/private; sudo chown -R postgres /etc/ssl/private
+sudo su -c "sudo -u postgres /usr/lib/postgresql/9.3/bin/postgres -c "config_file=/etc/postgresql/9.3/main/postgresql.conf" > /tmp/pg.log 2>&1 & sleep 5s"
+
+#  Force odoo to run with root user. With shippable ci we can't change user to run build
+find ${HOME} -name server.py -exec sed -i "s/== 'root'/== 'force_root'/g" {} \;
+
+#  Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
+rm -rf $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt

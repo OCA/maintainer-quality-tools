@@ -4,6 +4,8 @@
 
 language: python
 
+build_image: ocaimages/oca-odoo
+
 python:
   - "2.7"
 
