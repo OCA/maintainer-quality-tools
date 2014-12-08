@@ -4,6 +4,9 @@
 
 language: python
 
+build_image: vauxoo/odoo-80-image-shippable-auto
+commit_container: cowardvassal/vauxoo-dev
+
 python:
   - "2.7"
 
@@ -25,7 +28,7 @@ install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - git clone https://github.com/OCA/partner-contact ${HOME}/department -b 8.0 # only used if VERSION not set in env
+  - git clone --single-branch --depth=1 https://github.com/OCA/partner-contact ${HOME}/department -b 8.0 # only used if VERSION not set in env
   - travis_install_nightly 8.0 # only used if VERSION not set in env
 
 script:
