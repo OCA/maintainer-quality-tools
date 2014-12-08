@@ -11,19 +11,33 @@ IFS="/" read -a REPO <<< "${ODOO_REPO}"
 ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
 #ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
 
-echo "Installing Odoo ${ODOO_URL}"
-wget -q -O odoo.tar.gz ${ODOO_URL}
-tar -xf odoo.tar.gz -C ${HOME}
-#git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
+if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
+    echo "Installing Odoo ${ODOO_URL}"
+    wget -q -O odoo.tar.gz ${ODOO_URL}
+    tar -xf odoo.tar.gz -C ${HOME}
+    #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
+else
+    export REPO=$(python -c "print '${REPO[0]}'.lower()")
+    export BRANCH=$(python -c "print '${VERSION}'.lower()")
+    export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
+    ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
+    cd ${ODOO_PATH} \
+       && git checkout -f ${REPO}/${BRANCH} \
+       && git reset --hard ${REPO}/${BRANCH}
+fi
 
-sudo apt-get -q -y install expect-dev  # provides unbuffer utility
-sudo apt-get -q -y install python-lxml  # because pip installation is slooow
+
+if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
+    echo "Installing dependencies"
+    sudo apt-get -q -y install expect-dev  # provides unbuffer utility
+    sudo apt-get -q -y install python-lxml  # because pip installation is slooow
+
+    pip install -q QUnitSuite flake8 coveralls pylint
+    pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
-
-pip install -q QUnitSuite flake8 coveralls pylint
-pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
