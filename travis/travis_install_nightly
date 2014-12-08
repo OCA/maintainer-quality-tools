@@ -17,11 +17,13 @@ if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     tar -xf odoo.tar.gz -C ${HOME}
     #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
 else
-    export ODOO_PATH=${HOME}/${REPO[0]}-${VERSION}
+    export REPO=$(python -c "print '${REPO[0]}'.lower()")
+    export BRANCH=$(python -c "print '${VERSION}'.lower()")
+    export ODOO_PATH=${HOME}/${REPO}-${BRANCH}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
-       && git checkout -f ${REPO[0]}/${VERSION} \
-       && git reset --hard ${REPO[0]}/${VERSION}
+       && git checkout -f ${REPO}/${BRANCH} \
+       && git reset --hard ${REPO}/${BRANCH}
 fi
 
 
