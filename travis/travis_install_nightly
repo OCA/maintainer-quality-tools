@@ -19,7 +19,7 @@ if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
 else
     export REPO=$(python -c "print '${REPO[0]}'.lower()")
     export BRANCH=$(python -c "print '${VERSION}'.lower()")
-    export ODOO_PATH=${HOME}/${REPO}-${BRANCH}
+    export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
        && git checkout -f ${REPO}/${BRANCH} \
