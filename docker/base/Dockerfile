@@ -12,11 +12,9 @@ ENV PYTHONIOENCODING utf-8
 RUN echo 'APT::Get::Assume-Yes "true";' >> /etc/apt/apt.conf \
     && echo 'APT::Get::force-yes "true";' >> /etc/apt/apt.conf
 
-#  Update and upgrade
-RUN apt-get update -q && apt-get upgrade -q
-
-#  Installing basic OS package
-RUN apt-get install --allow-unauthenticated -q bzr \
+#  Installing basic OS package and dev packages
+RUN apt-get update -q && apt-get upgrade -q \
+    && apt-get install --allow-unauthenticated -q bzr \
     python \
     python-dev \
     python-setuptools \
@@ -25,14 +23,8 @@ RUN apt-get install --allow-unauthenticated -q bzr \
     nano \
     wget \
     tmux \
-    htop
-
-#  Add git config data to root user. (Required to use git command)
-RUN git config --global user.name oca_docker \
-    && git config --global user.email hello@oca.com
-
-#  Installing basic dev packages
-RUN apt-get install --allow-unauthenticated -q libssl-dev \
+    htop \
+    libssl-dev \
     libyaml-dev \
     libjpeg-dev \
     libgeoip-dev \
@@ -40,13 +32,15 @@ RUN apt-get install --allow-unauthenticated -q libssl-dev \
     libqrencode-dev \
     libfreetype6-dev \
     zlib1g-dev \
-    libpq-dev
+    libpq-dev \
+    python-pip
+
+#  Add git config data to root user. (Required to use git command)
+RUN git config --global user.name oca_docker \
+    && git config --global user.email hello@oca.com
 
 #  Fix http://www.nigeldunn.com/2011/05/14/ubuntu-11-04-libjpeg-so-libpng-so-php-installation-issues/
 RUN ln -s /usr/include/freetype2 /usr/local/include/freetype \
     && ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib/ \
     && ln -s /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib/ \
     && ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/
-
-#  Installing pip
-RUN apt-get install python-pip

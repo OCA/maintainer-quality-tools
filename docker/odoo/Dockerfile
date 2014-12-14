@@ -28,11 +28,10 @@ RUN mkdir -p /etc/ssl/private-copy \
 RUN su - postgres /etc/init.d/postgresql start \
     && su - postgres -c 'psql -c "CREATE ROLE root LOGIN SUPERUSER INHERIT CREATEDB CREATEROLE;"'
 
-RUN mkdir /extras
-RUN git clone https://github.com/OCA/maintainer-quality-tools.git -b master /extras/mqt
-
 #  Installing basic odoo dependencies
-RUN WITHOUT_ODOO=1 SHIPPABLE="true" WITHOUT_DEPENDENCIES="" /extras/mqt/travis/travis_install_nightly
+RUN mkdir /extras \
+    && git clone https://github.com/OCA/maintainer-quality-tools.git -b master /extras/mqt \
+    && WITHOUT_ODOO=1 SHIPPABLE="true" WITHOUT_DEPENDENCIES="" /extras/mqt/travis/travis_install_nightly
 
 #  Setting global env for next shippable build
 ENV WITHOUT_DEPENDENCIES 1
