@@ -20,7 +20,7 @@ IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export PYTHONPATH=${PYTHONPATH}:"${HOME}/${REPO[1]}-${VERSION}"
 
 $(dirname ${BASH_SOURCE[0]})/mk_ln_addons
-ls -la ${HOME}/${REPO[1]}-${VERSION}/openerp/addons
+#ls -la ${HOME}/${REPO[1]}-${VERSION}/openerp/addons
 
 #run pylint command
 pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST} -d C0103,F0401,I0011
