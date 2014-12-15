@@ -117,7 +117,7 @@ def main():
         odoo_version = sys.argv[1]
         print("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version)
-
+    test_loghandler = None
     if odoo_version == "6.1":
         install_options += ["--test-disable"]
         test_loglevel = 'test'
@@ -127,7 +127,7 @@ def main():
             test_loglevel = 'test'
         else:
             test_loglevel = 'info'
-
+            test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     odoo_org, odoo_repo = odoo_full.split('/')
     server_dirname = "%s-%s" % (odoo_repo, odoo_version)
@@ -192,7 +192,10 @@ def main():
                          "--stop-after-init",
                          "--log-level", test_loglevel,
                          "--addons-path", addons_path,
-                         ] + options + ["--update", None]
+                         ]
+        if test_loghandler is not None:
+            cmd_odoo_test += ['--log-handler', test_loghandler]
+        cmd_odoo_test += options + ["--update", None]
 
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
@@ -205,7 +208,10 @@ def main():
                          "--stop-after-init",
                          "--log-level", test_loglevel,
                          "--addons-path", addons_path,
-                         ] + options + ["--init", None]
+                         ]
+        if test_loghandler is not None:
+            cmd_odoo_test += ['--log-handler', test_loghandler]
+        cmd_odoo_test += options + ["--init", None]
         commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
