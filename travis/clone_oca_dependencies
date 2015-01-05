@@ -56,7 +56,7 @@ def parse_depfile(depfile):
 def git_checkout(home, reponame, url, branch):
     checkout_dir = osp.join(home, reponame)
     if not osp.isdir(checkout_dir):
-        command = ['git', 'clone', url, '-b', branch, checkout_dir]
+        command = ['git', 'clone', '-q', url, '-b', branch, checkout_dir]
         _logger.info('Calling %s', ' '.join(command))
         subprocess.check_call(command)
     return checkout_dir

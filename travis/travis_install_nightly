@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install -q QUnitSuite flake8 coveralls pylint
+pip install -q QUnitSuite flake8 coveralls pylint > /dev/null 2>&1
 
 # We can exit here and do nothing if this only a LINT check
 if [ "${LINT_CHECK}" == "1" ] ; then
@@ -18,14 +18,15 @@ IFS="/" read -a REPO <<< "${ODOO_REPO}"
 ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
 
 echo "Installing Odoo ${ODOO_URL}"
-wget -O odoo.tar.gz ${ODOO_URL}
+wget -nv -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ${HOME}
 
-sudo apt-get -q -y install expect-dev  # provides unbuffer utility
-sudo apt-get -q -y install python-lxml  # because pip installation is slooow
+echo "Installing Python dependencies"
+sudo apt-get -qq -y install expect-dev  # provides unbuffer utility
+sudo apt-get -qq -y install python-lxml  # because pip installation is slooow
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
-rm $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
+rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
 pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
