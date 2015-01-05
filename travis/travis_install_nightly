@@ -32,6 +32,9 @@ pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
+echo "Getting dependencies"
+clone_oca_dependencies
+
 # Expected directory structure:
 #
 #    HOME/
