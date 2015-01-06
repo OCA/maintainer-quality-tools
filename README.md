@@ -12,11 +12,9 @@ To setup the TravisCI continuous integration for your project, just copy the
 content of the [`/sample_files`](https://github.com/OCA/maintainer-quality-tools/tree/master/sample_files)
 to your project’s root directory.
 
-If your project depends on other OCA/Github repositories simply add the following under `before_install` section:
+If your project depends on other OCA/Github repositories, create a file called `oca_dependencies.txt` at the root of your project and list the dependencies in there, one per line:
 
-    install:
-      - git clone https://github.com/OCA/a_project_x ${HOME}/a_project_x -b ${VERSION}
-      - git clone https://github.com/OCA/a_project_y ${HOME}/a_project_y -b ${VERSION}
+    project_name optional_repository_url optional_branch_name
 
 The addons path used will automatically consider these repositories.
 
