@@ -1,0 +1,5 @@
+-
+  Inject a test error into a model
+-
+  !python {model: test.model}: |
+    self.write(cr, uid, -1, {'name': 'error'})
