@@ -4,7 +4,7 @@ python:
   - "2.7"
 
 env:
-  - LINT_CHECK="1"
+  - VERSION="8.0" LINT_CHECK="1"
   - VERSION="8.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
   - VERSION="8.0" ODOO_REPO="OCA/OCB" LINT_CHECK="0"
   - VERSION="8.0" ODOO_REPO="odoo/odoo" UNIT_TEST="1" LINT_CHECK="0"
@@ -13,11 +13,11 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+  - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
 # example: dependency
-# - git clone https://github.com/OCA/webkit-tools -b ${VERSION} $HOME/webkit-tools
+# - git clone --depth=1 https://github.com/OCA/webkit-tools -b ${VERSION} $HOME/webkit-tools
 
 script:
   - travis_run_tests
