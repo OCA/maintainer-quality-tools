@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ "$NOLINT" ]; then exit 0; fi
+
 set -v
 
 FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"

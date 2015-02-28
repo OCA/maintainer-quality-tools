@@ -2,7 +2,7 @@ Script for making the same tests as in Travis before committing
 ===============================================================
 
 This script allows to make a test before each commit you make on your local
-git repository, checking same things as in Travis PYLINT_CHECK phase of
+git repository, checking same things as in Travis LINT_CHECK phase of
 OCA maintainer quality tools.
 
 For using it, you can choose from two options:
@@ -24,3 +24,6 @@ pip ones:
 sudo pip install pep8 --upgrade
 sudo pip install pylint --upgrade
 ```
+
+You can bypass these checks setting environment variable NOLINT before calling
+commit, e.g, `NOLINT=1 git commit`.
