@@ -17,10 +17,11 @@ For using it, you can choose from two options:
 Then, making `git init` inside a git repository, these files will be copied,
 and you will have these checks available for it.
 
-**IMPORTANT** Don't forget to update pep8 and pylint modules to have the same
-checks as Travis. Don't use distribution packages, are they are outdated. Use
-pip ones:
+**IMPORTANT** Don't forget to install/update flake8, pep8 and pylint modules to
+have the same checks as Travis. Don't use distribution packages, as they are 
+outdated. Use pip ones:
 ```
+sudo pip install flake8 --upgrade
 sudo pip install pep8 --upgrade
 sudo pip install pylint --upgrade
 ```
