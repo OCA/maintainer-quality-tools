@@ -211,7 +211,7 @@ def main():
                          ]
         if test_loghandler is not None:
             cmd_odoo_test += ['--log-handler', test_loghandler]
-        cmd_odoo_test += options + ["--init", None]
+        cmd_odoo_test += options + ["--update", None]
         commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
