@@ -23,6 +23,8 @@ env:
   - VERSION="6.1" INCLUDE="test_module,second_module"
   - VERSION="" INCLUDE="test_module,second_module"  # test fallback to script argument
   # - VERSION="6.0"  # Test script not ready for v6.0
+  - LINT_CHECK="1"
+  - VERSION="7.0" INCLUDE="test_module,second_module" LINT_CHECK="0"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
