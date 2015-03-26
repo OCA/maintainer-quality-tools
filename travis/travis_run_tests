@@ -37,10 +37,12 @@ def main(test_list):
 
 
 if __name__ == '__main__':
-    # Test list
-    tests = [
-        ['test_flake8'],
-        ['test_pylint'],
-        ['test_server'],
-    ]
+    # Test list. Each test is a list with command + arguments.
+    tests = []
+    # By default, do lint checks
+    if os.environ.get("LINT_CHECK", "1") == "1":
+        tests.append(['test_flake8'])
+        tests.append(['test_pylint'])
+    if os.environ.get("LINT_CHECK", None) != "1":
+        tests.append(['test_server'])
     exit(main(tests))
