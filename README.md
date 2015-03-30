@@ -18,6 +18,10 @@ If your project depends on other OCA/Github repositories, create a file called `
 
 The addons path used will automatically consider these repositories.
 
+Check your .travis file for syntax issues.
+------------------------------------------
+
+You can test your .travis file in [this linter](http://lint.travis-ci.org/) very useful when you are improving your file.
 
 Module unit tests
 -----------------
