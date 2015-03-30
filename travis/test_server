@@ -101,10 +101,14 @@ def parse_list(comma_sep_list):
     return [x.strip() for x in comma_sep_list.split(',')]
 
 
+def str2bool(string):
+    return str(string or '').lower() in ['1', 'true', 'yes']
+
+
 def main():
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
-    odoo_unittest = os.environ.get("UNIT_TEST")
+    odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     options = os.environ.get("OPTIONS", "").split()
