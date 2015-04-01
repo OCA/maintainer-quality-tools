@@ -48,6 +48,7 @@ fi
 
 
 sudo apt-get -q -y install nodejs
+sudo ln -sf /usr/bin/nodejs /usr/bin/npm
 npm install -g less
 npm install -g less-plugin-clean-css
 
