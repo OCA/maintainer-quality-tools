@@ -74,7 +74,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 log_records.append(last_log_record)
             elif "Coverage.py warning: " \
                  "No data was collected." == line.rstrip('\n'):
-                 pass
+                pass
             else:
                 last_log_record['message'] = '%s\n%s' % (
                     last_log_record['message'], line.rstrip('\n')
@@ -165,7 +165,7 @@ def main():
     else:
         print("Modules to test: %s" % tested_addons)
 
-    ## setup the base module without running the tests
+    # setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"
     subprocess.check_call(["createdb", dbtemplate])
@@ -177,9 +177,7 @@ def main():
                 "--stop-after-init",
                 "--addons-path", addons_path,
                 "--init", preinstall_modules,
-                "--logfile=" +\
-                fname_log]\
-                + install_options
+                "--logfile=" + fname_log] + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
 

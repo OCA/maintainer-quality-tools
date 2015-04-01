@@ -7,7 +7,7 @@ import subprocess
 
 
 def run_output(l, cwd=None):
-    print "run output:", ' '.join( l ), "into", cwd
+    print "run output:", ' '.join(l), "into", cwd
     return subprocess.Popen(
         l, stdout=subprocess.PIPE, cwd=cwd).communicate()[0]
 
@@ -50,7 +50,9 @@ def git_reset_remote(repo, remote_name, path):
 
 
 def get_repo_data(repo):
-    regex = "(?P<host>(git@|https://)([\w\.@]+)(/|:))(?P<owner>[~\w,\-,\_]+)/(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})"
+    regex = "(?P<host>(git@|https://)([\w\.@]+)(/|:))" + \
+            "(?P<owner>[~\w,\-,\_]+)/" + \
+            "(?P<repo>[\w,\-,\_]+)(.git){0,1}((/){0,1})"
     match_object = re.search(regex, repo)
     repo_data = {}
     if match_object:
@@ -72,9 +74,9 @@ def git_clone_update(repo, branch, path=None):
     run_git_cmd(["remote", "add", remote_name, repo], path)
     run_git_cmd(["fetch", remote_name], path)
     run_git_cmd(["checkout", "-f",
-        remote_name + '/' + branch], path=path)
+                remote_name + '/' + branch], path=path)
     run_git_cmd(["reset", "--hard",
-        remote_name + '/' + branch], path=path)
+                remote_name + '/' + branch], path=path)
 
 
 def main():
@@ -83,7 +85,7 @@ def main():
                     " a git repository"
                     " or if exists update it.")
     parser.add_argument("repo_url",
-                       help="url of repository"
+                        help="url of repository"
                              " source of clone.")
     #  TODO: Set path optional (positional argument)
     parser.add_argument("path",
@@ -97,7 +99,6 @@ def main():
         args.repo_url,
         args.branch,
         path=args.path)
-
 
 
 if __name__ == '__main__':
