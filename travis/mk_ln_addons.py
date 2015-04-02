@@ -11,8 +11,10 @@ def main():
             continue
         if os.path.isdir(os.path.join(path, dirname)):
             dirnames.append(os.path.join(path, dirname))
-    odoo_path = os.path.join(path, os.environ.get('ODOO_REPO', '/').split('/')[1]\
-        + "-" + os.environ.get('VERSION', ''))
+    odoo_path = os.path.join(
+        path,
+        os.environ.get('ODOO_REPO', '/').split('/')[1] +
+        "-" + os.environ.get('VERSION', ''))
     try:
         pos = dirnames.index(odoo_path)
         dirnames.pop(pos)
@@ -20,7 +22,7 @@ def main():
         pass
     for dirname in dirnames:
         cmd = ["ln", "-s", os.path.join(dirname, '*'),
-             os.path.join(odoo_path, 'openerp', 'addons', '.')]
+               os.path.join(odoo_path, 'openerp', 'addons', '.')]
         print "cmd", cmd
         os.system(' '.join(cmd))
 
