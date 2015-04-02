@@ -47,8 +47,9 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
 fi
 
 
+#  Install new dependence: npm package
 sudo apt-get -q -y install nodejs
-sudo ln -sf /usr/bin/nodejs /usr/bin/npm
+sudo ln -sf /usr/bin/nodejs /usr/bin/npm #  Odoo use npm command but really is nodejs app. There is a node app too, but this one don't work fine.
 npm install -g less
 npm install -g less-plugin-clean-css
 
