@@ -31,6 +31,9 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         ]
     ERRORS_REPORT = [
         lambda x: x['loglevel'] == 'CRITICAL',
+        lambda x: (x['loglevel'] == 'ERROR' and
+                   'ValueError: External ID not found' in x['message']),
+        'ValueError: External ID not found ',
         'At least one test failed',
         'no access rules, consider adding one',
         'invalid module names, ignored',
