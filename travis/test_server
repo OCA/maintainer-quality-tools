@@ -220,6 +220,7 @@ def main():
                     )
     all_errors = []
     counted_errors = 0
+    returncode_global = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
         subprocess.call(["createdb", "-T", dbtemplate, database])
@@ -244,6 +245,7 @@ def main():
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
             if returncode != 0:
+                returncode_global = returncode
                 all_errors.append(to_test)
                 print(fail_msg, "Command exited with code %s" % returncode)
         subprocess.call(["dropdb", database])
@@ -261,7 +263,7 @@ def main():
     elif counted_errors != expected_errors:
         return 1
     # if we get here, all is OK
-    return 0
+    return returncode_global
 
 if __name__ == '__main__':
     exit(main())
