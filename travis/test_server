@@ -163,7 +163,7 @@ def main():
     else:
         print("Modules to test: %s" % tested_addons)
 
-    ## setup the base module without running the tests
+    # setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"
     subprocess.check_call(["createdb", dbtemplate])
