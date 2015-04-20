@@ -220,7 +220,6 @@ def main():
                     )
     all_errors = []
     counted_errors = 0
-    returncode_global = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
         subprocess.call(["createdb", "-T", dbtemplate, database])
@@ -240,14 +239,18 @@ def main():
             # Find errors, except from failed mails
             errors = has_test_errors(
                 "stdout.log", database, odoo_version, check_loaded)
+            if returncode != 0:
+                all_errors.append(to_test)
+                print(fail_msg, "Command exited with code %s" % returncode)
+                # If not exists errors then
+                # add an error when returcode!=0
+                # because is really a error.
+                if not errors:
+                    errors += 1
             if errors:
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-            if returncode != 0:
-                returncode_global = returncode
-                all_errors.append(to_test)
-                print(fail_msg, "Command exited with code %s" % returncode)
         subprocess.call(["dropdb", database])
 
     print('Module test summary')
@@ -263,7 +266,7 @@ def main():
     elif counted_errors != expected_errors:
         return 1
     # if we get here, all is OK
-    return returncode_global
+    return 0
 
 if __name__ == '__main__':
     exit(main())
