@@ -57,3 +57,5 @@ To avoid making again these checks on other builds, you have to add
 LINT_CHECK="0" variable on the line:
 
     - VERSION="7.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
+
+Dummy commit to confirm cache travis build
