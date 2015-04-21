@@ -108,9 +108,13 @@ def parse_list(comma_sep_list):
     return [x.strip() for x in comma_sep_list.split(',')]
 
 
+def str2bool(string):
+    return str(string or '').lower() in ['1', 'true', 'yes']
+
+
 def main():
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
-    odoo_unittest = os.environ.get("UNIT_TEST")
+    odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     options = os.environ.get("OPTIONS", "").split()
@@ -242,13 +246,18 @@ def main():
             # Find errors, except from failed mails
             errors = has_test_errors(
                 "stdout.log", database, odoo_version, check_loaded)
+            if returncode != 0:
+                all_errors.append(to_test)
+                print(fail_msg, "Command exited with code %s" % returncode)
+                # If not exists errors then
+                # add an error when returcode!=0
+                # because is really a error.
+                if not errors:
+                    errors += 1
             if errors:
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-            if returncode != 0:
-                all_errors.append(to_test)
-                print(fail_msg, "Command exited with code %s" % returncode)
         subprocess.call(["dropdb", database])
 
     print('Module test summary')

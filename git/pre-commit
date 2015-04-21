@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ "$NOLINT" ]; then exit 0; fi
+
+set -v
+
+FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
+
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
+status1=$?
+flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8.cfg
+status2=$?
+
+set -v
+
+PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
+# In the structure, hooks are in .git/hooks, so we need to go 2 levels up
+GIT_DIR="$(dirname $(dirname $(dirname $0)))"
+
+# Fix pylint path. More info: https://www.mail-archive.com/code-quality@python.org/msg00294.html
+export PYTHONPATH=${PYTHONPATH}:$GIT_DIR
+touch $GIT_DIR/__init__.py
+
+# run pylint command - For some strange reason, message controls are not taken correctly from cfg
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg --disable=all --enable=E0101,E1124,E1306,E1601,I0013,W0101,W0102,W0104,W0105,W0109,W0403,W0404,W1111,W1401 $GIT_DIR/*
+pylint_status=$?
+rm $GIT_DIR/__init__.py
+
+exit $((${status1} || ${status2} || ${pylint_status}))
