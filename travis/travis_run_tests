@@ -8,6 +8,7 @@ import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
 
+
 def main(test_list):
     args = sys.argv[1:]
     results = []
@@ -27,7 +28,7 @@ def main(test_list):
         print("| {0:<28}{1}".format(desc, outcome))
     print("+" + "="*39)
 
-    return(max(results))
+    return max(results)
 
 
 if __name__ == '__main__':
@@ -41,4 +42,5 @@ if __name__ == '__main__':
     if (os.environ.get("LINT_CHECK") != "1" and
             os.environ.get("TESTS", "1") == "1"):
         tests.append(['test_server'])
-    exit(main(tests))
+    if tests:
+        exit(main(tests))
