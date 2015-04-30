@@ -233,6 +233,19 @@ def main():
 
     # Running tests
     database = "openerp_test"
+
+    cmd_odoo_test = ["coverage", "run",
+                     "%s/openerp-server" % server_path,
+                     "-d", database,
+                     "--stop-after-init",
+                     "--log-level", test_loglevel,
+                     "--addons-path", addons_path,
+                     ]
+
+    if test_loghandler is not None:
+        cmd_odoo_test += ['--log-handler', test_loghandler]
+    cmd_odoo_test += options + ["--update", None]
+
     if odoo_unittest:
         to_test_list = tested_addons_list
         cmd_odoo_install = ["%s/openerp-server" % server_path,
@@ -241,33 +254,11 @@ def main():
                             "--log-level=warn",
                             "--addons-path", addons_path,
                             ] + install_options + ["--init", None]
-
-        cmd_odoo_test = ["coverage", "run",
-                         "%s/openerp-server" % server_path,
-                         "-d", database,
-                         "--stop-after-init",
-                         "--log-level", test_loglevel,
-                         "--addons-path", addons_path,
-                         ]
-        if test_loghandler is not None:
-            cmd_odoo_test += ['--log-handler', test_loghandler]
-        cmd_odoo_test += options + ["--update", None]
-
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
     else:
         to_test_list = [tested_addons]
-        cmd_odoo_test = ["coverage", "run",
-                         "%s/openerp-server" % server_path,
-                         "-d", database,
-                         "--stop-after-init",
-                         "--log-level", test_loglevel,
-                         "--addons-path", addons_path,
-                         ]
-        if test_loghandler is not None:
-            cmd_odoo_test += ['--log-handler', test_loghandler]
-        cmd_odoo_test += options + ["--update", None]
         commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
