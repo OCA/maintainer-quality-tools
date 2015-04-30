@@ -37,6 +37,8 @@ if __name__ == '__main__':
     if os.environ.get("LINT_CHECK", "1") == "1":
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
-    if os.environ.get("LINT_CHECK", None) != "1":
+    # Execute tests by default. Disable them on lint checks
+    if (os.environ.get("LINT_CHECK") != "1" and
+            os.environ.get("TESTS", "1") == "1"):
         tests.append(['test_server'])
     exit(main(tests))
