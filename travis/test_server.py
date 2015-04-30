@@ -155,6 +155,32 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     return addons_list
 
 
+def setup_server(db, odoo_unittest, tested_addons, server_path,
+                 addons_path, install_options):
+    """
+    Setup the base module before running the tests
+    :param db: Template database name
+    :param odoo_unittest: Boolean for unit test (travis parameter)
+    :param tested_addons: List of modules that need to be installed
+    :param server_path: Server path
+    :param addons_path: Addons path
+    :param install_options: Install options (travis parameter)
+    """
+    print("\nCreating instance:")
+    subprocess.check_call(["createdb", db])
+    preinstall_modules = 'mail' if odoo_unittest else tested_addons
+    cmd_odoo = ["%s/openerp-server" % server_path,
+                "-d", db,
+                "--log-level=warn",
+                "--stop-after-init",
+                "--addons-path", addons_path,
+                "--init", preinstall_modules,
+                ] + install_options
+    print(" ".join(cmd_odoo))
+    subprocess.check_call(cmd_odoo)
+    return 0
+
+
 def main():
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
@@ -201,20 +227,9 @@ def main():
         print("Modules to test: %s" % tested_addons)
 
     # setup the base module without running the tests
-    print("\nCreating test instance:")
     dbtemplate = "openerp_template"
-    subprocess.check_call(["createdb", dbtemplate])
-
-    preinstall_modules = 'mail' if odoo_unittest else tested_addons
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", dbtemplate,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", preinstall_modules,
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+    setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
+                 addons_path, install_options)
 
     # Running tests
     database = "openerp_test"
