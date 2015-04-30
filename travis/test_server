@@ -25,11 +25,11 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     #         'loglevel': ...,
     #         'message': ....,
     #     }
-    ERRORS_IGNORE = [
+    errors_ignore = [
         'Mail delivery failed',
         'failed sending mail',
         ]
-    ERRORS_REPORT = [
+    errors_report = [
         lambda x: x['loglevel'] == 'CRITICAL',
         'At least one test failed',
         'no access rules, consider adding one',
@@ -37,7 +37,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         ]
     # Only check ERROR lines before 7.0
     if odoo_version < '7.0':
-        ERRORS_REPORT.append(
+        errors_report.append(
             lambda x: x['loglevel'] == 'ERROR')
 
     def make_pattern_list_callable(pattern_list):
@@ -49,8 +49,8 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 regex = pattern_list[i]
                 pattern_list[i] = lambda x: regex.match(x['message'])
 
-    make_pattern_list_callable(ERRORS_IGNORE)
-    make_pattern_list_callable(ERRORS_REPORT)
+    make_pattern_list_callable(errors_ignore)
+    make_pattern_list_callable(errors_report)
 
     print("-"*10)
     # Read log file removing ASCII color escapes:
@@ -75,13 +75,13 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     errors = []
     for log_record in log_records:
         ignore = False
-        for ignore_pattern in ERRORS_IGNORE:
+        for ignore_pattern in errors_ignore:
             if ignore_pattern(log_record):
                 ignore = True
                 break
         if ignore:
             break
-        for report_pattern in ERRORS_REPORT:
+        for report_pattern in errors_report:
             if report_pattern(log_record):
                 errors.append(log_record)
                 break
@@ -103,6 +103,56 @@ def parse_list(comma_sep_list):
 
 def str2bool(string):
     return str(string or '').lower() in ['1', 'true', 'yes']
+
+
+def get_server_path(odoo_full, odoo_version, travis_home):
+    """
+    Calculate server path
+    :param odoo_full: Odoo repository path
+    :param odoo_version: Odoo version
+    :param travis_home: Travis home directory
+    :return: Server path
+    """
+    odoo_org, odoo_repo = odoo_full.split('/')
+    server_dirname = "%s-%s" % (odoo_repo, odoo_version)
+    server_path = os.path.join(travis_home, server_dirname)
+    return server_path
+
+
+def get_addons_path(travis_home, travis_build_dir, server_path):
+    """
+    Calculate addons path
+    :param travis_home: Travis home directory
+    :param travis_build_dir: Travis build directory
+    :param server_path: Server path
+    :return: Addons path
+    """
+    addons_path_list = get_addons(travis_home)
+    addons_path_list.insert(0, travis_build_dir)
+    addons_path_list.append(server_path + "/addons")
+    addons_path = ','.join(addons_path_list)
+    return addons_path
+
+
+def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
+    """
+    Get the list of modules that need to be installed
+    :param travis_build_dir: Travis build directory
+    :param odoo_include: addons to include (travis parameter)
+    :param odoo_exclude: addons to exclude (travis parameter)
+    :return: List of addons to test
+    """
+    if odoo_include:
+        addons_list = parse_list(odoo_include)
+    else:
+        addons_list = get_modules(travis_build_dir)
+
+    if odoo_exclude:
+        exclude_list = parse_list(odoo_exclude)
+        addons_list = [
+            x for x in addons_list
+            if x not in exclude_list]
+    return addons_list
 
 
 def main():
@@ -133,25 +183,12 @@ def main():
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    odoo_org, odoo_repo = odoo_full.split('/')
-    server_dirname = "%s-%s" % (odoo_repo, odoo_version)
-    server_path = os.path.join(travis_home, server_dirname)
-    # Calculate addons_path
-    addons_path_list = get_addons(travis_home)
-    addons_path_list.insert(0, travis_build_dir)
-    addons_path_list.append(server_path + "/addons")
-    addons_path = ','.join(addons_path_list)
+    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
 
-    if odoo_include:
-        tested_addons_list = parse_list(odoo_include)
-    else:
-        tested_addons_list = get_modules(travis_build_dir)
-
-    if odoo_exclude:
-        exclude_list = parse_list(odoo_exclude)
-        tested_addons_list = [
-            x for x in tested_addons_list
-            if x not in exclude_list]
+    tested_addons_list = get_addons_to_check(travis_build_dir,
+                                             odoo_include,
+                                             odoo_exclude)
     tested_addons = ','.join(tested_addons_list)
 
     print("Working in %s" % travis_build_dir)
@@ -163,7 +200,7 @@ def main():
     else:
         print("Modules to test: %s" % tested_addons)
 
-    ## setup the base module without running the tests
+    # setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"
     subprocess.check_call(["createdb", dbtemplate])
