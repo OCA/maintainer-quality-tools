@@ -5,6 +5,6 @@ set -v
 # if the env variable TESTS is not set, default to 1 to keep backward compatibility
 : ${TESTS:="1"}
 
-if [ "${TESTS}" = "1" ] ; then
+if [ "${TESTS}" = "1" ] && [ "${LINT_CHECK}" != "1" ] ; then
   coveralls
 fi

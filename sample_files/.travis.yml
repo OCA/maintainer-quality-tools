@@ -8,7 +8,7 @@ env:
   global:
   - VERSION="8.0"
   matrix:
-  - LINT_CHECK="1"
+  - LINT_CHECK="1" TESTS="0"
   - TESTS="1" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
   - TESTS="1" ODOO_REPO="OCA/OCB" LINT_CHECK="0"
 # either use the two lines above or the two below. Don't change the default if
