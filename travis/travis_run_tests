@@ -41,6 +41,6 @@ if __name__ == '__main__':
     # Execute tests by default. Disable them on lint checks
     if (os.environ.get("LINT_CHECK") != "1" and
             os.environ.get("TESTS", "1") == "1"):
-        tests.append(['test_server'])
+        tests.append(['test_server.py'])
     if tests:
         exit(main(tests))
