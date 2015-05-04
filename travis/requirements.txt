@@ -31,5 +31,5 @@ simplejson
 unittest2
 vatnumber
 vobject
-werkzeug < 0.10
+werkzeug
 xlwt
