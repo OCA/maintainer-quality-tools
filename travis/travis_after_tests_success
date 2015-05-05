@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+import os
+from coveralls import cli as coveralls_cli
+
+if (os.environ.get('TESTS', '1') == '1' and
+        not os.environ.get('LINT_CHECK') == '1'):
+    exit(coveralls_cli.main(argv=None))
