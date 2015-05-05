@@ -1,0 +1,10 @@
+invoice_department: https://github.com/OCA/department.git
+framework_agreement_department: https://github.com/OCA/department.git
+analytic_base_department: https://github.com/OCA/department.git
+project_issue_department: https://github.com/OCA/department.git
+purchase_department: https://github.com/OCA/department.git
+sale_department: https://github.com/OCA/department.git
+project_department: https://github.com/OCA/department.git
+analytic_department: https://github.com/OCA/department.git
+project_task_department: https://github.com/OCA/department.git
+purchase_requisition_department: https://github.com/OCA/department.git

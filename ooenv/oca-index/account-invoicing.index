@@ -1,0 +1,8 @@
+invoice_fiscal_position_update: https://github.com/OCA/account-invoicing.git
+account_invoice_partner: https://github.com/OCA/account-invoicing.git
+account_invoice_shipping_address: https://github.com/OCA/account-invoicing.git
+account_invoice_line_sort: https://github.com/OCA/account-invoicing.git
+account_invoice_rounding: https://github.com/OCA/account-invoicing.git
+account_invoice_force_number: https://github.com/OCA/account-invoicing.git
+account_invoice_validation_workflow: https://github.com/OCA/account-invoicing.git
+account_invoice_merge: https://github.com/OCA/account-invoicing.git

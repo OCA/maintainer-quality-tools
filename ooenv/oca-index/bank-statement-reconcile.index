@@ -1,0 +1,3 @@
+account_invoice_reference: https://github.com/OCA/bank-statement-reconcile.git
+account_statement_operation_multicompany: https://github.com/OCA/bank-statement-reconcile.git
+base_transaction_id: https://github.com/OCA/bank-statement-reconcile.git

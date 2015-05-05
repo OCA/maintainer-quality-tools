@@ -1,0 +1,15 @@
+base_location_geonames_import: https://github.com/OCA/partner-contact.git
+partner_street_number: https://github.com/OCA/partner-contact.git
+base_location: https://github.com/OCA/partner-contact.git
+partner_auto_salesman: https://github.com/OCA/partner-contact.git
+partner_contact_address_detailed: https://github.com/OCA/partner-contact.git
+res_partner_affiliate: https://github.com/OCA/partner-contact.git
+base_continent: https://github.com/OCA/partner-contact.git
+base_partner_merge: https://github.com/OCA/partner-contact.git
+base_contact: https://github.com/OCA/partner-contact.git
+portal_partner_merge: https://github.com/OCA/partner-contact.git
+partner_address_street3: https://github.com/OCA/partner-contact.git
+base_partner_sequence: https://github.com/OCA/partner-contact.git
+passport: https://github.com/OCA/partner-contact.git
+partner_firstname: https://github.com/OCA/partner-contact.git
+partner_helper: https://github.com/OCA/partner-contact.git

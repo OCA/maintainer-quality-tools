@@ -1,0 +1,11 @@
+service_desk_issue: https://github.com/OCA/project-service.git
+project_gtd: https://github.com/OCA/project-service.git
+project_sla: https://github.com/OCA/project-service.git
+project_categ: https://github.com/OCA/project-service.git
+project_issue_task: https://github.com/OCA/project-service.git
+project_issue_baseuser: https://github.com/OCA/project-service.git
+project_baseuser: https://github.com/OCA/project-service.git
+project_stage_state: https://github.com/OCA/project-service.git
+project_categ_issue: https://github.com/OCA/project-service.git
+service_desk: https://github.com/OCA/project-service.git
+project_task_materials: https://github.com/OCA/project-service.git
