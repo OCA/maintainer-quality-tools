@@ -28,6 +28,7 @@ qrcode
 reportlab
 requests
 simplejson
+transifex-client == 0.11b3
 unittest2
 vatnumber
 vobject

@@ -11,9 +11,15 @@ addons:
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0"
+  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  # This line contains the encrypted transifex password
+  # To encrypt transifex password, use
+  # $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
+  - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
+
   matrix:
   - LINT_CHECK="1"
+  - TRANSIFEX="1"
   - TESTS="1" ODOO_REPO="odoo/odoo"
   - TESTS="1" ODOO_REPO="OCA/OCB"
 # either use the two lines above or the two below. Don't change the default if
