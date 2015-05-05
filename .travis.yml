@@ -18,12 +18,13 @@ virtualenv:
   system_site_packages: true
 
 env:
+
   global:
   - VERSION="8.0" TESTS="0" LINT_CHECK="0"
 
   matrix:
   - TESTS="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
-  - TESTS="1" VERSION="master" EXCLUDE="broken_module"  # EXCLUDE usage example - update with erroring modules list
+  - TESTS="1" VERSION="8.0" EXCLUDE="broken_module"  # EXCLUDE usage example - update with erroring modules list
   - TESTS="1" INCLUDE="test_module,second_module" OPTIONS="--log-level=debug"  # OPTIONS usage example
   - TESTS="1" INCLUDE="test_module,second_module" INSTALL_OPTIONS="--log-level=info"
   - TESTS="1" INCLUDE="test_module,second_module" UNIT_TEST="1"
