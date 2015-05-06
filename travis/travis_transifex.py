@@ -9,6 +9,7 @@ from test_server import setup_server, get_addons_path, \
     get_server_path, get_addons_to_check
 import subprocess
 from travis_helpers import fail_msg, yellow, yellow_light
+from txclib import utils, commands
 
 
 def main(argv=None):
@@ -69,11 +70,11 @@ def main(argv=None):
     # Initialize Transifex project
     print()
     print(yellow('Initializing Transifex project'))
-    cmd_init = ['tx', 'init',
-                '--host', 'https://www.transifex.com',
-                '--user', 'test_transifex_oca',
-                '--pass', transifex_password]
-    subprocess.call(cmd_init)
+    init_args = ['--host=https://www.transifex.com',
+                 '--user=test_transifex_oca',
+                 '--pass=%s' % transifex_password]
+    commands.cmd_init(init_args, path_to_tx=None)
+    path_to_tx = utils.find_dot_tx()
 
     repo_name = "%s-%s" % (travis_repo_slug.split("/")[1],
                            odoo_version.replace('.', '-'))
@@ -106,24 +107,20 @@ def main(argv=None):
 
         print()
         print(yellow("Linking PO file and Transifex resource"))
-        cmd_set = ['tx', 'set',
-                   '-t', 'PO',
-                   '--auto-local',
-                   '-r', '%s.%s' % (repo_name, module),
-                   "'%s/i18n/<lang>.po'" % module,
-                   '--source-lang', 'en',
-                   '--source-file', source_path,
-                   '--execute']
-        print(' '.join(cmd_set))
-        subprocess.call(cmd_set)
+        set_args = ['-t', 'PO',
+                    '--auto-local',
+                    '-r', '%s.%s' % (repo_name, module),
+                    '%s/i18n/<lang>.po' % module,
+                    '--source-lang', 'en',
+                    '--source-file', source_path,
+                    '--execute']
+        commands.cmd_set(set_args, path_to_tx)
 
     print()
     print(yellow('Pushing translation files to Transifex'))
-    cmd_push = ['tx', 'push',
-                '-s',
-                '-t']
-    print(' '.join(cmd_push))
-    subprocess.call(cmd_push)
+    push_args = ['-s', '-t', '--skip']
+    commands.cmd_push(push_args, path_to_tx)
+
     return 0
 
 
