@@ -32,15 +32,24 @@ def main(test_list):
 
 
 if __name__ == '__main__':
+    do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
+    do_tests = os.environ.get("TESTS", '1') == "1"
+    export_transifex = os.environ.get("TRANSIFEX") == "1"
+    # Variable TRAVIS_PULL_REQUEST corresponds to pull request number if the
+    # current job is a pull request, "false" if it's not a pull request.
+    travis_pull_request = os.environ.get("TRAVIS_PULL_REQUEST")
+
     # Test list. Each test is a list with command + arguments.
     tests = []
     # By default, do lint checks
-    if os.environ.get("LINT_CHECK", "1") == "1":
+    if do_lint_check:
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
     # Execute tests by default. Disable them on lint checks
-    if (os.environ.get("LINT_CHECK") != "1" and
-            os.environ.get("TESTS", "1") == "1"):
+    if not do_lint_check and do_tests:
         tests.append(['test_server.py'])
+    # Execute transifex export with no tests and if it's an official commit
+    if not tests and export_transifex and travis_pull_request == "false":
+        tests.append(['travis_transifex.py'])
     if tests:
         exit(main(tests))
