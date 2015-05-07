@@ -22,7 +22,13 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
+    transifex_user = os.environ.get("TRANSIFEX_USER")
     transifex_password = os.environ.get("TRANSIFEX_PASSWORD")
+
+    if not transifex_user:
+        print(yellow_light("WARNING! Transifex user not defined- "
+              "exiting early."))
+        return 1
 
     if not transifex_password:
         print(yellow_light("WARNING! Transifex password not recognized- "
@@ -70,7 +76,7 @@ def main(argv=None):
     print()
     print(yellow('Initializing Transifex project'))
     init_args = ['--host=https://www.transifex.com',
-                 '--user=test_transifex_oca',
+                 '--user=%s' % transifex_user,
                  '--pass=%s' % transifex_password]
     commands.cmd_init(init_args, path_to_tx=None)
     path_to_tx = utils.find_dot_tx()
