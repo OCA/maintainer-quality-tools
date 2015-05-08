@@ -1,5 +1,6 @@
 """
-Odoo connection classes which describe how to connect to odoo to export PO files
+Odoo connection classes which describe how to connect to odoo to export PO
+files.
 One class per version is defined and mapped in context_mapping.
 To add a new version, create a subclass of _OdooBaseContext with name
 OdooXContext, implement __enter__ and add to context_mapping.

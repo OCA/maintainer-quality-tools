@@ -85,7 +85,8 @@ def main(argv=None):
                            odoo_version.replace('.', '-'))
 
     connection_context = context_mapping[odoo_version]
-    with connection_context(server_path, addons_path, database) as odoo_context:
+    with connection_context(server_path, addons_path, database) \
+            as odoo_context:
         for module in addons_list:
             print()
             print(yellow("Downloading PO file for %s" % module))
