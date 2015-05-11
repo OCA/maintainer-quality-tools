@@ -17,6 +17,9 @@ env:
   # To encrypt transifex password, use
   # $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
   - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
+  # Use the following line if you need to manually change the transifex project name.
+  # By default it is owner-repo_name-version (with dash in the version string)
+  # - TRANSIFEX_PROJECT_NAME=''
 
   matrix:
   - LINT_CHECK="1"

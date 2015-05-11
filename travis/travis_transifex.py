@@ -44,6 +44,11 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     odoo_version = os.environ.get("VERSION")
 
+    default_project_name = "%s-%s" % (travis_repo_slug.replace('/', '-'),
+                                      odoo_version.replace('.', '-'))
+    transifex_project_name = os.environ.get("TRANSIFEX_PROJECT_NAME",
+                                            default_project_name)
+
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -81,9 +86,6 @@ def main(argv=None):
     commands.cmd_init(init_args, path_to_tx=None)
     path_to_tx = utils.find_dot_tx()
 
-    repo_name = "%s-%s" % (travis_repo_slug.split("/")[1],
-                           odoo_version.replace('.', '-'))
-
     connection_context = context_mapping[odoo_version]
     with connection_context(server_path, addons_path, database) \
             as odoo_context:
@@ -102,7 +104,7 @@ def main(argv=None):
             print(yellow("Linking PO file and Transifex resource"))
             set_args = ['-t', 'PO',
                         '--auto-local',
-                        '-r', '%s.%s' % (repo_name, module),
+                        '-r', '%s.%s' % (transifex_project_name, module),
                         '%s/i18n/<lang>.po' % module,
                         '--source-lang', 'en',
                         '--source-file', source_filename,
