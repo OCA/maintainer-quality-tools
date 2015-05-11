@@ -21,10 +21,6 @@ echo "Installing Odoo ${ODOO_URL}"
 wget -nv -O odoo.tar.gz ${ODOO_URL}
 tar -xf odoo.tar.gz -C ${HOME}
 
-echo "Installing Python dependencies"
-sudo apt-get -qq -y install expect-dev  # provides unbuffer utility
-sudo apt-get -qq -y install python-lxml  # because pip installation is slooow
-
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
