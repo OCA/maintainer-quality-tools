@@ -14,6 +14,7 @@ from travis_helpers import success_msg, fail_msg
 travis_home = os.environ.get("HOME", "~/")
 fname_log = os.path.join(travis_home, 'server.log')
 
+
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
     Check a list of log lines for test errors.
