@@ -14,7 +14,6 @@ from travis_helpers import success_msg, fail_msg
 travis_home = os.environ.get("HOME", "~/")
 fname_log = os.path.join(travis_home, 'server.log')
 
-
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     """
     Check a list of log lines for test errors.
@@ -169,6 +168,7 @@ def main():
     else:
         print("Modules to test: %s" % tested_addons)
 
+    subprocess.check_call(["shippable_install_nightly"])
     # setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"

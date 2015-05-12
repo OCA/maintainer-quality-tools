@@ -41,10 +41,10 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
 
     pip install -q QUnitSuite flake8 coveralls pylint
     pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
-
-    echo "Getting dependencies"
-    clone_oca_dependencies
 fi
+
+echo "Getting addons dependencies"
+clone_oca_dependencies
 
 
 #  Install new dependence: npm package
@@ -59,7 +59,6 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
-$(dirname ${BASH_SOURCE[0]})/shippable_install_nightly
 wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
 
 
