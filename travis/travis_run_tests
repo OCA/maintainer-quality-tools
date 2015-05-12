@@ -10,6 +10,8 @@ from travis_helpers import success_msg, fail_msg
 from test_server import fname_log
 
 def main(test_list):
+    subprocess.call(["shippable_start_service"])
+
     args = sys.argv[1:]
     results = []
     for test in test_list:

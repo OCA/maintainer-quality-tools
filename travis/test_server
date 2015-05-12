@@ -168,7 +168,6 @@ def main():
         return 0
     else:
         print("Modules to test: %s" % tested_addons)
-
     # setup the base module without running the tests
     print("\nCreating test instance:")
     dbtemplate = "openerp_template"
