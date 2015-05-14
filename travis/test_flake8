@@ -3,7 +3,7 @@
 set -v
 
 FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
-MODULES_TO_TEST=$TRAVIS_BUILD_DIR
+MODULES_TO_TEST=${TRAVIS_BUILD_DIR}
 
 flake8 ${MODULES_TO_TEST} --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
 status1=$?
