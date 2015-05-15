@@ -5,17 +5,17 @@ from __future__ import print_function
 from __future__ import unicode_literals
 import os
 import sys
+from slumber import API, exceptions
 from odoo_connection import context_mapping
 from test_server import setup_server, get_addons_path, \
     get_server_path, get_addons_to_check
-from travis_helpers import yellow, yellow_light
+from travis_helpers import yellow, yellow_light, red
 from txclib import utils, commands
 
 
 def main(argv=None):
     """
     Export translation files and push them to Transifex
-
     The transifex password should be encrypted in .travis.yml
     If not, export exits early.
     """
@@ -38,16 +38,13 @@ def main(argv=None):
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     travis_repo_slug = os.environ.get("TRAVIS_REPO_SLUG")
+    travis_repo_owner = travis_repo_slug.split("/")[0]
+    travis_repo_shortname = travis_repo_slug.split("/")[1]
     odoo_unittest = False
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     odoo_version = os.environ.get("VERSION")
-
-    default_project_name = "%s-%s" % (travis_repo_slug.replace('/', '-'),
-                                      odoo_version.replace('.', '-'))
-    transifex_project_name = os.environ.get("TRANSIFEX_PROJECT_NAME",
-                                            default_project_name)
 
     if not odoo_version:
         # For backward compatibility, take version from parameter
@@ -55,6 +52,15 @@ def main(argv=None):
         odoo_version = sys.argv[1]
         print(yellow_light("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version))
+
+    default_project_slug = "%s-%s" % (travis_repo_slug.replace('/', '-'),
+                                      odoo_version.replace('.', '-'))
+    transifex_project_slug = os.environ.get("TRANSIFEX_PROJECT_SLUG",
+                                            default_project_slug)
+    transifex_project_name = "%s (%s)" % (travis_repo_shortname, odoo_version)
+    transifex_organization = os.environ.get("TRANSIFEX_ORGANIZATION",
+                                            travis_repo_owner)
+    repository_url = "https://github.com/%s" & travis_repo_slug
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
@@ -69,6 +75,37 @@ def main(argv=None):
     if not addons:
         print(yellow_light("WARNING! Nothing to translate- exiting early."))
         return 0
+
+    # Create Transifex project if it doesn't exist
+    print()
+    print(yellow("Creating Transifex project if it doesn't exist"))
+    auth = (transifex_user, transifex_password)
+    api_url = "https://www.transifex.com/api/2/"
+    api = API(api_url, auth=auth)
+    project_data = {"slug": transifex_project_slug,
+                    "name": transifex_project_name,
+                    "source_language_code": "en",
+                    "description": transifex_project_name,
+                    "repository_url": repository_url,
+                    "organization": transifex_organization,
+                    "license": "permissive_open_source",
+                    }
+    try:
+        api.project(transifex_project_slug).get()
+        print('This Transifex project already exists.')
+    except exceptions.HttpClientError:
+        try:
+            api.projects.post(project_data)
+            print('Transifex project has been successfully created.')
+        except exceptions.HttpClientError:
+            print('Transifex organization: %s' % transifex_organization)
+            print('Transifex username: %s' % transifex_user)
+            print('Transifex project slug: %s' % transifex_project_slug)
+            print(red('Error: Authentication failed. Please verify that '
+                      'Transifex organization, user and password are '
+                      'correct. You can change these variables in your '
+                      '.travis.yml file.'))
+            raise
 
     print("\nModules to translate: %s" % addons)
 
@@ -104,7 +141,7 @@ def main(argv=None):
             print(yellow("Linking PO file and Transifex resource"))
             set_args = ['-t', 'PO',
                         '--auto-local',
-                        '-r', '%s.%s' % (transifex_project_name, module),
+                        '-r', '%s.%s' % (transifex_project_slug, module),
                         '%s/i18n/<lang>.po' % module,
                         '--source-lang', 'en',
                         '--source-file', source_filename,

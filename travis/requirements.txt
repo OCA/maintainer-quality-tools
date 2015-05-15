@@ -26,8 +26,9 @@ pyusb >= 1.0.0b1
 pyyaml
 qrcode
 reportlab
-requests
+requests[security]
 simplejson
+slumber
 transifex-client == 0.11b3
 unittest2
 vatnumber
