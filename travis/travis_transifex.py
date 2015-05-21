@@ -60,7 +60,7 @@ def main(argv=None):
     transifex_project_name = "%s (%s)" % (travis_repo_shortname, odoo_version)
     transifex_organization = os.environ.get("TRANSIFEX_ORGANIZATION",
                                             travis_repo_owner)
-    repository_url = "https://github.com/%s" & travis_repo_slug
+    repository_url = "https://github.com/%s" % travis_repo_slug
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
