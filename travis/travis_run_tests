@@ -14,6 +14,7 @@ def main(test_list):
     results = []
     for test in test_list:
         # keep backward compatibility with version as an argument
+        print("======== Testing %s ========" % test[0])
         test_w_args = test + args
         res = subprocess.call(test_w_args)
         results.append(res)
@@ -23,11 +24,9 @@ def main(test_list):
     print("|  Tests summary:")
     print("|" + "-"*39)
     for test, error in zip(test_list, results):
-        desc = ' '.join(test)
         outcome = fail_msg if error else success_msg
-        print("| {0:<28}{1}".format(desc, outcome))
+        print("| {0:<28}{1}".format(test[0], outcome))
     print("+" + "="*39)
-
     return max(results)
 
 
