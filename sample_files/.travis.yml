@@ -21,9 +21,11 @@ env:
   # The default project slug is owner-repo_name-version (with dash in the version string).
   # The default organization is the owner of the repo.
   # The default fill up resources (TM) is True.
+  # The default team is 23907. https://www.transifex.com/organization/oca/team/23907/
   # - TRANSIFEX_PROJECT_SLUG=
   # - TRANSIFEX_ORGANIZATION=
   # - TRANSIFEX_FILL_UP_RESOURCES=
+  # - TRANSIFEX_TEAM=
 
   matrix:
   - LINT_CHECK="1"
