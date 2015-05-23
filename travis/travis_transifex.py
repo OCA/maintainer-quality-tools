@@ -60,6 +60,9 @@ def main(argv=None):
     transifex_project_name = "%s (%s)" % (travis_repo_shortname, odoo_version)
     transifex_organization = os.environ.get("TRANSIFEX_ORGANIZATION",
                                             travis_repo_owner)
+    transifex_fill_up_resources = os.environ.get(
+        "TRANSIFEX_FILL_UP_RESOURCES", "True"
+    )
     repository_url = "https://github.com/%s" % travis_repo_slug
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
@@ -89,6 +92,7 @@ def main(argv=None):
                     "repository_url": repository_url,
                     "organization": transifex_organization,
                     "license": "permissive_open_source",
+                    "fill_up_resources": transifex_fill_up_resources,
                     }
     try:
         api.project(transifex_project_slug).get()
