@@ -10,13 +10,30 @@ from travis_helpers import success_msg, fail_msg
 
 
 def main(test_list):
+    """
+    Loop through each test and run them, add display results at the end
+
+    If the test has a .py extension, import as a list and call main function
+
+    :param list test_list: list of lists containing commands to run
+    :return: highest error code
+    """
     args = sys.argv[1:]
     results = []
     for test in test_list:
         # keep backward compatibility with version as an argument
         print("======== Testing %s ========" % test[0])
         test_w_args = test + args
-        res = subprocess.call(test_w_args)
+        test_file = test_w_args[0]
+        if test_file.endswith(".py"):
+            test_lib = test_file[:-3]
+            try:
+                res = __import__(test_lib).main(argv=test_w_args)
+            except Exception as e:
+                print(e)
+                res = 1
+        else:
+            res = subprocess.call(test_w_args)
         results.append(res)
 
     print()
