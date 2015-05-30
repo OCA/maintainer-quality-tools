@@ -15,7 +15,7 @@ env:
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
   # To encrypt transifex password, install travis ruby utils with:
-  #   $ [sudo] gem install travis
+  #   $ gem install travis --user-install
   # and use:
   #   $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
   - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
