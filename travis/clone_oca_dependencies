@@ -32,6 +32,11 @@ import logging
 
 _logger = logging.getLogger()
 
+travis_repo_slug = os.environ.get(
+    "TRAVIS_REPO_SLUG",
+    "OCA/maintainer-quality-tools",
+)
+travis_repo_owner = travis_repo_slug.split("/")[0]
 
 def parse_depfile(depfile):
     deps = []
@@ -48,7 +53,7 @@ def parse_depfile(depfile):
         if len(parts) > 1:
             url = parts[1]
         else:
-            url = 'https://github.com/OCA/%s' % repo
+            url = 'https://github.com/%s/%s' % (travis_repo_owner, repo)
         deps.append((repo, url, branch))
     return deps
 
@@ -90,7 +95,7 @@ def run(home, build_dir):
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         home = os.environ['HOME']
-        build_dir = osp.join(home, 'build/OCA')
+        build_dir = osp.join(home, 'build', travis_repo_owner)
     elif len(sys.argv) == 2 or len(sys.argv) > 3:
         print(__doc__)
         sys.exit(1)
