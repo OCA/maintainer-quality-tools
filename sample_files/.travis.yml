@@ -14,8 +14,10 @@ env:
   - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
-  # To encrypt transifex password, use
-  # $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
+  # To encrypt transifex password, install travis ruby utils with:
+  #   $ gem install travis --user-install
+  # and use:
+  #   $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
   - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
   # Use the following lines if you need to manually change the transifex project slug or/and the transifex organization.
   # The default project slug is owner-repo_name-version (with dash in the version string).
