@@ -282,13 +282,18 @@ def main():
             # Find errors, except from failed mails
             errors = has_test_errors(
                 "stdout.log", database, odoo_version, check_loaded)
+            if returncode != 0:
+                all_errors.append(to_test)
+                print(fail_msg, "Command exited with code %s" % returncode)
+                # If not exists errors then
+                # add an error when returcode!=0
+                # because is really a error.
+                if not errors:
+                    errors += 1
             if errors:
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-            if returncode != 0:
-                all_errors.append(to_test)
-                print(fail_msg, "Command exited with code %s" % returncode)
         subprocess.call(["dropdb", database])
 
     print('Module test summary')
