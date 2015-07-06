@@ -18,21 +18,17 @@ virtualenv:
   system_site_packages: true
 
 env:
+
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0"
+  - VERSION="8.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - TESTS="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
-  - TESTS="1" VERSION="master" EXCLUDE="broken_module"  # EXCLUDE usage example - update with erroring modules list
-  - TESTS="1" INCLUDE="test_module,second_module" OPTIONS="--log-level=debug"  # OPTIONS usage example
-  - TESTS="1" INCLUDE="test_module,second_module" INSTALL_OPTIONS="--log-level=info"
-  - TESTS="1" INCLUDE="test_module,second_module" UNIT_TEST="1"
-  - TESTS="1" VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
-  - TESTS="1" VERSION="6.1" INCLUDE="test_module,second_module"
-  - TESTS="1" VERSION="" INCLUDE="test_module,second_module"  # test fallback to script argument
-  # - TESTS="1" VERSION="6.0"  # Test script not ready for v6.0
-  - LINT_CHECK="1"
-  - TESTS="1" VERSION="7.0" INCLUDE="test_module,second_module"
+  - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - EXCLUDE="broken_module" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
+  - INCLUDE="test_module,second_module" UNIT_TEST="1"
+  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
+  - VERSION="6.1" INCLUDE="test_module,second_module"
+  - LINT_CHECK="1" TESTS="0"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
