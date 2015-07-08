@@ -47,7 +47,6 @@ fi
 echo "Getting addons dependencies"
 clone_oca_dependencies
 
-
 #  Install new dependence: npm package
 wget -qO- https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get install nodejs
@@ -56,6 +55,8 @@ sudo npm install -g less-plugin-clean-css
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
+
+pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
