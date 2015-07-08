@@ -3,6 +3,9 @@
 # Instead use the files under the "/sample_files" directory for that purpose.
 language: python
 
+build_image: vauxoo/odoo-80-image-shippable-auto
+commit_container: cowardvassal/vauxoo-dev
+
 python:
   - "2.7"
 
