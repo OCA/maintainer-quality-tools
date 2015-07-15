@@ -155,26 +155,44 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     return addons_list
 
 
+def get_test_dependencies(repo_dir, addons_list):
+    """
+    Get the list of core and external modules dependencies
+    for the modules to test.
+    :param repo_dir: the directory with the modules to test
+    :param addons_list: list of the modules to test
+    """
+    if not addons_list:
+        return ['base']
+    else:
+        manif_path = os.path.join(repo_dir, addons_list[0], '__openerp__.py')
+        manif = eval(open(manif_path).read())
+        return list(
+            set(manif.get('depends', []))
+            | set(get_test_dependencies(repo_dir, addons_list[1:]))
+            - set(addons_list))
+
+
 def setup_server(db, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options):
+                 addons_path, install_options, preinstall_modules):
     """
     Setup the base module before running the tests
     :param db: Template database name
     :param odoo_unittest: Boolean for unit test (travis parameter)
     :param tested_addons: List of modules that need to be installed
     :param server_path: Server path
+    :param travis_build_dir: path to the modules to be tested
     :param addons_path: Addons path
     :param install_options: Install options (travis parameter)
     """
     print("\nCreating instance:")
     subprocess.check_call(["createdb", db])
-    preinstall_modules = 'mail' if odoo_unittest else tested_addons
     cmd_odoo = ["%s/openerp-server" % server_path,
                 "-d", db,
                 "--log-level=warn",
                 "--stop-after-init",
                 "--addons-path", addons_path,
-                "--init", preinstall_modules,
+                "--init", ','.join(preinstall_modules),
                 ] + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
@@ -228,8 +246,11 @@ def main():
 
     # setup the base module without running the tests
     dbtemplate = "openerp_template"
+    preinstall_modules = get_test_dependencies(travis_build_dir,
+                                               tested_addons_list)
+    print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options)
+                 addons_path, install_options, preinstall_modules)
 
     # Running tests
     database = "openerp_test"
@@ -244,7 +265,7 @@ def main():
 
     if test_loghandler is not None:
         cmd_odoo_test += ['--log-handler', test_loghandler]
-    cmd_odoo_test += options + ["--update", None]
+    cmd_odoo_test += options + ["--init", None]
 
     if odoo_unittest:
         to_test_list = tested_addons_list
