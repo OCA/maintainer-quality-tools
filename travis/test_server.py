@@ -268,9 +268,9 @@ def main():
         subprocess.call(["createdb", "-T", dbtemplate, database])
         for command, check_loaded in commands:
             command[-1] = to_test
-            print(' '.join(command))
             # Run test command; unbuffer keeps output colors
             command_call = ["unbuffer"] + command
+            print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
