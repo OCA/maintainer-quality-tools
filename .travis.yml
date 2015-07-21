@@ -16,6 +16,7 @@ addons:
       - python-lxml  # because pip installation is slow
       - python-simplejson
       - python-serial
+      - python-yaml
 
 virtualenv:
   system_site_packages: true
