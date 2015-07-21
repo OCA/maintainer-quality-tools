@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
-from test_server import fname_log
 
 
 def main(test_list):
