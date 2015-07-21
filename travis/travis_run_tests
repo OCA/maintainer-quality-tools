@@ -21,10 +21,10 @@ def main(test_list):
         res = subprocess.call(test_w_args)
         results.append(res)
 
-    print("Printing logfile:")
-    if os.path.isfile(fname_log):
-        with open(fname_log, "r") as f:
-            print(f.read())
+    # print("Printing logfile:")
+    # if os.path.isfile(fname_log):
+        # with open(fname_log, "r") as f:
+            # print(f.read())
 
     print()
     print("+" + "="*39)
