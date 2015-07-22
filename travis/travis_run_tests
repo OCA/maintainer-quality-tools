@@ -7,7 +7,7 @@ import os
 import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
-from test_server import fname_log
+
 
 def main(test_list):
     subprocess.call(["shippable_start_service"])
@@ -16,35 +16,46 @@ def main(test_list):
     results = []
     for test in test_list:
         # keep backward compatibility with version as an argument
+        print("======== Testing %s ========" % test[0])
         test_w_args = test + args
         res = subprocess.call(test_w_args)
         results.append(res)
 
-    print("Printing logfile:")
-    if os.path.isfile(fname_log):
-        with open(fname_log, "r") as f:
-            print(f.read())
+    # print("Printing logfile:")
+    # if os.path.isfile(fname_log):
+        # with open(fname_log, "r") as f:
+            # print(f.read())
 
     print()
     print("+" + "="*39)
     print("|  Tests summary:")
     print("|" + "-"*39)
     for test, error in zip(test_list, results):
-        desc = ' '.join(test)
         outcome = fail_msg if error else success_msg
-        print("| {0:<28}{1}".format(desc, outcome))
+        print("| {0:<28}{1}".format(test[0], outcome))
     print("+" + "="*39)
-
-    return(max(results))
+    return max(results)
 
 
 if __name__ == '__main__':
+    do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
+    do_tests = os.environ.get("TESTS", '1') == "1"
+    export_transifex = os.environ.get("TRANSIFEX") == "1"
+    # Variable TRAVIS_PULL_REQUEST corresponds to pull request number if the
+    # current job is a pull request, "false" if it's not a pull request.
+    travis_pull_request = os.environ.get("TRAVIS_PULL_REQUEST")
+
     # Test list. Each test is a list with command + arguments.
     tests = []
     # By default, do lint checks
-    if os.environ.get("LINT_CHECK", "1") == "1":
+    if do_lint_check:
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
-    if os.environ.get("LINT_CHECK", None) != "1":
-        tests.append(['test_server'])
-    exit(main(tests))
+    # Execute tests by default. Disable them on lint checks
+    if do_tests:
+        tests.append(['test_server.py'])
+    # Execute transifex export with no tests and if it's an official commit
+    if not tests and export_transifex and travis_pull_request == "false":
+        tests.append(['travis_transifex.py'])
+    if tests:
+        exit(main(tests))

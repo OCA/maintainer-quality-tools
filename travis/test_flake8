@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -v
-
 FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
 MODULES_TO_TEST=${TRAVIS_BUILD_DIR}
 

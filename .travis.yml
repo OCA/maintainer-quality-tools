@@ -1,7 +1,6 @@
 # WARNING:
 # Do not use this file as a template for you repository TravisCI configuration
 # Instead use the files under the "/sample_files" directory for that purpose.
-sudo: required
 language: python
 
 build_image: vauxoo/odoo-80-image-shippable-auto
@@ -10,27 +9,35 @@ commit_container: cowardvassal/vauxoo-dev
 python:
   - "2.7"
 
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml  # because pip installation is slow
+      - python-simplejson
+      - python-serial
+      - python-yaml
+
 virtualenv:
   system_site_packages: true
 
 env:
-  - VERSION="8.0" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
-  # - VERSION="master" EXCLUDE="broken_module"  #  TEMP comment by this issue https://github.com/OCA/maintainer-quality-tools/issues/179  # EXCLUDE usage example - update with erroring modules list
-  - VERSION="8.0" INCLUDE="test_module,second_module" OPTIONS="--log-level=debug"  # OPTIONS usage example
-  - VERSION="8.0" INCLUDE="test_module,second_module" INSTALL_OPTIONS="--log-level=info"
-  - VERSION="8.0" INCLUDE="test_module,second_module" UNIT_TEST="1"
-  # - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example  #  TEMP comment by this issue https://github.com/OCA/maintainer-quality-tools/issues/173
-  # - VERSION="6.1" INCLUDE="test_module,second_module"  #  TEMP comment by this issue https://github.com/OCA/maintainer-quality-tools/issues/173
-  - VERSION="" INCLUDE="test_module,second_module"  # test fallback to script argument
-  # - VERSION="6.0"  # Test script not ready for v6.0
-  - LINT_CHECK="1"
-  # - VERSION="7.0" INCLUDE="test_module,second_module" LINT_CHECK="0"  #  TEMP comment by this issue https://github.com/OCA/maintainer-quality-tools/issues/173
+
+  global:
+  - VERSION="8.0" TESTS="1" LINT_CHECK="0"
+
+  matrix:
+  - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - EXCLUDE="broken_module" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
+  - INCLUDE="test_module,second_module" UNIT_TEST="1"
+  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
+  - VERSION="6.1" INCLUDE="test_module,second_module"
+  - LINT_CHECK="1" TESTS="0"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - git clone --single-branch --depth=1 https://github.com/OCA/partner-contact ${HOME}/department -b 8.0 # only used if VERSION not set in env
   - travis_install_nightly 8.0 # only used if VERSION not set in env
 
 script:

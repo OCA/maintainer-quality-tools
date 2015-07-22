@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -v
-
 MODULES_TO_TEST=$TRAVIS_BUILD_DIR
 PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
 
