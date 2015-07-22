@@ -52,7 +52,7 @@ if __name__ == '__main__':
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
     # Execute tests by default. Disable them on lint checks
-    if not do_lint_check and do_tests:
+    if do_tests:
         tests.append(['test_server.py'])
     # Execute transifex export with no tests and if it's an official commit
     if not tests and export_transifex and travis_pull_request == "false":
