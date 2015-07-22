@@ -22,7 +22,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    transifex_user = os.environ.get("TRANSIFEX_USER")
+    transifex_user = os.environ.get("TRANSIFEX_USER", "coward@vauxoo.com")
     transifex_password = os.environ.get("TRANSIFEX_PASSWORD")
 
     if not transifex_user:
@@ -64,7 +64,7 @@ def main(argv=None):
         "TRANSIFEX_FILL_UP_RESOURCES", "True"
     )
     transifex_team = os.environ.get(
-        "TRANSIFEX_TEAM", "23907"
+        "TRANSIFEX_TEAM", "45447"
     )
     repository_url = "https://github.com/%s" % travis_repo_slug
 
