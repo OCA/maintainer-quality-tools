@@ -42,16 +42,17 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
 
     pip install -q QUnitSuite flake8 coveralls pylint
     pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+
+    #  Install new dependence: npm package
+    wget -qO- https://deb.nodesource.com/setup | sudo bash -
+    sudo apt-get install nodejs
+    sudo npm install -g less
+    sudo npm install -g less-plugin-clean-css
+
 fi
 
 echo "Getting addons dependencies"
 clone_oca_dependencies
-
-#  Install new dependence: npm package
-wget -qO- https://deb.nodesource.com/setup | sudo bash -
-sudo apt-get install nodejs
-sudo npm install -g less
-sudo npm install -g less-plugin-clean-css
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
