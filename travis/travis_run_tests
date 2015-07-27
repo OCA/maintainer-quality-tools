@@ -34,9 +34,7 @@ if __name__ == '__main__':
     lint_check_disabled = os.environ.get('LINT_CHECK') == '0'
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
     tests_enabled = os.environ.get('TESTS') == '1'
-    tests_disabled = os.environ.get('TESTS') == '0'
     tests_unspecified = os.environ.get('TESTS') is None
-    travis_enabled = os.environ.get('TRANSIFEX') == '1'
     transifex_enabled = os.environ.get('TRANSIFEX') == '1'
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
