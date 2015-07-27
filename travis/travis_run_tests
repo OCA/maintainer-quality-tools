@@ -55,7 +55,8 @@ if __name__ == '__main__':
     if tests_enabled:
         tests.append(['test_server.py'])
 
-    if transifex_enabled and not tests_disabled and not is_pull_request:
+    if transifex_enabled and not is_pull_request:
         tests.append(['travis_transifex.py'])
+
     if tests:
         exit(main(tests))
