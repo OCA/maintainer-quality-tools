@@ -39,6 +39,7 @@ def main(test_list):
 
 if __name__ == '__main__':
     do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
+    do_odoo_lint = os.environ.get("ODOO_LINT", '0') == "1"
     do_tests = os.environ.get("TESTS", '1') == "1"
     export_transifex = os.environ.get("TRANSIFEX") == "1"
     # Variable TRAVIS_PULL_REQUEST corresponds to pull request number if the
@@ -51,6 +52,10 @@ if __name__ == '__main__':
     if do_lint_check:
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
+    # Test module structure
+    if do_odoo_lint:
+        tests.append(['test_odoo_lint', '-p',
+                      os.environ.get("TRAVIS_BUILD_DIR")])
     # Execute tests by default. Disable them on lint checks
     if do_tests:
         tests.append(['test_server.py'])
