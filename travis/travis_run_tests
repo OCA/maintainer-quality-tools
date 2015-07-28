@@ -50,7 +50,7 @@ if __name__ == '__main__':
     if tests_unspecified and not lint_check_enabled:
         tests.append(['test_server.py'])
 
-    if tests_enabled:
+    elif tests_enabled:
         tests.append(['test_server.py'])
 
     if transifex_enabled and not is_pull_request:
