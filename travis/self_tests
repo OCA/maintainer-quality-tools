@@ -1,12 +1,25 @@
 #!/usr/bin/env python
 
 import os
+import getaddons
 from test_server import get_test_dependencies
 
 
-repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "../tests/test_repo/")
+repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
+exclude = os.environ.get("EXCLUDE")
+
 addons_list = ['test_module', 'second_module']
 to_preinstall = get_test_dependencies(repo_dir, addons_list)
 
 assert not [x for x in to_preinstall if x in addons_list], \
     "Should not preinstall modules to test!"
+
+# Testing getaddons
+assert getaddons.main() == 1
+getaddons.main(["getaddons.py", repo_dir])
+getaddons.main(["getaddons.py", "-m", repo_dir])
+getaddons.main(["getaddons.py", "-m",
+                repo_dir + "/" if repo_dir[-1] == '/' else repo_dir])
+if exclude:
+    getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
+    getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
