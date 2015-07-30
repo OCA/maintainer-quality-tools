@@ -158,7 +158,7 @@ def get_test_dependencies(addons_path, addons_list):
     """
     Get the list of core and external modules dependencies
     for the modules to test.
-    :param addons_path: comma separated list of addons paths
+    :param addons_path: string with a comma separated list of addons paths
     :param addons_list: list of the modules to test
     """
     if not addons_list:
