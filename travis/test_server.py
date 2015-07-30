@@ -6,7 +6,7 @@ import re
 import os
 import subprocess
 import sys
-from getaddons import get_addons, get_modules, MANIFEST_FILES
+from getaddons import get_addons, get_modules, is_module
 from travis_helpers import success_msg, fail_msg
 
 
@@ -165,16 +165,14 @@ def get_test_dependencies(addons_path, addons_list):
         return ['base']
     else:
         for path in addons_path.split(','):
-            for manifest_file in MANIFEST_FILES:
-                manif_path = os.path.join(path, addons_list[0],
-                                          manifest_file)
-                if not os.path.isfile(manif_path):
-                    continue
-                manif = eval(open(manif_path).read())
-                return list(
-                    set(manif.get('depends', []))
-                    | set(get_test_dependencies(addons_path, addons_list[1:]))
-                    - set(addons_list))
+            manif_path = is_module(os.path.join(path, addons_list[0]))
+            if not manif_path:
+                continue
+            manif = eval(open(manif_path).read())
+            return list(
+                set(manif.get('depends', []))
+                | set(get_test_dependencies(addons_path, addons_list[1:]))
+                - set(addons_list))
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,

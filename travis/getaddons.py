@@ -14,12 +14,18 @@ MANIFEST_FILES = ['__openerp__.py', '__odoo__.py', '__terp__.py']
 
 
 def is_module(path):
+    """return False if the path doesn't contain an odoo module, and the full
+    path to the module manifest otherwise"""
+
     if not os.path.isdir(path):
         return False
     files = os.listdir(path)
     filtered = [x for x in files if x in (MANIFEST_FILES + ['__init__.py'])]
-    res = len(filtered) == 2 and '__init__.py' in filtered
-    return res
+    if len(filtered) == 2 and '__init__.py' in filtered:
+        return os.path.join(
+            path, [x for x in filtered if x != '__init__.py'][0])
+    else:
+        return False
 
 
 def get_modules(path):
