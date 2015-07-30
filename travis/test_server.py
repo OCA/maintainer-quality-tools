@@ -6,7 +6,7 @@ import re
 import os
 import subprocess
 import sys
-from getaddons import get_addons, get_modules, manifest_files
+from getaddons import get_addons, get_modules, MANIFEST_FILES
 from travis_helpers import success_msg, fail_msg
 
 
@@ -165,7 +165,7 @@ def get_test_dependencies(addons_path, addons_list):
         return ['base']
     else:
         for path in addons_path.split(','):
-            for manifest_file in manifest_files:
+            for manifest_file in MANIFEST_FILES:
                 manif_path = os.path.join(path, addons_list[0],
                                           manifest_file)
                 if not os.path.isfile(manif_path):
