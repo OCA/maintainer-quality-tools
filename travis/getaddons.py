@@ -48,11 +48,13 @@ def get_addons(path):
     return res
 
 
-if __name__ == "__main__":
-    params = sys.argv[1:]
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
+    params = argv[1:]
     if not params:
         print(__doc__)
-        sys.exit(1)
+        return 1
 
     list_modules = False
     exclude_modules = []
@@ -70,3 +72,6 @@ if __name__ == "__main__":
     if exclude_modules:
         res = [x for x in res if x not in exclude_modules]
     print(','.join(res))
+
+if __name__ == "__main__":
+    sys.exit(main())

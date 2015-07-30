@@ -40,8 +40,8 @@ install:
   - travis_install_nightly 8.0 # only used if VERSION not set in env
 
 script:
-  - self_tests
-  - travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/self_tests
+  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
 
-#after_success:
-#  coveralls
+after_success:
+  - coveralls

@@ -199,7 +199,9 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
-def main():
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
@@ -212,7 +214,7 @@ def main():
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
-        odoo_version = sys.argv[1]
+        odoo_version = argv[1]
         print("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version)
     test_loghandler = None
