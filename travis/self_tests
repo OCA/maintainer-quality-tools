@@ -2,6 +2,7 @@
 
 import os
 import getaddons
+import travis_helpers
 from test_server import get_test_dependencies
 
 
@@ -23,3 +24,9 @@ getaddons.main(["getaddons.py", "-m",
 if exclude:
     getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
     getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
+
+# Testing travis helpers
+assert travis_helpers.red(u'test') == u"\033[1;31mtest\033[0;m"
+assert travis_helpers.green(u'test') == u"\033[1;32mtest\033[0;m"
+assert travis_helpers.yellow(u'test') == u"\033[1;33mtest\033[0;m"
+assert travis_helpers.yellow_light(u'test') == u"\033[33mtest\033[0;m"
