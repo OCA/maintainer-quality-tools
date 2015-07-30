@@ -6,8 +6,7 @@ import re
 import os
 import subprocess
 import sys
-from getaddons import get_addons
-from getaddons import get_modules
+from getaddons import get_addons, get_modules, manifest_files
 from travis_helpers import success_msg, fail_msg
 
 
@@ -155,22 +154,27 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     return addons_list
 
 
-def get_test_dependencies(repo_dir, addons_list):
+def get_test_dependencies(addons_path, addons_list):
     """
     Get the list of core and external modules dependencies
     for the modules to test.
-    :param repo_dir: the directory with the modules to test
+    :param addons_path: comma separated list of addons paths
     :param addons_list: list of the modules to test
     """
     if not addons_list:
         return ['base']
     else:
-        manif_path = os.path.join(repo_dir, addons_list[0], '__openerp__.py')
-        manif = eval(open(manif_path).read())
-        return list(
-            set(manif.get('depends', []))
-            | set(get_test_dependencies(repo_dir, addons_list[1:]))
-            - set(addons_list))
+        for path in addons_path.split(','):
+            for manifest_file in manifest_files:
+                manif_path = os.path.join(path, addons_list[0],
+                                          manifest_file)
+                if not os.path.isfile(manif_path):
+                    continue
+                manif = eval(open(manif_path).read())
+                return list(
+                    set(manif.get('depends', []))
+                    | set(get_test_dependencies(addons_path, addons_list[1:]))
+                    - set(addons_list))
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
@@ -246,7 +250,7 @@ def main():
 
     # setup the base module without running the tests
     dbtemplate = "openerp_template"
-    preinstall_modules = get_test_dependencies(travis_build_dir,
+    preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,

@@ -10,12 +10,14 @@ import os
 import sys
 
 
+manifest_files = ['__openerp__.py', '__odoo__.py', '__terp__.py']
+
+
 def is_module(path):
     if not os.path.isdir(path):
         return False
-    manifs = ['__openerp__.py', '__odoo__.py', '__terp__.py', '__init__.py']
     files = os.listdir(path)
-    filtered = [x for x in files if x in manifs]
+    filtered = [x for x in files if x in (manifest_files + ['__init__.py'])]
     res = len(filtered) == 2 and '__init__.py' in filtered
     return res
 
