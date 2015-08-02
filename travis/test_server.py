@@ -174,7 +174,7 @@ def get_test_dependencies(repo_dir, addons_list):
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules):
+                 addons_path, install_options, preinstall_modules=None):
     """
     Setup the base module before running the tests
     :param db: Template database name
@@ -185,6 +185,8 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     :param addons_path: Addons path
     :param install_options: Install options (travis parameter)
     """
+    if preinstall_modules is None:
+        preinstall_modules = ['base']
     print("\nCreating instance:")
     subprocess.check_call(["createdb", db])
     cmd_odoo = ["%s/openerp-server" % server_path,
