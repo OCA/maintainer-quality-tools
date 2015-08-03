@@ -23,7 +23,7 @@ def is_module(path):
     filtered = [x for x in files if x in (MANIFEST_FILES + ['__init__.py'])]
     if len(filtered) == 2 and '__init__.py' in filtered:
         return os.path.join(
-            path, next(x for x in filtered if x != '__init__.py']))
+            path, next(x for x in filtered if x != '__init__.py'))
     else:
         return False
 
