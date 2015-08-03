@@ -10,7 +10,7 @@ import os
 import sys
 
 
-MANIFEST_FILES = ['__openerp__.py', '__odoo__.py', '__terp__.py']
+MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
 
 
 def is_module(path):
@@ -23,7 +23,7 @@ def is_module(path):
     filtered = [x for x in files if x in (MANIFEST_FILES + ['__init__.py'])]
     if len(filtered) == 2 and '__init__.py' in filtered:
         return os.path.join(
-            path, [x for x in filtered if x != '__init__.py'][0])
+            path, next(x for x in filtered if x != '__init__.py']))
     else:
         return False
 
