@@ -144,7 +144,8 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     if odoo_include:
         addons_list = parse_list(odoo_include)
     else:
-        addons_list = get_modules(travis_build_dir)
+        addons_dir = os.environ.get("MODULES_TO_TEST", travis_build_dir)
+        addons_list = get_modules(addons_dir)
 
     if odoo_exclude:
         exclude_list = parse_list(odoo_exclude)
@@ -192,13 +193,19 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
         preinstall_modules = ['base']
     print("\nCreating instance:")
     subprocess.check_call(["createdb", db])
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
+    if os.environ.get("BUILDOUT"):
+        cmd_odoo = ["bin/start_openerp"]
+    else:
+        cmd_odoo = [
+            "%s/openerp-server" % server_path,
+            "--addons-path", addons_path,
+            "--init", ','.join(preinstall_modules),
+        ]
+    cmd_odoo = cmd_odoo + [
+        "-d", db,
+        "--log-level=warn",
+        "--stop-after-init",
+    ] + install_options
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
     return 0
@@ -235,10 +242,12 @@ def main(argv=None):
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    addons_path = get_addons_path(travis_dependencies_dir,
-                                  travis_build_dir,
-                                  server_path)
+    server_path = addons_path = ''
+    if not os.environ.get("BUILDOUT"):
+        server_path = get_server_path(odoo_full, odoo_version, travis_home)
+        addons_path = get_addons_path(travis_dependencies_dir,
+                                      travis_build_dir,
+                                      server_path)
 
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
@@ -265,33 +274,48 @@ def main(argv=None):
     # Running tests
     database = "openerp_test"
 
-    cmd_odoo_test = ["coverage", "run",
-                     "%s/openerp-server" % server_path,
-                     "-d", database,
-                     "--stop-after-init",
-                     "--log-level", test_loglevel,
-                     "--addons-path", addons_path,
-                     ]
-
-    if test_loghandler is not None:
-        cmd_odoo_test += ['--log-handler', test_loghandler]
-    cmd_odoo_test += options + ["--init", None]
-
-    if odoo_unittest:
-        to_test_list = tested_addons_list
-        cmd_odoo_install = ["%s/openerp-server" % server_path,
-                            "-d", database,
-                            "--stop-after-init",
-                            "--log-level=warn",
-                            "--addons-path", addons_path,
-                            ] + install_options + ["--init", None]
-        commands = ((cmd_odoo_install, False),
-                    (cmd_odoo_test, True),
-                    )
-    else:
+    if os.environ.get("BUILDOUT"):
         to_test_list = [tested_addons]
-        commands = ((cmd_odoo_test, True),
-                    )
+
+        cmd_odoo_install = [
+            'bin/start_openerp',
+            '-d', database,
+            '--stop-after-init',
+            '-i', None,
+            ]
+        cmd_odoo_test = ['bin/runtests', '-d', database, '-i', None]
+        commands = (
+            (cmd_odoo_install, False),
+            (cmd_odoo_test, True)
+        )
+    else:
+        cmd_odoo_test = ["coverage", "run",
+                         "%s/openerp-server" % server_path,
+                         "-d", database,
+                         "--stop-after-init",
+                         "--log-level", test_loglevel,
+                         "--addons-path", addons_path,
+                         ]
+
+        if test_loghandler is not None:
+            cmd_odoo_test += ['--log-handler', test_loghandler]
+        cmd_odoo_test += options + ["--init", None]
+
+        if odoo_unittest:
+            to_test_list = tested_addons_list
+            cmd_odoo_install = ["%s/openerp-server" % server_path,
+                                "-d", database,
+                                "--stop-after-init",
+                                "--log-level=warn",
+                                "--addons-path", addons_path,
+                                ] + install_options + ["--init", None]
+            commands = ((cmd_odoo_install, False),
+                        (cmd_odoo_test, True),
+                        )
+        else:
+            to_test_list = [tested_addons]
+            commands = ((cmd_odoo_test, True))
+
     all_errors = []
     counted_errors = 0
     for to_test in to_test_list:
