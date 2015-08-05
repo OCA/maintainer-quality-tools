@@ -28,3 +28,7 @@ sudo pip install pylint --upgrade
 
 You can bypass these checks setting environment variable NOLINT before calling
 commit, e.g, `NOLINT=1 git commit`.
+
+You can use a lint configuration setting environment variable VERSION with
+the number of version of odoo before calling
+commit, e.g, `VERSION=7.0 git commit`.

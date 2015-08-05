@@ -17,7 +17,13 @@ fi
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
 
+if [[ "${VERSION}" == 6.* ]] || [[ "${VERSION}" == 7.* ]] ; then
+    # snake_case and CamelCase allow it for old version
+    export CLASS_CASE='--class-rgx=([a-z_][a-z0-9_]{2,45})|([A-Z_][a-zA-Z0-9]{2,45})$'
+fi
+
+
 #run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
+pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${CLASS_CASE} ${MODULES_TO_TEST}
 pylint_status=$?
 exit $((${pylint_status}))
