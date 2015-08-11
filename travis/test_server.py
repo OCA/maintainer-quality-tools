@@ -194,7 +194,8 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print("\nCreating instance:")
     subprocess.check_call(["createdb", db])
     if os.environ.get("BUILDOUT"):
-        cmd_odoo = ["bin/start_openerp"]
+        cmd_odoo = ["bin/start_openerp",
+                   ]
     else:
         cmd_odoo = [
             "%s/openerp-server" % server_path,
@@ -283,7 +284,11 @@ def main(argv=None):
             '--stop-after-init',
             '-i', None,
             ]
-        cmd_odoo_test = ['bin/runtests', '-d', database, '-i', None]
+        cmd_odoo_test = [
+            'bin/runtests',
+            '-d', database,
+            '-i', None
+            ]
         commands = (
             (cmd_odoo_install, False),
             (cmd_odoo_test, True)
