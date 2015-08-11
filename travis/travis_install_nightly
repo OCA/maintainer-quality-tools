@@ -2,10 +2,10 @@
 set -v
 pip install -q QUnitSuite flake8 coveralls pylint > /dev/null 2>&1
 
-# We can exit here and do nothing if this only a LINT check
-if [ "${TESTS}" != "1" ] ; then
-    exit 0
-fi
+## We can exit here and do nothing if this only a LINT check
+#if [ "${TESTS}" != "1" ] ; then
+#    exit 0
+#fi
 
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
