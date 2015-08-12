@@ -26,7 +26,7 @@ env:
   - VERSION="8.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - INCLUDE="broken_module" EXPECTED_ERRORS="1"  # test errors are detected
   - EXCLUDE="broken_module" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
@@ -37,11 +37,11 @@ install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly 8.0 # only used if VERSION not set in env
+  - travis_install_nightly
 
 script:
   - coverage run --append ./travis/self_tests
-  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/travis_run_tests
 
 after_success:
   - coveralls

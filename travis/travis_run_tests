@@ -44,6 +44,13 @@ def main(test_list):
         outcome = fail_msg if error else success_msg
         print("| {0:<28}{1}".format(test[0], outcome))
     print("+" + "="*39)
+    # Don't return error code if the errors are expected
+    expect_err = int(os.environ.get("EXPECTED_ERRORS", "0"))
+    if expect_err:
+        count_err = sum(results)
+        print("Expected %d errors, found %d!" % (expect_err, count_err))
+        if count_err == expect_err:
+            return 0
     return max(results)
 
 
