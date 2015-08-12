@@ -6,4 +6,11 @@ flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
 status1=$?
 flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8.cfg
 status2=$?
-exit $((${status1} || ${status2}))
+
+if [[ "${status1}${status2}" == "00" ]]; then
+  echo "Flake8 OK"
+  exit 0
+else
+  echo "Flake8 ERRORS"
+  exit 1
+fi

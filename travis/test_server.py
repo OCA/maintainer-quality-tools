@@ -213,7 +213,6 @@ def main(argv=None):
     odoo_include = os.environ.get("INCLUDE")
     options = os.environ.get("OPTIONS", "").split()
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
-    expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
     if not odoo_version:
         # For backward compatibility, take version from parameter
@@ -329,14 +328,7 @@ def main(argv=None):
             print(fail_msg, to_test)
         else:
             print(success_msg, to_test)
-    if expected_errors and counted_errors != expected_errors:
-        print("Expected %d errors, found %d!"
-              % (expected_errors, counted_errors))
-        return 1
-    elif counted_errors != expected_errors:
-        return 1
-    # if we get here, all is OK
-    return 0
+    return counted_errors
 
 if __name__ == '__main__':
     exit(main())

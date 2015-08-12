@@ -26,22 +26,24 @@ env:
   - VERSION="8.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  # Test for: YAML assert error; test snake case lint
+  - INCLUDE="broken_module,broken_snake_case" LINT_CHECK="1" EXPECTED_ERRORS="2"
   - EXCLUDE="broken_module" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
-  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
+  # Tests for: version 7; OCB usage; snake case check not done for v7
+  - VERSION="7.0" INCLUDE="test_module,second_module,broken_snake_case" LINT_CHECK="1" ODOO_REPO="OCA/OCB"
   - VERSION="6.1" INCLUDE="test_module,second_module"
-  - LINT_CHECK="1" TESTS="0"
+  - LINT_CHECK="1" TESTS="0" EXPECTED_ERRORS="1"  # Lint error expected
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - mv tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly 8.0 # only used if VERSION not set in env
+  - travis_install_nightly
 
 script:
   - coverage run --append ./travis/self_tests
-  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/travis_run_tests
 
 after_success:
   - coveralls
