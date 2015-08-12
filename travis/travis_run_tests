@@ -7,10 +7,21 @@ import os
 import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
+import time
 
 
 def main(test_list):
     subprocess.call(["shippable_start_service"])
+    print("Waiting to start psql service...")
+    while True:
+        psql_subprocess = subprocess.Popen(
+            ["psql", '-l'], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        psql_subprocess.wait()
+        if not bool(psql_subprocess.stderr.read()):
+            break
+        time.sleep(5)
+    print("...psql service started.")
 
     args = sys.argv[1:]
     results = []
@@ -20,11 +31,6 @@ def main(test_list):
         test_w_args = test + args
         res = subprocess.call(test_w_args)
         results.append(res)
-
-    # print("Printing logfile:")
-    # if os.path.isfile(fname_log):
-        # with open(fname_log, "r") as f:
-            # print(f.read())
 
     print()
     print("+" + "="*39)
