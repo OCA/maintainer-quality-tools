@@ -31,7 +31,7 @@ env:
   - EXCLUDE="broken_module" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
-  - VERSION="6.1" INCLUDE="test_module,second_module"
+    # - VERSION="6.1" INCLUDE="test_module,second_module"  # Vauxo don't suppport 6.1 anymore
   - LINT_CHECK="1" TESTS="0"
 
 install:
