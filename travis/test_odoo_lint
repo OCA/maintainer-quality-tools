@@ -1,0 +1,344 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# TODO list:
+# - add doctest, add a script parameter to run doctest.
+# - add a script parameter to select the loggin level (w/default).
+
+import argparse
+import os
+import subprocess
+import logging
+
+
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
+# The background is set with 40 plus the number of the color, and the
+# foreground with 30
+
+# These are the sequences need to get colored ouput
+RESET_SEQ = "\033[0m"
+COLOR_SEQ = "\033[1;%dm"
+BOLD_SEQ = "\033[1m"
+
+
+def formatter_message(message, use_color=True):
+    if use_color:
+        message = message.replace("$RESET", RESET_SEQ).replace(
+            "$BOLD", BOLD_SEQ)
+    else:
+        message = message.replace("$RESET", "").replace("$BOLD", "")
+    return message
+
+COLORS = {
+    'WARNING': YELLOW,
+    'INFO': GREEN,
+    'DEBUG': BLUE,
+    'CRITICAL': YELLOW,
+    'ERROR': RED
+}
+
+
+class ColoredFormatter(logging.Formatter):
+    def __init__(self, msg, use_color=True):
+        logging.Formatter.__init__(self, msg)
+        self.use_color = use_color
+
+    def format(self, record):
+        levelname = record.levelname
+        if self.use_color and levelname in COLORS:
+            levelname_color = COLOR_SEQ % (
+                30 + COLORS[levelname]) + levelname + RESET_SEQ
+            record.levelname = levelname_color
+        return logging.Formatter.format(self, record)
+
+
+# Custom logger class with multiple destinations
+class ColoredLogger(logging.Logger):
+
+    FORMAT = "[$BOLD%(name)s$RESET][%(levelname)s] %(message)s"
+    COLOR_FORMAT = formatter_message(FORMAT, True)
+
+    def __init__(self, name):
+        logging.Logger.__init__(self, name, logging.DEBUG)
+
+        color_formatter = ColoredFormatter(self.COLOR_FORMAT)
+
+        console = logging.StreamHandler()
+        console.setFormatter(color_formatter)
+
+        self.addHandler(console)
+        return
+
+
+
+class OdooLint(object):
+
+    description = """
+    This script will check that all modules to ensure that:
+
+        - All modules have a description README.rst file in the main direcroty.
+        - The README.rst file has the proper rst syntax to ensure that there
+          is not error when displaying module information in the odoo instance.
+        - All the modules must have an module icon file in static/description/
+        - If the module have a doc directory must have an index.rst file
+          with valid rst syntax. source: https://www.odoo.com/apps/upload/
+    """
+
+    epilog = '\n'.join([
+        "Odoo Developer Comunity Tool",
+        "Development by Katherine Zaoral (github: @zaoral)",
+        "Coded by Katherine Zaoral <info@vauxoo.com>.",
+        "Source code at git:Vauxoo/addons-vauxoo."
+    ])
+
+    def __init__(self):
+        """
+        Initialization of checker, Will:
+
+            - prepare the logger for the current run
+            - check the paramerts and confirm them
+            - save the important parameters.
+            - initializate the variables that manage the list with the
+              errors.
+
+        @return: None
+        """
+        self.prepare_logger()
+        self.args = self.argument_parser()
+        self.path = self.args['path']
+        if self.args.get('confirm', False):
+            pass
+        else:
+            self.confirm_run(self.args)
+
+        self.doc_syntax_rst = []
+        self.desc_syntax_rst = []
+        self.missing_rst = []
+        self.icon_missing = []
+        self.doc_missing = []
+        self.desc_legacy = []
+
+        return None
+
+    def argument_parser(self):
+        """
+        This function create the help command line, manage and filter the
+        parameters of this script (default values, choices values).
+        @return dictionary of the arguments.
+        """
+        parser = argparse.ArgumentParser(
+            prog='odoo_lint',
+            description=self.description,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            epilog=self.epilog)
+
+        parser.add_argument(
+            '--confirm',
+            action='store_false',
+            help='Ask user for confirmation to the user. Default is True')
+
+        parser.add_argument(
+            '-p', '--path',
+            metavar='PATH',
+            type=str,
+            default=os.getcwd(),
+            help='The module Path you want to apply the transformation')
+        return parser.parse_args().__dict__
+
+    def confirm_run(self, args):
+        """
+        Manual confirmation before runing the script.
+        @param args: dictionary of arguments.
+        @return True or exit the program in the confirm is no.
+        """
+        self.logger.info('... Configuration of Parameters Set')
+        for (parameter, value) in args.iteritems():
+            self.logger.info('%s = %s', parameter, value)
+
+        question = 'Confirm the run with the above parameters?'
+        answer = 'The script parameters were confirmed by the user'
+        self.confirmation(question, answer)
+        return True
+
+    def confirmation(self, question, answer):
+        """
+        Manual confirmation for the user.
+        @return True or exit the program in the confirmation in negative.
+        """
+        confirm_flag = False
+        while confirm_flag not in ['y', 'n']:
+            confirm_flag = raw_input(question + ' [y/n]: ')
+            if confirm_flag == 'y':
+                self.logger.info(answer)
+            elif confirm_flag == 'n':
+                self.logger.info('The user cancel the operation')
+                exit()
+            else:
+                self.logger.info(
+                    'The entry is not valid, please enter y or n.')
+        return True
+
+    def prepare_logger(self):
+        """
+        Create the logger for the script
+        @return True
+        """
+        logging.setLoggerClass(ColoredLogger)
+        self.logger = logging.getLogger('odoo_lint')
+        self.logger.setLevel(logging.DEBUG)
+        return True
+
+    def run(self):
+        """
+        run the given command in the command line.
+        @return True
+        """
+        for root, dirnames, filenames in os.walk(self.path):
+            dirnames = dirnames
+            if self.is_odoo_module(filenames):
+                module = os.path.basename(root)
+                self.logger.info('Checking module: ' + module)
+                self.check_description(root, module, filenames)
+                self.check_icon_missing(module)
+                self.check_doc(root, module)
+        self.log_error_summary()
+
+    def log_error_summary(self):
+        """
+        log error summary with all kind of errors.
+        """
+        if self.desc_legacy:
+            self.logger.warn('='*80)
+            self.logger.warn('Warning Summary:')
+            self._log_warn(
+                self.desc_legacy,
+                'Using description key in __openerp__.py (legacy mode):')
+        if (self.desc_syntax_rst or self.doc_syntax_rst
+                or self.missing_rst or self.icon_missing
+                or self.doc_missing):
+            self.logger.error('='*80)
+            self.logger.error('Error Summary:')
+            if self.desc_syntax_rst:
+                self._log_error(self.desc_syntax_rst, 'README.rst syntax errors:')
+            if self.missing_rst:
+                self._log_error(
+                    self.missing_rst, 'Missing README.rst files:')
+            if self.icon_missing:
+                self._log_error(self.icon_missing, 'Missing icon.png:')
+            if self.doc_missing:
+                self._log_error(self.doc_missing, 'Missing doc/index.rst:')
+            if self.doc_syntax_rst:
+                self._log_error(self.doc_syntax_rst, 'doc/index.rst syntax errors:')
+            exit(1)
+
+    def _log_error(self, module_list, msg):
+        """
+        call error log.
+        """
+        self.logger.error(self._log_msg(module_list, msg))
+
+    def _log_warn(self, module_list, msg):
+        """
+        call warn log.
+        """
+        self.logger.warn(self._log_msg(module_list, msg))
+
+    def _log_msg(self, module_list, msg):
+        """
+        Return message to use in the log msg to use in the script.
+        """
+        res = str()
+        if module_list:
+            res = [msg] + module_list
+            res = '\n    -'.join(res)
+        return res
+
+    def check_description(self, root, module, filenames):
+        """
+        This method check the module description.
+
+        - that the README.rst file exist.
+        - that the README.rst file have a valid rst syntaxt
+        - that the openerp.py have not the description key (legacy mode).
+
+        @return True
+        """
+        self.logger.info(module + ': Checking description')
+        if 'README.rst' in filenames:
+            if self.check_rst_syntax(root, module, 'README.rst'):
+                self.desc_syntax_rst.append(module)
+        else:
+            self.missing_rst.append(module)
+
+        with open(os.path.join(root, '__openerp__.py'), 'r') as fopenerp:
+            data = fopenerp.read()
+            data = eval(data)
+            if 'description' in data.keys():
+                self.logger.warn(
+                    'Legagy mode: Using description in __openerp__.py file')
+                self.desc_legacy.append(module)
+
+    def check_rst_syntax(self, root, module, filename):
+        """
+        This method check if the rst file have a valid syntax.
+        @return True
+        """
+        errors = subprocess.Popen(
+            ['rst2html.py', os.path.join(root, filename),
+             '/dev/null', '-r', '1'],
+            stderr=subprocess.STDOUT,
+            stdout=subprocess.PIPE).stdout.read()
+        if errors:
+            self.logger.error(
+                'RST Syntax error in ' + module + ' module:\n\n\t' +
+                errors.rstrip() + '\n')
+            return True
+        return False
+
+    def is_odoo_module(self, filenames):
+        """
+        Check if the folder is a odoo module.
+        return True or False
+        """
+        if '__openerp__.py' in filenames:
+            return True
+        else:
+            return False
+
+    def check_icon_missing(self, module):
+        """
+        check if the module has an icon.png
+        """
+        self.logger.info(module + ': Checking icon')
+        module_icon = os.path.join(
+            self.path, module, 'static/description/icon.png')
+        if not os.path.exists(module_icon):
+            self.logger.error('missing icon.png')
+            self.icon_missing.append(module)
+
+    def check_doc(self, root, module):
+        """
+        Check if the module has a doc directory. And if it have it check that
+        the index.rst file exist and have the correct rst syntax
+        @return True
+        """
+        self.logger.info(module + ': Checking documentation')
+        doc = os.path.join(self.path, module, 'doc')
+        index = os.path.join(self.path, module, 'doc/index.rst')
+        if os.path.exists(index):
+            if self.check_rst_syntax(root, module, 'doc/index.rst'):
+                self.doc_syntax_rst.append(module)
+        else:
+            if os.path.exists(doc):
+                self.logger.error('missing doc/index.rst')
+                self.doc_missing.append(module)
+
+
+def main():
+    obj = OdooLint()
+    obj.run()
+    return True
+
+if __name__ == '__main__':
+    main()
