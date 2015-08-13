@@ -118,6 +118,18 @@ def get_server_path(odoo_full, odoo_version, travis_home):
     return server_path
 
 
+def get_default_travis_server_path():
+    """
+    Calculate server path with environment variables
+    of travis build used in MQT.
+    :return: Server path
+    """
+    odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
+    odoo_version = os.environ.get("VERSION")
+    travis_home = os.environ.get("HOME", "~/")
+    return get_server_path(odoo_full, odoo_version, travis_home)
+
+
 def get_addons_path(travis_home, travis_build_dir, server_path):
     """
     Calculate addons path
@@ -131,6 +143,17 @@ def get_addons_path(travis_home, travis_build_dir, server_path):
     addons_path_list.append(server_path + "/addons")
     addons_path = ','.join(addons_path_list)
     return addons_path
+
+
+def get_default_travis_addons_path():
+    '''
+
+    '''
+    return get_addons_path(
+        os.environ['HOME'],
+        os.environ['TRAVIS_BUILD_DIR'],
+        get_default_travis_server_path(),
+    )
 
 
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):

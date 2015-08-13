@@ -1,23 +1,143 @@
-#!/bin/bash
+#!/usr/bin/env python
+# coding: utf-8
 
-MODULES_TO_TEST=$TRAVIS_BUILD_DIR
-PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
+from __future__ import print_function
 
-# Fix pylint path. More info: https://www.mail-archive.com/code-quality@python.org/msg00294.html
-export PYTHONPATH=${PYTHONPATH}:${MODULES_TO_TEST}
-touch $MODULES_TO_TEST/__init__.py
+import os
+import sys
+import tempfile
 
-# Set openerp in global path to fix "import" from addons
-if [ "x${VERSION}" == "x" ] ; then
-    VERSION="${1}"
-    echo "WARNING: no env variable set for VERSION. Using '${1}'."
-fi
+import pylint.lint
 
-: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
-IFS="/" read -a REPO <<< "${ODOO_REPO}"
-export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
+from getaddons import is_module, get_modules_changed, get_modules
+from test_server import (get_default_travis_addons_path,
+                         get_default_travis_server_path)
 
-#run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
-pylint_status=$?
-exit $((${pylint_status}))
+
+def setup_server_symlink(server_path, addons_paths,
+                         symlink_path):
+    """
+    Create a folder with setup server with symlinks to allow execute
+    `from openerp.addons import {MODULE_OTHER_PATH}` with pylint.
+    We can't to use `sys.modules` in pylint by next issue:
+        https://bitbucket.org/logilab/pylint/issues/616/modules-renamed-with-sysmodules-are-unable
+    :param addons_paths: String of odoo addons paths splitted by commas.
+    :param symlink_path: Path to create symlinks.
+    :return: True if finish done
+    """
+    if not os.path.exists(os.path.dirname(symlink_path)):
+        os.makedirs(os.path.dirname(symlink_path))
+    if not os.path.lexists(symlink_path):
+        os.symlink(server_path, symlink_path)
+    addons_symlink_path_base = os.path.join(
+        symlink_path, 'openerp', 'addons')
+    for addons_path in addons_paths.split(','):
+        for addon_path in os.listdir(addons_path):
+            addon_symlink_path = os.path.join(
+                addons_symlink_path_base, addon_path)
+            if not os.path.lexists(addon_symlink_path) and \
+                is_module(addon_path):
+                os.symlink(
+                    os.path.join(addons_path, addon_path),
+                    addon_symlink_path,
+                )
+    return True
+
+
+def run_pylint(paths_to_check, conf_file,
+               sys_paths=None):
+    """
+    Execute pylint command with extra parameters.
+    :param paths_to_check: List or str of paths to check pylint.
+        pylint will include recursive childs paths.
+        With str you will need to use splitted commas
+    :param conf_file: String with file name of config file to use.
+    :param sys_paths: List or str of all paths to add to sys.path
+        to support a `import PACKAGE`
+        With str you will need to use splitted commas
+    :return: Dict with python linter stats
+   """
+    if isinstance(paths_to_check, basestring):
+        paths_to_check = paths_to_check.split(',')
+    if isinstance(sys_paths, basestring):
+        sys_paths = sys_paths.split(',')
+    if isinstance(sys_paths, list):
+        for sys_path in sys_paths:
+            sys.path.append(sys_path)
+    pylint_params = ['--rcfile=' + conf_file]
+    pylint_params.extend(paths_to_check)
+    pylint_res = pylint.lint.Run(pylint_params, exit=False)
+    return pylint_res.linter.stats
+
+
+def get_number_errors(linter_stats):
+    """
+    Verify the dictionary statistics to get number of errors.
+    :param linter_stats: Dict of type pylint.lint.Run().linter.stats
+    :return: Integer with quantity of
+    """
+    number_errors = 0
+    for msg in linter_stats['by_msg']:
+        number_errors += linter_stats['by_msg'][msg]
+    return number_errors
+
+
+def main():
+    '''
+    Method to run pylint.
+    :return: Boolean if all fine return True else False
+    '''
+    conf_file = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'cfg',
+        "travis_run_pylint.cfg")
+    paths_to_check = [
+        os.path.join(os.environ['TRAVIS_BUILD_DIR'], module)
+        for module in get_modules(
+            os.environ['TRAVIS_BUILD_DIR'])
+    ]
+    odoo_path = get_default_travis_server_path()
+    addons_path = get_default_travis_addons_path()
+    instance_symlink_path = None
+    if os.path.exists(odoo_path):
+        instance_symlink_path = os.path.join(
+            tempfile.gettempdir(), 'instance')
+        setup_server_symlink(odoo_path, addons_path,
+                             instance_symlink_path)
+    result = True
+    linter_stats = run_pylint(
+        paths_to_check, conf_file, instance_symlink_path)
+    number_errors = get_number_errors(linter_stats)
+    is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
+    if is_pull_request:
+        # If is a pr then use new config file of pylint
+        future_conf_file = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'cfg',
+            "travis_run_pylint_pr.cfg")
+        branch_name_diff = os.environ.get('TRAVIS_BRANCH', False)
+        if branch_name_diff:
+            modules_changed = get_modules_changed(
+                os.environ['TRAVIS_BUILD_DIR'],
+                'origin/' + branch_name_diff)
+            paths_module_changed = [
+                os.path.join(os.environ['TRAVIS_BUILD_DIR'], module_changed)
+                for module_changed in modules_changed]
+            if paths_module_changed:
+                linter_stats = run_pylint(
+                    paths_module_changed, future_conf_file,
+                    instance_symlink_path)
+                number_errors += get_number_errors(linter_stats)
+    expected_errors = int(
+        os.environ.get("PYLINT_EXPECTED_ERRORS", "0"))
+    if number_errors != expected_errors:
+        print("pylint expected errors {expected_errors}, "
+              "found {number_errors}!".format(
+                  expected_errors=expected_errors,
+                  number_errors=number_errors))
+        result = False
+    return result
+
+
+if __name__ == '__main__':
+    exit(int(not main()))

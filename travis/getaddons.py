@@ -9,6 +9,7 @@ from __future__ import print_function
 import os
 import sys
 
+from git_run import GitRun
 
 MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
 
@@ -54,6 +55,20 @@ def get_addons(path):
                for x in os.listdir(path)
                if is_addons(os.path.join(path, x))]
     return res
+
+
+def get_modules_changed(path, ref, ref_base=None):
+    git_run_obj = GitRun(os.path.join(path, '.git'))
+    git_run_obj.run(['fetch'] + ref.split('/'))
+    items_changed = git_run_obj.get_items_changed(ref, ref_base)
+    folders_changed = set([
+        item_changed.split('/')[0]
+        for item_changed in items_changed
+        if '/' in item_changed]
+    )
+    modules = set(get_modules(path))
+    modules_changed = list(modules & folders_changed)
+    return modules_changed
 
 
 def main(argv=None):
