@@ -106,6 +106,14 @@ def get_extra_params_from_version(version):
     return extra_params
 
 
+def which(name):
+    path = os.getenv('PATH')
+    for item in path.split(os.path.pathsep):
+        item = os.path.join(item, name)
+        if os.path.exists(item):
+            return item
+
+
 def main():
     '''
     Method to run pylint.
@@ -123,17 +131,26 @@ def main():
     odoo_path = get_default_travis_server_path()
     addons_path = get_default_travis_addons_path()
     instance_symlink_path = None
+    sys_paths = []
     version = os.environ.get('VERSION', 'master')
     extra_params = get_extra_params_from_version(version)
+    odoo_lint_path = which('pylint_plugins')
+    if odoo_lint_path and os.path.exists(os.path.join(
+       odoo_lint_path, 'odoo_lint.py')):
+        extra_params.append('--load-plugins=odoo_lint')
+        sys_paths.append(odoo_lint_path)
 
     if os.path.exists(odoo_path):
         instance_symlink_path = os.path.join(
             tempfile.gettempdir(), 'instance')
         setup_server_symlink(odoo_path, addons_path,
                              instance_symlink_path)
+    if instance_symlink_path:
+        sys_paths.append(instance_symlink_path)
+
     result = True
     linter_stats = run_pylint(
-        paths_to_check, conf_file, instance_symlink_path,
+        paths_to_check, conf_file, sys_paths,
         extra_params=extra_params)
     number_errors = get_number_errors(linter_stats)
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
@@ -154,7 +171,7 @@ def main():
             if paths_module_changed:
                 linter_stats = run_pylint(
                     paths_module_changed, future_conf_file,
-                    instance_symlink_path, extra_params=extra_params)
+                    sys_paths, extra_params=extra_params)
                 number_errors += get_number_errors(linter_stats)
     expected_errors = int(
         os.environ.get("PYLINT_EXPECTED_ERRORS", "0"))
