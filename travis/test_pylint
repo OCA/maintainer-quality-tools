@@ -36,7 +36,7 @@ def setup_server_symlink(server_path, addons_paths,
             addon_symlink_path = os.path.join(
                 addons_symlink_path_base, addon_path)
             if not os.path.lexists(addon_symlink_path) and \
-                is_module(addon_path):
+               is_module(addon_path):
                 os.symlink(
                     os.path.join(addons_path, addon_path),
                     addon_symlink_path,
@@ -45,7 +45,7 @@ def setup_server_symlink(server_path, addons_paths,
 
 
 def run_pylint(paths_to_check, conf_file,
-               sys_paths=None):
+               sys_paths=None, extra_params=None):
     """
     Execute pylint command with extra parameters.
     :param paths_to_check: List or str of paths to check pylint.
@@ -55,8 +55,11 @@ def run_pylint(paths_to_check, conf_file,
     :param sys_paths: List or str of all paths to add to sys.path
         to support a `import PACKAGE`
         With str you will need to use splitted commas
+    :param extra_params: List of extra parameters for pylint
     :return: Dict with python linter stats
-   """
+    """
+    if extra_params is None:
+        extra_params = []
     if isinstance(paths_to_check, basestring):
         paths_to_check = paths_to_check.split(',')
     if isinstance(sys_paths, basestring):
@@ -65,6 +68,7 @@ def run_pylint(paths_to_check, conf_file,
         for sys_path in sys_paths:
             sys.path.append(sys_path)
     pylint_params = ['--rcfile=' + conf_file]
+    pylint_params.extend(extra_params)
     pylint_params.extend(paths_to_check)
     pylint_res = pylint.lint.Run(pylint_params, exit=False)
     return pylint_res.linter.stats
@@ -80,6 +84,26 @@ def get_number_errors(linter_stats):
     for msg in linter_stats['by_msg']:
         number_errors += linter_stats['by_msg'][msg]
     return number_errors
+
+
+def get_extra_params_from_version(version):
+    '''
+    Get extra pylint params by odoo version
+    :param version: String with name of version of odoo
+    :return: List of extra params based on version
+    '''
+    extra_params = []
+    try:
+        version_f = float(version)
+    except ValueError:
+        version_f = -1
+    if version_f != -1 and version_f < 8:
+        # Class name snake_case style to version < 8
+        extra_params.append(
+            '--class-rgx='
+            '([a-z_][a-z0-9_]{2,45})|([A-Z_][a-zA-Z0-9]{2,45})$'
+        )
+    return extra_params
 
 
 def main():
@@ -99,6 +123,9 @@ def main():
     odoo_path = get_default_travis_server_path()
     addons_path = get_default_travis_addons_path()
     instance_symlink_path = None
+    version = os.environ.get('VERSION', 'master')
+    extra_params = get_extra_params_from_version(version)
+
     if os.path.exists(odoo_path):
         instance_symlink_path = os.path.join(
             tempfile.gettempdir(), 'instance')
@@ -106,7 +133,8 @@ def main():
                              instance_symlink_path)
     result = True
     linter_stats = run_pylint(
-        paths_to_check, conf_file, instance_symlink_path)
+        paths_to_check, conf_file, instance_symlink_path,
+        extra_params=extra_params)
     number_errors = get_number_errors(linter_stats)
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false'
     if is_pull_request:
@@ -126,7 +154,7 @@ def main():
             if paths_module_changed:
                 linter_stats = run_pylint(
                     paths_module_changed, future_conf_file,
-                    instance_symlink_path)
+                    instance_symlink_path, extra_params=extra_params)
                 number_errors += get_number_errors(linter_stats)
     expected_errors = int(
         os.environ.get("PYLINT_EXPECTED_ERRORS", "0"))
