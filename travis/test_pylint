@@ -20,4 +20,10 @@ export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
 #run pylint command
 pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
 pylint_status=$?
-exit $((${pylint_status}))
+if [[ "$pylint_status" == "0" ]]; then
+  echo "Pylint OK"
+  exit 0
+else
+  echo "Pylint ERRORS"
+  exit 1
+fi
