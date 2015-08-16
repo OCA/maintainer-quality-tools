@@ -67,6 +67,34 @@ ODOO_MODULE_MSGS = {
 }
 
 
+def add_msg(f):
+    def decorator_add_msg(self, node=None):
+        '''
+        if method a decorator to add a msg if the original method
+        returned a negative value then add message.
+        Use object attributes called:
+            - name_key: Required string name of message to add.
+            - msg_args: Tuple with arguments to use in msg.
+                default: None
+        :param node: node astroid standard parameter
+            If original method don't receive then
+            try to get from original object `self.node`
+        '''
+        if node is None:
+            node = getattr(self, 'node', None)
+        name_key = getattr(self, 'name_key', None)
+        assert node is not None, "self.node variable not defined"
+        assert name_key, "self.name_key variable not defined"
+        res = f(self)
+        msg_args = getattr(self, 'msg_args', None)
+        if not res:
+            self.add_message(name_key, node=node,
+                             args=msg_args)
+        # clean buffer of optional variable
+        self.msg_args = None
+    return decorator_add_msg
+
+
 class OdooLintAstroidChecker(BaseChecker):
 
     __implements__ = IAstroidChecker
@@ -182,12 +210,14 @@ class OdooLintAstroidChecker(BaseChecker):
             for msg_code, (title, name_key, description) in \
                     sorted(self.msgs.iteritems()):
                 check_method = getattr(
-                    self, '_check_' + name_key.replace('-', '_'))
-                self.msg_args = None
-                if not check_method():
-                    self.add_message(name_key, node=node,
-                                     args=self.msg_args)
+                    self, '_check_' + name_key.replace('-', '_'),
+                    None)
+                if check_method:
+                    self.node = node
+                    self.name_key = msg_code
+                    check_method()
 
+    @add_msg
     def _check_missing_icon(self):
         """Check if a odoo module has a icon image
         :return: True if icon is found else False.
@@ -196,44 +226,54 @@ class OdooLintAstroidChecker(BaseChecker):
             self.module_path, 'static', 'description', 'icon.png')
         return os.path.isfile(icon_path)
 
-    def _check_missing_doc(self):
-        '''
-        Check if the module has a ./doc/index.rst file
-        :return: If exists return full path else False
-        '''
+    def get_doc_path(self):
         doc_path = os.path.join(
             self.module_path, 'doc', 'index.rst')
         if os.path.isfile(doc_path):
             return doc_path
         return False
 
+    @add_msg
+    def _check_missing_doc(self):
+        '''
+        Check if the module has a ./doc/index.rst file
+        :return: If exists return full path else False
+        '''
+        return self.get_doc_path()
+
+    @add_msg
     def _check_doc_syntax_error(self):
         '''
         Check syntaxis of ./doc/index.rst file with `rst2html`
         :return: if has syntaxis error return False
             else True but if don't exists file return True
         '''
-        fpath = self._check_missing_doc()
+        fpath = self.get_doc_path()
         if not fpath:
             return True
         return self.check_rst_syntax(fpath)
 
-    def _check_manifest_syntax_error(self):
-        '''
-        Check any exception in `self.manifest_content`
-        :return: manifest content dict if no errors else None
-        '''
+    def get_manifest_dict(self):
         try:
             manifest_dict = eval(self.manifest_content)
         except BaseException:  # Why can be any exception
             manifest_dict = None
         return manifest_dict
 
+    @add_msg
+    def _check_manifest_syntax_error(self):
+        '''
+        Check any exception in `self.manifest_content`
+        :return: manifest content dict if no errors else None
+        '''
+        return self.get_manifest_dict()
+
+    @add_msg
     def _check_manifest_missing_key(self):
         '''Check if a required key is missing in manifest file
         :return: False if key required is missing else True
         '''
-        manifest_dict = self._check_manifest_syntax_error()
+        manifest_dict = self.get_manifest_dict()
         if not manifest_dict:
             return True
         required_keys = self.config.manifest_required_keys
@@ -241,29 +281,37 @@ class OdooLintAstroidChecker(BaseChecker):
         return set(required_keys).issubset(
             set(manifest_dict.keys()))
 
+    def get_readme_path(self):
+        readme_path = os.path.join(
+            self.module_path, 'README.rst')
+        if os.path.isfile(readme_path):
+            return readme_path
+        return False
+
+    @add_msg
     def _check_missing_readme(self):
         '''
         Check if the module has a ./README.rst file
         :return: If exists return full path else False
         '''
-        readme_path = os.path.join(
-            self.module_path, 'README.rst')
-        if os.path.isfile(readme_path):
-            return readme_path
-        self.msg_args = (self.config.readme_template_url,)
-        return False
+        readme_path = self.get_readme_path()
+        if not readme_path:
+            self.msg_args = (self.config.readme_template_url,)
+            return False
 
+    @add_msg
     def _check_readme_syntax_error(self):
         '''
         Check syntaxis of ./README.rst file with `rst2html`
         :return: if has syntaxis error return False
             else True but if don't exists file return True
         '''
-        fpath = self._check_missing_readme()
+        fpath = self.get_readme_path()
         if not fpath:
             return True
         return self.check_rst_syntax(fpath)
 
+    @add_msg
     def _check_deprecated_description(self):
         '''Check if description is defined in manifest file
         :return: False if is defined else True
@@ -273,10 +321,11 @@ class OdooLintAstroidChecker(BaseChecker):
             return True
         return 'description' not in manifest_dict
 
+    @add_msg
     def _check_missing_required_author(self):
         '''Check if manifest file has required author
         :return: True if is found it else False'''
-        manifest_dict = self._check_manifest_syntax_error()
+        manifest_dict = self.get_manifest_dict()
         if not manifest_dict:
             return True
         authors = manifest_dict.get('author', '').split(',')
@@ -286,6 +335,7 @@ class OdooLintAstroidChecker(BaseChecker):
                 return True
         self.msg_args = (author_required,)
         return False
+
 
 
 def register(linter):
