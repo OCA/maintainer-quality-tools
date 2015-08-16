@@ -103,6 +103,11 @@ def get_extra_params_from_version(version):
             '--class-rgx='
             '([a-z_][a-z0-9_]{2,45})|([A-Z_][a-zA-Z0-9]{2,45})$'
         )
+        msgs_to_disable = [
+            'missing-icon', 'missing-doc', 'missing-readme',
+            'deprecated-description',
+        ]
+        extra_params.append('--disable=' + ','.join(msgs_to_disable))
     return extra_params
 
 

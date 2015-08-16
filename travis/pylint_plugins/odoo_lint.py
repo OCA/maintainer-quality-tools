@@ -18,48 +18,65 @@ MSG_TMPL = '{msg_guidelines}'  # Require {msg_guidelines}
 README_TMPL_URL = 'https://github.com/OCA/maintainer-tools' + \
     '/blob/master/template/module/README.rst'
 ODOO_MODULE_MSGS = {
-    #  and WO for warnings from odoo_lint
-    'WO010': (
+    # ODOO checkers type
+    #  C: convention
+    #  R: refactor
+    #  W: warning
+    #  E: error
+    #  F: fatal
+    # ODOO globals checkers id:
+    #  (Use this value in all class of odoo-lint)
+    #  O
+    # ODOO global checkers class:
+    #  (don't use other value in this class)
+    #  0
+    # ODOO checkers method:
+    #  00 (2 digits from 00 to 99)
+    # Message code of example:
+    #  In this class: WO-0-00, EO-0-00
+    #  OTHER CLASS: WO-1-00, EO-1-00
+
+    'CO001': (
         'Missing icon ./static/description/icon.png',
         'missing-icon',  # Name used to found check method.
         MSG_TMPL,
     ),
-    'WO020': (
+    'CO002': (
         'Documentation ./doc/index.rst is missing',
         'missing-doc',
         MSG_TMPL,
     ),
-    'WO030': (
+    'CO006': (
         'Missing required %s keys in manifest file __openerp__.py',
         'manifest-missing-key',
         MSG_TMPL,
     ),
-    'WO040': (
+    'CO003': (
         'Missing ./README.rst file. Template here: %s',
         'missing-readme',
         MSG_TMPL,
     ),
-    'WO050': (
+    'CO004': (
         'Deprecated description in manifest file __openerp__.py',
         'deprecated-description',
         MSG_TMPL,
     ),
-    'WO060': (
+    'CO005': (
         'Missing author required "%s"',
         'missing-required-author',
         MSG_TMPL,
     ),
-    'EO030': (
+    'EO002': (
         'Syntax error in file ./README.rst',
         'readme-syntax-error',
         MSG_TMPL,
     ),
-    'EO020': (
+    'EO003': (
         'Syntax error in file ./doc/index.rst',
         'doc-syntax-error',
         MSG_TMPL,
     ),
-    'EO010': (
+    'EO001': (
         'Syntax error in manifest file __openerp__.py',
         'manifest-syntax-error',
         MSG_TMPL,
@@ -67,10 +84,53 @@ ODOO_MODULE_MSGS = {
 }
 
 
+PY_MODULE_MSGS = {
+    # Messages that visit module but don't require a odoo module
+    'WO001': (
+        'Missing coding comment',
+        'missing-coding-comment',
+        'More info here: '
+        'https://www.python.org/dev/peps/pep-0263/' +
+        (MSG_TMPL or '')
+    ),
+    'CO007': (
+        'No UTF-8 coding found: Use `# -*- coding: utf-8 -*-` '
+        'in first or second line of your file.',
+        'no-utf8-coding-comment',
+        MSG_TMPL
+    ),
+    'WO002': (
+        'Unexpected interpreter comment and execute permissions. '
+        'Interpreter: %s Exec perm: %s',
+        'unexpected-interpreter-exec-perm',
+        MSG_TMPL
+    ),
+}
+
+PY_MSGS = {
+    # Messages that don't use visit module method
+    'RO001': (
+        'Import `Warning` should be renamed as UserError '
+        '`from openerp.exceptions import Warning as UserError`',
+        'openerp-exception-warning',
+        MSG_TMPL
+    ),
+    'WO003': (
+        'Detected api.one and api.multi decorators together.',
+        'api-one-multi-together',
+        MSG_TMPL
+    ),
+    'WO004': (
+        'Missing api.one in copy function.',
+        'copy-wo-api-one',
+        MSG_TMPL
+    ),
+}
+
+
 def add_msg(f):
     def decorator_add_msg(self, node=None):
-        '''
-        if method a decorator to add a msg if the original method
+        '''Decorator method a decorator to add a msg if the original method
         returned a negative value then add message.
         Use object attributes called:
             - name_key: Required string name of message to add.
@@ -135,7 +195,9 @@ class OdooLintAstroidChecker(BaseChecker):
                 }),
                )
 
-    msgs = ODOO_MODULE_MSGS
+    msgs = ODOO_MODULE_MSGS.copy()
+    msgs.update(PY_MSGS)
+    msgs.update(PY_MODULE_MSGS)
 
     def add_msg_guidelines(self, msg_guidelines):
         new_msgs = {}
@@ -181,7 +243,90 @@ class OdooLintAstroidChecker(BaseChecker):
             return False
         return True
 
-    @utils.check_messages(*(ODOO_MODULE_MSGS.keys()))
+    def get_interpreter_and_coding(self):
+        """Get '#!/bin' comment and '# -*- coding:' comment.
+        :return: Return a tuple with two string
+            (interpreter_bin, coding_comment)
+            if not found then use empty string
+        """
+        interpreter_bin = ''
+        coding_comment = ''
+        with self.node.file_stream as fstream:
+            cont = 0
+            for line in fstream:
+                cont += 1
+                if "#!" == line[:2]:
+                    interpreter_bin = line.strip('\n')
+                if "# -*- coding: " in line:
+                    coding_comment = line.strip('\n')
+                if cont == 2:
+                    break
+        return interpreter_bin, coding_comment
+
+    def get_decorators_names(self, decorators):
+        nodes = []
+        if decorators:
+            nodes = decorators.nodes
+        return [getattr(decorator, 'attrname', '')
+                for decorator in nodes if decorator is not None]
+
+    @utils.check_messages('api-one-multi-together',
+                          'copy-wo-api-one')
+    def visit_function(self, node):
+        '''Enable next checks:
+            Check api.one and api.multi together
+            Method copy without api.one
+        '''
+        decor_names = self.get_decorators_names(node.decorators)
+        decor_lastnames = [
+            decor.split('.')[-1]
+            for decor in decor_names]
+        if self.linter.is_message_enabled('api-one-multi-together'):
+            if 'one' in decor_lastnames \
+                    and 'multi' in decor_lastnames:
+                self.add_message('api-one-multi-together',
+                                 node=node)
+
+        if self.linter.is_message_enabled('copy-wo-api-one'):
+            if 'copy' == node.name and 'one' not in decor_lastnames:
+                self.add_message('copy-wo-api-one', node=node)
+
+    @utils.check_messages('openerp-exception-warning')
+    def visit_from(self, node):
+        if node.modname == 'openerp.exceptions':
+            for (import_name, import_as_name) in node.names:
+                if import_name == 'Warning' \
+                        and import_as_name != 'UserError':
+                    self.add_message(
+                        'openerp-exception-warning', node=node)
+
+    @add_msg
+    def _check_unexpected_interpreter_exec_perm(self):
+        interpreter_bin, coding = self.get_interpreter_and_coding()
+        access_x_ok = os.access(self.node.file, os.X_OK)
+        self.msg_args = (interpreter_bin, access_x_ok)
+        return bool(interpreter_bin) == access_x_ok
+
+    @add_msg
+    def _check_no_utf8_coding_comment(self):
+        'Check that the coding utf-8 comment exists'
+        interpreter_bin, coding = self.get_interpreter_and_coding()
+        if not coding:
+            return True
+        if coding == '# -*- coding: utf-8 -*-':
+            return True
+        return False
+
+    @add_msg
+    def _check_missing_coding_comment(self):
+        'Check that the coding comment exists.'
+        interpreter_bin, coding = self.get_interpreter_and_coding()
+        if coding:
+            return True
+        return False
+
+    @utils.check_messages(
+        *(ODOO_MODULE_MSGS.keys() + PY_MODULE_MSGS.keys()))
     def visit_module(self, node):
         '''
         Call methods named with name_key from ODOO_MODULE_MSGS
@@ -202,20 +347,28 @@ class OdooLintAstroidChecker(BaseChecker):
         :return: None
         '''
         odoo_files = self.is_odoo_module(node.file)
-        if odoo_files:
-            self.module_path = os.path.dirname(node.file)
-            self.manifest_file = os.path.join(
-                self.module_path, odoo_files[0])
-            self.manifest_content = open(self.manifest_file).read()
-            for msg_code, (title, name_key, description) in \
-                    sorted(self.msgs.iteritems()):
-                check_method = getattr(
-                    self, '_check_' + name_key.replace('-', '_'),
-                    None)
-                if check_method:
-                    self.node = node
-                    self.name_key = msg_code
-                    check_method()
+        self.module_path = os.path.dirname(node.file)
+        self.node = node
+        for msg_code, (title, name_key, description) in \
+                sorted(self.msgs.iteritems()):
+            if not self.linter.is_message_enabled(name_key):
+                continue
+            check_method = getattr(
+                self, '_check_' + name_key.replace('-', '_'),
+                None)
+            self.name_key = msg_code
+            if callable(check_method):
+                self.manifest_file = None
+                self.manifest_content = None
+                if odoo_files:
+                    self.manifest_file = os.path.join(
+                        self.module_path, odoo_files[0])
+                    self.manifest_content = open(self.manifest_file).read()
+                elif msg_code in ODOO_MODULE_MSGS.keys():
+                    # If is a check of odoo_module
+                    # but no is odoo module
+                    continue
+                check_method()
 
     @add_msg
     def _check_missing_icon(self):
@@ -298,6 +451,7 @@ class OdooLintAstroidChecker(BaseChecker):
         if not readme_path:
             self.msg_args = (self.config.readme_template_url,)
             return False
+        return True
 
     @add_msg
     def _check_readme_syntax_error(self):
@@ -335,7 +489,6 @@ class OdooLintAstroidChecker(BaseChecker):
                 return True
         self.msg_args = (author_required,)
         return False
-
 
 
 def register(linter):
