@@ -98,4 +98,8 @@ def main(paths, config_file, sys_paths=None, extra_params=None):
 
 
 if __name__ == '__main__':
-    exit(main(standalone_mode=False))
+    try:
+        exit(main(standalone_mode=False))
+    except click.ClickException as e:
+        e.show()
+        exit(e.exit_code)
