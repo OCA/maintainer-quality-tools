@@ -61,6 +61,7 @@ def main(test_list):
 
 
 if __name__ == '__main__':
+    do_odoo_lint = os.environ.get("ODOO_LINT", '0') == "1" 
     do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
     lint_check_disabled = os.environ.get('LINT_CHECK') == '0'
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
