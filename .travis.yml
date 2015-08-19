@@ -37,7 +37,6 @@ env:
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="17" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
   - VERSION="master" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="18" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
   - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="17" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file but with params changed by odoo version
->>>>>>> vauxoo-dev/oca-pylint-camelcase-moy
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
