@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import os
+import getaddons
+import travis_helpers
+from test_server import get_test_dependencies
+
+import run_pylint
+
+repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
+exclude = os.environ.get("EXCLUDE")
+
+addons_list = ['test_module', 'second_module']
+to_preinstall = get_test_dependencies(repo_dir, addons_list)
+
+assert not [x for x in to_preinstall if x in addons_list], \
+    "Should not preinstall modules to test!"
+
+# Testing getaddons
+assert getaddons.main() == 1
+getaddons.main(["getaddons.py", repo_dir])
+getaddons.main(["getaddons.py", "-m", repo_dir])
+getaddons.main(["getaddons.py", "-m",
+                repo_dir + "/" if repo_dir[-1] == '/' else repo_dir])
+if exclude:
+    getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
+    getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
+
+# Testing travis helpers
+assert travis_helpers.red(u'test') == u"\033[1;31mtest\033[0;m"
+assert travis_helpers.green(u'test') == u"\033[1;32mtest\033[0;m"
+assert travis_helpers.yellow(u'test') == u"\033[1;33mtest\033[0;m"
+assert travis_helpers.yellow_light(u'test') == u"\033[33mtest\033[0;m"
+
+#Testing pylint_run fix of:
+# https://www.mail-archive.com/code-quality@python.org/msg00294.html
+if os.environ.get('LINT_CHECK', 0) == 1:
+    pylint_rcfile = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'cfg',
+        "travis_run_pylint.cfg")
+    count_errors = run_pylint.main([
+        "--config-file=" + pylint_rcfile,
+        "--extra-params", "-d", "--extra-params", "all",
+        "--extra-params", "-e", "--extra-params", "F0010,duplicate-key",
+        "--path", repo_dir], standalone_mode=False)
+    assert 1 == count_errors
