@@ -45,3 +45,6 @@ if os.environ.get('LINT_CHECK', 0) == 1:
         "--extra-params", "-e", "--extra-params", "F0010,duplicate-key",
         "--path", repo_dir], standalone_mode=False)
     assert 1 == count_errors
+
+# Testing git run from getaddons
+getaddons.get_modules_changed(repo_dir)

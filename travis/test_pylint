@@ -9,14 +9,73 @@ import os
 
 import run_pylint
 
+from getaddons import get_modules_changed
 
+
+def get_extra_params(odoo_version):
+    '''
+    Get extra pylint params by odoo version
+    :param version: String with name of version of odoo
+    :return: List of extra pylint params
+    '''
+    params = []
+    try:
+        version_f = float(odoo_version)
+    except ValueError:
+        # master case
+        version_f = -1
+    if version_f != -1 and version_f < 8:
+        # Class name snake_case style to version < 8
+        params.append(
+            '--class-rgx='
+            '([a-z_][a-z0-9_]{2,45})|([A-Z_][a-zA-Z0-9]{2,45})$'
+        )
+    return params
+
+version = os.environ.get('VERSION', False)
+extra_params_cmd = []
+if version:
+    extra_params = get_extra_params(version)
+    for extra_param in extra_params:
+        extra_params_cmd.extend([
+        '--extra-params', extra_param])
 pylint_rcfile = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
     "travis_run_pylint.cfg")
 count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
-], standalone_mode=False)
+] + extra_params_cmd, standalone_mode=False)
+
+
+pylint_rcfile_pr = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'cfg',
+    "travis_run_pylint_pr.cfg")
+
+is_pull_request = os.environ.get(
+    'TRAVIS_PULL_REQUEST', 'false') != 'false'
+branch_base = os.environ.get('TRAVIS_BRANCH', False)
+git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
+if is_pull_request and branch_base and git_work_dir:
+   if branch_base and git_work_dir:
+        modules_changed = get_modules_changed(
+            git_work_dir,
+            'origin/' + branch_base)
+        modules_changed_cmd = []
+        for module_changed in modules_changed:
+            modules_changed_cmd.extend([
+                '--path',
+                module_changed,
+            ])
+        count_errors += run_pylint.main([
+            "--config-file=" + pylint_rcfile_pr,
+        ] + extra_params_cmd + modules_changed_cmd,
+        standalone_mode=False)
+
+else:
+    # TODO: Add git hook case in other PR
+    pass
 
 expected_errors = int(
     os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
