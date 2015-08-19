@@ -34,12 +34,13 @@ def get_subpaths(paths):
     """
     subpaths = []
     for path in paths:
-        subpaths.append(path)
         if not os.path.isfile(os.path.join(path, '__init__.py')):
             subpaths.extend(
                 [os.path.join(path, item)
                  for item in os.listdir(path)
-                 if os.path.isdir(os.path.join(path, item))])
+                 if os.path.isfile(os.path.join(path, item, '__init__.py'))])
+        else:
+            subpaths.append(path)
     return subpaths
 
 
