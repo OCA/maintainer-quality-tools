@@ -2,6 +2,8 @@
 # Do not use this file as a template for you repository TravisCI configuration
 # Instead use the files under the "/sample_files" directory for that purpose.
 language: python
+sudo: false
+cache: pip
 
 build_image: vauxoo/odoo-80-image-shippable-auto
 commit_container: cowardvassal/vauxoo-dev
@@ -41,7 +43,8 @@ install:
   - travis_install_nightly 8.0 # only used if VERSION not set in env
 
 script:
-  - travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/self_tests
+  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
 
-#after_success:
-#  coveralls
+after_success:
+  - coveralls
