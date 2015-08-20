@@ -144,7 +144,7 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     if odoo_include:
         addons_list = parse_list(odoo_include)
     else:
-        addons_dir = os.environ.get("MODULES_TO_TEST", travis_build_dir)
+        addons_dir = os.environ.get("MODULES_DIR", travis_build_dir)
         addons_list = get_modules(addons_dir)
 
     if odoo_exclude:
