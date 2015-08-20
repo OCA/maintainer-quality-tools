@@ -5,13 +5,13 @@ import sys
 
 from getaddons import get_modules
 
-
 root_dir = os.path.dirname(os.path.abspath(__file__))
 flake8_config_dir = os.path.join(root_dir, 'cfg')
+modules_dir = os.environ.get('MODULES_DIR', '.')
 
 status = 0
 
-for addon in get_modules(os.path.abspath('.')):
+for addon in get_modules(os.path.abspath(modules_dir)):
     status += subprocess.call(['flake8', addon,
                                '--config=%s/travis_run_flake8__init__.cfg' %
                                flake8_config_dir])

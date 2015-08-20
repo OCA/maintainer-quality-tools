@@ -54,6 +54,9 @@ if __name__ == '__main__':
     tests_unspecified = os.environ.get('TESTS') is None
     transifex_enabled = os.environ.get('TRANSIFEX') == '1'
 
+    if not os.environ.get('MODULES_DIR'):
+        os.environ['MODULES_DIR'] = os.environ.get('TRAVIS_BUILD_DIR')
+
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
 
