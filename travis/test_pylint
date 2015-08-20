@@ -1,23 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-MODULES_TO_TEST=$TRAVIS_BUILD_DIR
-PYLINT_CONFIG_DIR="$(dirname $0)/cfg"
+"""
+Script to process pylint run and exit with result.
+"""
 
-# Fix pylint path. More info: https://www.mail-archive.com/code-quality@python.org/msg00294.html
-export PYTHONPATH=${PYTHONPATH}:${MODULES_TO_TEST}
-touch $MODULES_TO_TEST/__init__.py
+import os
 
-# Set openerp in global path to fix "import" from addons
-if [ "x${VERSION}" == "x" ] ; then
-    VERSION="${1}"
-    echo "WARNING: no env variable set for VERSION. Using '${1}'."
-fi
+import run_pylint
 
-: ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
-IFS="/" read -a REPO <<< "${ODOO_REPO}"
-export PATH=${PATH}:${PWD}/../${REPO[1]}-${VERSION}/openerp
 
-#run pylint command
-pylint --rcfile=${PYLINT_CONFIG_DIR}/travis_run_pylint.cfg ${MODULES_TO_TEST}
-pylint_status=$?
-exit $((${pylint_status}))
+pylint_rcfile = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'cfg',
+    "travis_run_pylint.cfg")
+result = run_pylint.main([
+    "--config-file=" + pylint_rcfile,
+], standalone_mode=False)
+exit(result)
