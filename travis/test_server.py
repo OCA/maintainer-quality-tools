@@ -194,15 +194,16 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print("\nCreating instance:")
     subprocess.check_call(["createdb", db])
     if os.environ.get("BUILDOUT"):
-        cmd_odoo = ["bin/start_openerp",
-                   ]
+        cmd_odoo = [
+            "bin/start_openerp",
+        ]
     else:
         cmd_odoo = [
             "%s/openerp-server" % server_path,
             "--addons-path", addons_path,
             "--init", ','.join(preinstall_modules),
         ]
-    cmd_odoo = cmd_odoo + [
+    cmd_odoo += [
         "-d", db,
         "--log-level=warn",
         "--stop-after-init",
@@ -210,6 +211,57 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print(" ".join(cmd_odoo))
     subprocess.check_call(cmd_odoo)
     return 0
+
+
+def get_commands(db, odoo_unittest, server_path, addons_path, test_loglevel,
+                 test_loghandler, test_options, install_options):
+    """
+    Define commands to run to launch tests
+    :param db: Template database name
+    :param odoo_unittest: Boolean for unit test (travis parameter)
+    :param server_path: Server path
+    :param addons_path: Addons path
+    :param test_loglevel: Test log level
+    :param test_loghandler: Test loghandler
+    :param test_options: Test options (travis parameter)
+    :param install_options: Install options (travis parameter)
+    """
+    cmd_odoo_install = None
+    if os.environ.get("BUILDOUT"):
+        cmd_odoo_install = ['bin/start_openerp']
+        cmd_odoo_test = ['bin/runtests']
+    else:
+        cmd_odoo_test = ['coverage', 'run',
+                         '%s/openerp-server' % server_path,
+                         '--log-level', test_loglevel,
+                         '--addons-path', addons_path,
+                         ]
+        if test_loghandler is not None:
+            cmd_odoo_test += ['--log-handler', test_loghandler]
+        if odoo_unittest:
+            cmd_odoo_install = [
+                '%s/openerp-server' % server_path,
+                '--log-level=warn',
+                '--addons-path', addons_path,
+                ]
+
+    if cmd_odoo_install:
+        cmd_odoo_install += install_options + [
+            '-d', db,
+            '--stop-after-init',
+            '--init', None
+        ]
+
+    cmd_odoo_test += test_options + [
+        '-d', db,
+        '--stop-after-init',
+        '--init', None
+    ]
+
+    if cmd_odoo_install:
+        return ((cmd_odoo_install, False),
+                (cmd_odoo_test, True))
+    return ((cmd_odoo_test, True), )
 
 
 def main(argv=None):
@@ -221,7 +273,7 @@ def main(argv=None):
     odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
-    options = os.environ.get("OPTIONS", "").split()
+    test_options = os.environ.get("OPTIONS", "").split()
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
@@ -236,7 +288,7 @@ def main(argv=None):
         install_options += ["--test-disable"]
         test_loglevel = 'test'
     else:
-        options += ["--test-enable"]
+        test_options += ["--test-enable"]
         if odoo_version == '7.0':
             test_loglevel = 'test'
         else:
@@ -275,51 +327,14 @@ def main(argv=None):
     # Running tests
     database = "openerp_test"
 
-    if os.environ.get("BUILDOUT"):
+    if odoo_unittest:
+        to_test_list = tested_addons_list
+    else:
         to_test_list = [tested_addons]
 
-        cmd_odoo_install = [
-            'bin/start_openerp',
-            '-d', database,
-            '--stop-after-init',
-            '-i', None,
-            ]
-        cmd_odoo_test = [
-            'bin/runtests',
-            '-d', database,
-            '-i', None
-            ]
-        commands = (
-            (cmd_odoo_install, False),
-            (cmd_odoo_test, True)
-        )
-    else:
-        cmd_odoo_test = ["coverage", "run",
-                         "%s/openerp-server" % server_path,
-                         "-d", database,
-                         "--stop-after-init",
-                         "--log-level", test_loglevel,
-                         "--addons-path", addons_path,
-                         ]
-
-        if test_loghandler is not None:
-            cmd_odoo_test += ['--log-handler', test_loghandler]
-        cmd_odoo_test += options + ["--init", None]
-
-        if odoo_unittest:
-            to_test_list = tested_addons_list
-            cmd_odoo_install = ["%s/openerp-server" % server_path,
-                                "-d", database,
-                                "--stop-after-init",
-                                "--log-level=warn",
-                                "--addons-path", addons_path,
-                                ] + install_options + ["--init", None]
-            commands = ((cmd_odoo_install, False),
-                        (cmd_odoo_test, True),
-                        )
-        else:
-            to_test_list = [tested_addons]
-            commands = ((cmd_odoo_test, True))
+    commands = get_commands(
+        database, odoo_unittest, server_path, addons_path, test_loglevel,
+        test_loghandler, test_options, install_options)
 
     all_errors = []
     counted_errors = 0
