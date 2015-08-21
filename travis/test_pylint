@@ -14,7 +14,19 @@ pylint_rcfile = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
     "travis_run_pylint.cfg")
-result = run_pylint.main([
+count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
 ], standalone_mode=False)
-exit(result)
+
+expected_errors = int(
+    os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
+
+exit_status = 0
+if count_errors != expected_errors:
+    print("pylint expected errors {expected_errors}, "
+            "found {number_errors}!".format(
+                expected_errors=expected_errors,
+                number_errors=count_errors))
+    exit_status = 1
+
+exit(exit_status)
