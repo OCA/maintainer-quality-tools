@@ -24,9 +24,9 @@ expected_errors = int(
 exit_status = 0
 if count_errors != expected_errors:
     print("pylint expected errors {expected_errors}, "
-            "found {number_errors}!".format(
-                expected_errors=expected_errors,
-                number_errors=count_errors))
+          "found {number_errors}!".format(
+              expected_errors=expected_errors,
+              number_errors=count_errors))
     exit_status = 1
 
 exit(exit_status)
