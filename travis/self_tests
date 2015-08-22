@@ -44,7 +44,7 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         "--extra-params", "-d", "--extra-params", "all",
         "--extra-params", "-e", "--extra-params", "F0010,duplicate-key",
         "--path", repo_dir], standalone_mode=False)
-    assert 1 == count_errors
+    assert 2 == count_errors
 
     empty_path = os.path.join(repo_dir, 'empty_path')
     if not os.path.exists(empty_path):

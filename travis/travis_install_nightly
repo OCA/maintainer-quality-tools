@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pip install -q QUnitSuite flake8 coveralls pylint Click > /dev/null 2>&1
+pip install -q QUnitSuite flake8 coveralls Click git+https://github.com/moylop260/pylint_oca.git > /dev/null 2>&1
 
 # We can exit here and do nothing if this only a LINT check
 if [ "${LINT_CHECK}" == "1" ] ; then

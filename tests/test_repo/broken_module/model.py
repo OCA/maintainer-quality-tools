@@ -1,4 +1,4 @@
-
+# missing coding
 from openerp.osv import orm, fields
 
 import os
