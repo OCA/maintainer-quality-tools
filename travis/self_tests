@@ -32,9 +32,9 @@ assert travis_helpers.green(u'test') == u"\033[1;32mtest\033[0;m"
 assert travis_helpers.yellow(u'test') == u"\033[1;33mtest\033[0;m"
 assert travis_helpers.yellow_light(u'test') == u"\033[33mtest\033[0;m"
 
-#Testing pylint_run fix of:
+# Testing empty paths and pylint_run fix of:
 # https://www.mail-archive.com/code-quality@python.org/msg00294.html
-if os.environ.get('LINT_CHECK', 0) == 1:
+if os.environ.get('LINT_CHECK', 0) == '1':
     pylint_rcfile = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg',
@@ -45,3 +45,11 @@ if os.environ.get('LINT_CHECK', 0) == 1:
         "--extra-params", "-e", "--extra-params", "F0010,duplicate-key",
         "--path", repo_dir], standalone_mode=False)
     assert 1 == count_errors
+
+    empty_path = os.path.join(repo_dir, 'empty_path')
+    if not os.path.exists(empty_path):
+        os.mkdir(empty_path)
+    count_errors = run_pylint.main([
+        "--config-file=" + pylint_rcfile,
+        "--path", empty_path], standalone_mode=False)
+    assert -1 == count_errors
