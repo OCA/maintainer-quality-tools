@@ -83,7 +83,11 @@ def gen_addons_table():
             version = manifest.get('version') or ''
             summary = manifest.get('summary') or manifest.get('name')
             summary = sanitize_cell(summary)
-            if not unported and manifest.get('installable', True):
+            installable = manifest.get('installable', True)
+            if unported and installable:
+                raise UserError('%s is in __unported__ but is marked '
+                                'installable.' % addon_path)
+            if installable:
                 rows_available.append((link, version, summary))
             else:
                 rows_unported.append((link, version + ' (unported)', summary))
