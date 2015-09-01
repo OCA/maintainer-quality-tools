@@ -8,6 +8,7 @@ Script to process pylint run and exit with result.
 import os
 
 import run_pylint
+import travis_helpers
 
 
 pylint_rcfile = os.path.join(
@@ -22,11 +23,13 @@ expected_errors = int(
     os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
 
 exit_status = 0
-if count_errors != expected_errors:
-    print("pylint expected errors {expected_errors}, "
+if count_errors == -1:
+    print(travis_helpers.yellow('Python modules not found'))
+elif count_errors != expected_errors:
+    print(travis_helpers.red("pylint expected errors {expected_errors}, "
           "found {number_errors}!".format(
               expected_errors=expected_errors,
-              number_errors=count_errors))
+              number_errors=count_errors)))
     exit_status = 1
 
 exit(exit_status)
