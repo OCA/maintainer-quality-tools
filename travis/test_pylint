@@ -10,6 +10,7 @@ import os
 import run_pylint
 import travis_helpers
 
+from getaddons import get_modules_changed
 
 pylint_rcfile = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -18,6 +19,33 @@ pylint_rcfile = os.path.join(
 count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
 ], standalone_mode=False)
+
+
+pylint_rcfile_pr = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    'cfg',
+    "travis_run_pylint_pr.cfg")
+
+is_pull_request = os.environ.get(
+    'TRAVIS_PULL_REQUEST', 'false') != 'false'
+branch_base = os.environ.get('TRAVIS_BRANCH', False)
+git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
+if is_pull_request and branch_base and git_work_dir:
+    modules_changed = get_modules_changed(
+        git_work_dir,
+        'origin/' + branch_base)
+    modules_changed_cmd = []
+    for module_changed in modules_changed:
+        modules_changed_cmd.extend([
+            '--path',
+            module_changed,
+        ])
+    count_errors += run_pylint.main([
+        "--config-file=" + pylint_rcfile_pr,
+    ] + modules_changed_cmd, standalone_mode=False)
+else:
+    # TODO: Add git hook case in other PR
+    pass
 
 expected_errors = int(
     os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
