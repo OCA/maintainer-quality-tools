@@ -6,6 +6,7 @@ Script to process pylint run and exit with result.
 """
 
 import os
+import ConfigParser
 
 import run_pylint
 import travis_helpers
@@ -16,25 +17,23 @@ from getaddons import get_modules_changed
 def get_extra_params(odoo_version):
     '''
     Get extra pylint params by odoo version
+    Transform a seudo-pylint-conf to params,
+    it to overwrite base-pylint-conf values.
     :param version: String with name of version of odoo
     :return: List of extra pylint params
     '''
     params = ["--load-plugins=pylint_oca"]
-    try:
-        version_f = float(odoo_version)
-    except ValueError:
-        # master case
-        version_f = -1
-    if version_f != -1 and version_f < 8:
-        # Class name snake_case style to version < 8
-        params.append(
-            '--class-rgx='
-            '([a-z_][a-z0-9_]{2,45})|([A-Z_][a-zA-Z0-9]{2,45})$'
-        )
-        params.append(
-            '--disable='
-            'missing-readme,manifest-deprecated-key,copy-wo-api-one'
-        )
+    odoo_version = odoo_version.replace('.', '')
+    custom_cfg = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'cfg/travis_run_pylint_{odoo_version}.cfg'.format(
+            odoo_version=odoo_version))
+    if os.path.isfile(custom_cfg):
+        config = ConfigParser.ConfigParser()
+        config.readfp(open(custom_cfg))
+        for section in config.sections():
+            for option, value in config.items(section):
+                params.extend(['--' + option, value])
     return params
 
 
