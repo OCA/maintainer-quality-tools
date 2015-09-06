@@ -17,14 +17,14 @@ For using it, you can choose from two options:
 Then, making `git init` inside a git repository, these files will be copied,
 and you will have these checks available for it.
 
-**IMPORTANT** Don't forget to install/update flake8, pep8 and pylint modules to
+**IMPORTANT** Don't forget to install/update flake8, pep8 and oca-pylint-plugin modules to
 have the same checks as Travis. Don't use distribution packages, as they are 
 outdated. Use pip ones:
-```
-sudo pip install flake8 --upgrade
-sudo pip install pep8 --upgrade
-sudo pip install pylint --upgrade
-```
+`# pip install --upgrade flake8 pep8 oca-pylint-plugin`
 
 You can bypass these checks setting environment variable NOLINT before calling
 commit, e.g, `NOLINT=1 git commit`.
+
+You can use a lint configuration setting environment variable VERSION with
+the number of version of odoo before calling
+commit, e.g, `VERSION=7.0 git commit`.
