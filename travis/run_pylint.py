@@ -62,8 +62,8 @@ def run_pylint(paths, cfg, sys_paths=None, extra_params=None):
     cmd.extend(extra_params)
     subpaths = get_subpaths(paths)
     if not subpaths:
-        raise ValueError("Python modules not found in paths"
-                         " {paths}".format(paths=paths))
+        raise UserWarning("Python modules not found in paths"
+                          " {paths}".format(paths=paths))
     cmd.extend(subpaths)
     pylint_res = pylint.lint.Run(cmd, exit=False)
     return pylint_res.linter.stats
@@ -92,7 +92,7 @@ def main(paths, config_file, sys_paths=None, extra_params=None):
             list(paths), config_file.name, sys_paths=sys_paths,
             extra_params=extra_params)
         count_fails = get_count_fails(stats)
-    except ValueError:
+    except UserWarning:
         count_fails = -1
     return count_fails
 

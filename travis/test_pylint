@@ -15,10 +15,39 @@ from getaddons import get_modules_changed
 
 
 def get_extra_params(odoo_version):
-    '''
-    Get extra pylint params by odoo version
+    '''Get extra pylint params by odoo version
     Transform a seudo-pylint-conf to params,
     it to overwrite base-pylint-conf values.
+    Use a seudo-inherit of configuration file.
+    To avoid have a 2 config files (stable and pr-conf) by each odoo-version
+    Example:
+
+        pylint_master.conf
+        pylint_master_pr.conf
+        pylint_90.conf
+        pylint_90_pr.conf
+        pylint_80.conf
+        pylint_80_pr.conf
+        pylint_70.conf
+        pylint_70_pr.conf
+        pylint_61.conf
+        pylint_61_pr.conf
+        ... and new future versions.
+
+    If you need add a new conventions in all versions
+    you will need change all pr files or stables files.
+
+
+    With this method you can use:
+
+        pylint_lastest.conf
+        pylint_lastest_pr.conf
+        pylint_disabling_70.conf <- Overwrite params of pylint_lastest*.conf
+        pylint_disabling_61.conf <- Overwrite params of pylint_lastest*.conf
+
+    If you need add a new conventions in all versions you will need change just
+    pylint_lastest_pr.conf or pylint_lastest.conf, similar to inherit.
+
     :param version: String with name of version of odoo
     :return: List of extra pylint params
     '''
@@ -55,7 +84,6 @@ count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
     ] + extra_params_cmd, standalone_mode=False)
 
-
 pylint_rcfile_pr = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
@@ -65,23 +93,40 @@ is_pull_request = os.environ.get(
     'TRAVIS_PULL_REQUEST', 'false') != 'false'
 branch_base = os.environ.get('TRAVIS_BRANCH', False)
 git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
+
+
 if is_pull_request and branch_base and git_work_dir:
     modules_changed = get_modules_changed(
         git_work_dir,
         'origin/' + branch_base)
-    modules_changed_cmd = []
-    for module_changed in modules_changed:
-        modules_changed_cmd.extend([
-            '--path',
-            module_changed,
-        ])
-    count_errors += run_pylint.main([
-        "--config-file=" + pylint_rcfile_pr,
-    ] + modules_changed_cmd + extra_params_cmd, standalone_mode=False)
+    if modules_changed and count_errors >= 0:
+        print(travis_helpers.green(
+            'Start lint check just in modules changed'))
+        modules_changed_cmd = []
+        for module_changed in modules_changed:
+            modules_changed_cmd.extend([
+                '--path',
+                module_changed,
+            ])
+        pr_errors = run_pylint.main([
+            "--config-file=" + pylint_rcfile_pr,
+        ] + modules_changed_cmd + extra_params_cmd, standalone_mode=False)
+        if pr_errors:
+            print(travis_helpers.yellow(
+                "Found {pr_errors} errors".format(pr_errors=pr_errors) +
+                " in modules changed."
+                "\nThese checks are still in beta:"
+                " they won't affect your build status for now."
+            ))
+            pr_errors = 0
+            # TODO: Enable next code when change of beta to stable version
+            # if pr_errors < 0:
+            #      count_errors = pr_errors
+            # else:
+            #      count_errors += pr_errors
 else:
     # TODO: Add git hook case in other PR
     pass
-
 expected_errors = int(
     os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
 
