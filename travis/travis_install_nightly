@@ -30,7 +30,7 @@ else
     export REPO=$(python -c "print '${REPO[0]}'.lower()")
     export BRANCH=$(python -c "print '${VERSION}'.lower()")
     export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
-    sudo chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
+    chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
        && git checkout -f ${REPO}/${BRANCH} \
@@ -40,17 +40,17 @@ fi
 
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
-    sudo apt-get -q -y install expect-dev  # provides unbuffer utility
-    sudo apt-get -q -y install python-lxml  # because pip installation is slooow
+    apt-get -q -y install expect-dev  # provides unbuffer utility
+    apt-get -q -y install python-lxml  # because pip installation is slooow
 
     pip install -q QUnitSuite flake8 coveralls pylint
     pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
     #  Install new dependence: npm package
     wget -qO- https://deb.nodesource.com/setup | sudo bash -
-    sudo apt-get install nodejs
-    sudo npm install -g less
-    sudo npm install -g less-plugin-clean-css
+    apt-get install nodejs
+    npm install -g less
+    npm install -g less-plugin-clean-css
 
 fi
 
@@ -85,11 +85,13 @@ ls -l ${HOME}
 
 set -v
 
-echo "Install webkit and patched process"
-sudo apt-get install wkhtmltopdf
-mkdir -p /tmp/webkit_patched
-wget -O /tmp/webkit_patched/wkhtmltopdf.tar.bz2 https://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
-bzip2 -dc /tmp/webkit_patched/wkhtmltopdf.tar.bz2 | tar -xvO >/tmp/webkit_patched/webkit-patched
-sudo cp /tmp/webkit_patched/webkit-patched /usr/bin/wkhtmltopdf
+if ! which wkhtmltopdf; then
+    echo "Install webkit and patched process"
+    apt-get install wkhtmltopdf
+    mkdir -p /tmp/webkit_patched
+    wget -O /tmp/webkit_patched/wkhtmltopdf.tar.bz2 https://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-amd64.tar.bz2
+    bzip2 -dc /tmp/webkit_patched/wkhtmltopdf.tar.bz2 | tar -xvO >/tmp/webkit_patched/webkit-patched
+    sudo cp /tmp/webkit_patched/webkit-patched /usr/bin/wkhtmltopdf
+fi
 
 exit 0
