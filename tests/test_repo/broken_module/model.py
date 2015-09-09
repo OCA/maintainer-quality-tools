@@ -1,4 +1,4 @@
-
+# missing coding
 from openerp.osv import orm, fields
 
 import os
@@ -70,3 +70,5 @@ if __name__ == '__main__':
     class E0101(object):
         def __init__(self):
             return 'E0101'
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
