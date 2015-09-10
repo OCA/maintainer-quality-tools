@@ -86,7 +86,7 @@ ls -l ${HOME}
 
 set -v
 
-if ! which wkhtmltopdf; then
+if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Install webkit and patched process"
     apt-get install wkhtmltopdf
     mkdir -p /tmp/webkit_patched
