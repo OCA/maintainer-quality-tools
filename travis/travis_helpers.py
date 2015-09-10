@@ -11,20 +11,26 @@ YELLOW_LIGHT = "\033[33m"
 CLEAR = "\033[0;m"
 
 
-def green(string):
-    return GREEN + string + CLEAR
+def colorized(text, color):
+    return '\n'.join(
+        map(lambda line: color + line + CLEAR, text.split('\n')))
 
 
-def yellow(string):
-    return YELLOW + string + CLEAR
+def green(text):
+    return colorized(text, GREEN)
 
 
-def red(string):
-    return RED + string + CLEAR
+def yellow(text):
+    return colorized(text, YELLOW)
 
 
-def yellow_light(string):
-    return YELLOW_LIGHT + string + CLEAR
+def red(text):
+    return colorized(text, RED)
+
+
+def yellow_light(text):
+    return colorized(text, YELLOW_LIGHT)
+
 
 fail_msg = red("FAIL")
 success_msg = green("Success")
