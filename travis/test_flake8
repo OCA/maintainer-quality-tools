@@ -1,7 +1,13 @@
 #!/bin/bash
 
 FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
-MODULES_TO_TEST=${TRAVIS_BUILD_DIR}
+
+if [ -z "${INCLUDE_LINT}" ]
+then
+    MODULES_TO_TEST=${TRAVIS_BUILD_DIR}
+else
+    MODULES_TO_TEST=${INCLUDE_LINT}
+fi
 
 flake8 ${MODULES_TO_TEST} --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8__init__.cfg
 status1=$?
