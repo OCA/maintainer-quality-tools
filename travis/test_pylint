@@ -51,12 +51,12 @@ def get_extra_params(odoo_version):
     :param version: String with name of version of odoo
     :return: List of extra pylint params
     '''
-    params = ["--load-plugins=pylint_oca"]
     odoo_version = odoo_version.replace('.', '')
     custom_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg/travis_run_pylint_{odoo_version}.cfg'.format(
             odoo_version=odoo_version))
+    params = []
     if os.path.isfile(custom_cfg):
         config = ConfigParser.ConfigParser()
         config.readfp(open(custom_cfg))
@@ -66,14 +66,17 @@ def get_extra_params(odoo_version):
     return params
 
 
+extra_params_cmd = ['--extra-params', '--load-plugins=pylint_oca']
 version = os.environ.get('VERSION', False)
-extra_params_cmd = []
 if version:
     extra_params = get_extra_params(version)
     for extra_param in extra_params:
         extra_params_cmd.extend([
             '--extra-params', extra_param
         ])
+else:
+    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
+        '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
 pylint_rcfile = os.path.join(
