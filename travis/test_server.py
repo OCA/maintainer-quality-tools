@@ -97,7 +97,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
 
 
 def parse_list(comma_sep_list):
-    return [x.strip() for x in comma_sep_list.split(',')]
+    return [x.strip() for x in comma_sep_list.split(',') if x.strip()]
 
 
 def str2bool(string):
@@ -215,6 +215,7 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -256,6 +257,14 @@ def main(argv=None):
                                                tested_addons_list)
     preinstall_modules = list(set(preinstall_modules) - set(get_modules(
         os.environ.get('TRAVIS_BUILD_DIR'))))
+    modules_other_projects = []
+    for test_other_project in test_other_projects:
+        modules_other_projects.extend(
+            get_modules(os.path.join(travis_home, test_other_project)))
+    preinstall_modules = list(set(preinstall_modules) - set(modules_other_projects))
+    if not preinstall_modules:
+        preinstall_modules = ['base']
+
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules)
