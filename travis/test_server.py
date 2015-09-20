@@ -266,13 +266,27 @@ def main(argv=None):
                                                tested_addons_list)
     preinstall_modules = list(
         set(preinstall_modules) - set(get_modules(travis_build_dir)))
-    modules_other_projects = []
+    modules_other_projects = {}
     for test_other_project in test_other_projects:
-        modules_other_projects.extend(
-            get_modules(os.path.join(travis_home, test_other_project)))
-    primary_modules = set(
-        get_modules(travis_build_dir) + modules_other_projects) & \
-        all_depends
+        modules_other_projects[test_other_project] = get_modules(
+            os.path.join(travis_home, test_other_project))
+    main_projects = modules_other_projects.copy()
+    main_projects[travis_build_dir] = get_modules(travis_build_dir)
+    primary_modules = []
+    for path, modules in main_projects.items():
+        primary_modules.extend(modules)
+    primary_modules = set(primary_modules) & all_depends
+
+    primary_path_modules = {}
+    for path, modules in main_projects.items():
+        for module in modules:
+            if module in primary_modules:
+                primary_path_modules[module] = os.path.join(path, module)
+    coverage_data = open(".coveragerc", "r").read()
+    open(".coveragerc", "w").write(coverage_data.replace(
+        '    */build/*', '\t' +
+        '/*\n\t'.join(primary_path_modules.values()) + '/*'
+    ))
     secondary_addons_path_list = set(addons_path_list) - set(
         [travis_build_dir] + test_other_projects)
     secondary_modules = []
