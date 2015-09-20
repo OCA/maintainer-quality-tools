@@ -193,7 +193,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print("\nCreating instance:")
     try:
         subprocess.check_call(["createdb", db])
-    except subprocess.CalledProcessError as process_error:
+    except subprocess.CalledProcessError:
         pass
     cmd_odoo = ["%s/openerp-server" % server_path,
                 "-d", db,
@@ -245,8 +245,10 @@ def main(argv=None):
                                              odoo_include,
                                              odoo_exclude)
     addons_path_list = parse_list(addons_path)
-    import pdb;pdb.set_trace()
     all_depends = get_depends(addons_path_list, tested_addons_list)
+    test_other_projects = map(
+        lambda other_project: os.path.join(travis_home, other_project),
+        test_other_projects)
     tested_addons = ','.join(tested_addons_list)
 
     print("Working in %s" % travis_build_dir)
@@ -262,15 +264,29 @@ def main(argv=None):
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
-    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR'))))
+    preinstall_modules = list(
+        set(preinstall_modules) - set(get_modules(travis_build_dir)))
     modules_other_projects = []
     for test_other_project in test_other_projects:
         modules_other_projects.extend(
             get_modules(os.path.join(travis_home, test_other_project)))
-    preinstall_modules = list(set(preinstall_modules) - set(modules_other_projects))
-    if not preinstall_modules:
-        preinstall_modules = ['base']
+    primary_modules = set(
+        get_modules(travis_build_dir) + modules_other_projects) & \
+        all_depends
+    secondary_addons_path_list = set(addons_path_list) - set(
+        [travis_build_dir] + test_other_projects)
+    secondary_modules = []
+    for secondary_addons_path in secondary_addons_path_list:
+        secondary_modules.extend(get_modules(secondary_addons_path))
+    secondary_modules = set(secondary_modules) & all_depends
+    secondary_depends_primary = []
+    for secondary_module in secondary_modules:
+        for secondary_depend in get_depends(
+                addons_path_list, [secondary_module]):
+            if secondary_depend in primary_modules:
+                secondary_depends_primary.append(secondary_module)
+    preinstall_modules = list(
+        secondary_modules - set(secondary_depends_primary))
 
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
