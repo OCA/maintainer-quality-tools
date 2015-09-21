@@ -4,5 +4,6 @@ import os
 from coveralls import cli as coveralls_cli
 
 if (os.environ.get('TESTS', '1') == '1' and
-        not os.environ.get('LINT_CHECK') == '1'):
+        not os.environ.get('LINT_CHECK') == '1'
+        and os.environ.get('SHIPPABLE', False) != 'true'):
     exit(coveralls_cli.main(argv=None))
