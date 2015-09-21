@@ -35,8 +35,8 @@ env:
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
   # - VERSION="6.1" INCLUDE="test_module,second_module"
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="18" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION=master LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="44" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="36" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+  - VERSION=master LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="43" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="35" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
@@ -50,4 +50,4 @@ script:
   - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
 
 after_success:
-  - coveralls
+  - travis_after_tests_success

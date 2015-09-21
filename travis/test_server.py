@@ -191,19 +191,25 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if preinstall_modules is None:
         preinstall_modules = ['base']
     print("\nCreating instance:")
+    db_tmpl_created = False
     try:
         subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
+        db_tmpl_created = True
         pass
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+
+    if not db_tmpl_created:
+        cmd_odoo = ["%s/openerp-server" % server_path,
+                    "-d", db,
+                    "--log-level=warn",
+                    "--stop-after-init",
+                    "--addons-path", addons_path,
+                    "--init", ','.join(preinstall_modules),
+                    ] + install_options
+        print(" ".join(cmd_odoo))
+        subprocess.check_call(cmd_odoo)
+    else:
+        print("Using current openerp_template database.")
     return 0
 
 
@@ -282,11 +288,15 @@ def main(argv=None):
         for module in modules:
             if module in primary_modules:
                 primary_path_modules[module] = os.path.join(path, module)
-    coverage_data = open(".coveragerc", "r").read()
-    open(".coveragerc", "w").write(coverage_data.replace(
-        '    */build/*', '\t' +
-        '/*\n\t'.join(primary_path_modules.values()) + '/*'
-    ))
+    fname_coveragerc = ".coveragerc"
+    if os.path.exists(fname_coveragerc):
+        with open(fname_coveragerc) as fp_coveragerc:
+            coverage_data = fp_coveragerc.read()
+        with open(fname_coveragerc, "w") as fpw_coveragerc:
+            fpw_coveragerc.write(coverage_data.replace(
+                '    */build/*', '\t' +
+                '/*\n\t'.join(primary_path_modules.values()) + '/*'
+            ))
     secondary_addons_path_list = set(addons_path_list) - set(
         [travis_build_dir] + test_other_projects)
     secondary_modules = []
