@@ -38,6 +38,10 @@ else
        && git reset --hard ${REPO}/${BRANCH}
 fi
 
+echo "x${PHANTOMJS_TESTS}"
+if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
+    find -L ${HOME} -name common.py -exec sed -i "s/'phantomjs'/'disable_phantomjs'/g" {} \;
+fi
 
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
