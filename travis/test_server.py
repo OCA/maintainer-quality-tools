@@ -6,7 +6,7 @@ import re
 import os
 import subprocess
 import sys
-from getaddons import get_addons, get_modules, is_module
+from getaddons import get_addons, get_depends, get_modules, is_module
 from travis_helpers import success_msg, fail_msg
 
 
@@ -97,7 +97,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
 
 
 def parse_list(comma_sep_list):
-    return [x.strip() for x in comma_sep_list.split(',')]
+    return [x.strip() for x in comma_sep_list.split(',') if x.strip()]
 
 
 def str2bool(string):
@@ -129,6 +129,7 @@ def get_addons_path(travis_home, travis_build_dir, server_path):
     addons_path_list = get_addons(travis_home)
     addons_path_list.insert(0, travis_build_dir)
     addons_path_list.append(server_path + "/addons")
+    addons_path_list.append(server_path + "/openerp/addons")
     addons_path = ','.join(addons_path_list)
     return addons_path
 
@@ -190,16 +191,25 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if preinstall_modules is None:
         preinstall_modules = ['base']
     print("\nCreating instance:")
-    subprocess.check_call(["createdb", db])
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+    db_tmpl_created = False
+    try:
+        subprocess.check_call(["createdb", db])
+    except subprocess.CalledProcessError:
+        db_tmpl_created = True
+        pass
+
+    if not db_tmpl_created:
+        cmd_odoo = ["%s/openerp-server" % server_path,
+                    "-d", db,
+                    "--log-level=warn",
+                    "--stop-after-init",
+                    "--addons-path", addons_path,
+                    "--init", ','.join(preinstall_modules),
+                    ] + install_options
+        print(" ".join(cmd_odoo))
+        subprocess.check_call(cmd_odoo)
+    else:
+        print("Using current openerp_template database.")
     return 0
 
 
@@ -215,6 +225,7 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -239,6 +250,11 @@ def main(argv=None):
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
+    addons_path_list = parse_list(addons_path)
+    all_depends = get_depends(addons_path_list, tested_addons_list)
+    test_other_projects = map(
+        lambda other_project: os.path.join(travis_home, other_project),
+        test_other_projects)
     tested_addons = ','.join(tested_addons_list)
 
     print("Working in %s" % travis_build_dir)
@@ -254,8 +270,48 @@ def main(argv=None):
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
-    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR'))))
+    preinstall_modules = list(
+        set(preinstall_modules) - set(get_modules(travis_build_dir)))
+    modules_other_projects = {}
+    for test_other_project in test_other_projects:
+        modules_other_projects[test_other_project] = get_modules(
+            os.path.join(travis_home, test_other_project))
+    main_projects = modules_other_projects.copy()
+    main_projects[travis_build_dir] = get_modules(travis_build_dir)
+    primary_modules = []
+    for path, modules in main_projects.items():
+        primary_modules.extend(modules)
+    primary_modules = set(primary_modules) & all_depends
+
+    primary_path_modules = {}
+    for path, modules in main_projects.items():
+        for module in modules:
+            if module in primary_modules:
+                primary_path_modules[module] = os.path.join(path, module)
+    fname_coveragerc = ".coveragerc"
+    if os.path.exists(fname_coveragerc):
+        with open(fname_coveragerc) as fp_coveragerc:
+            coverage_data = fp_coveragerc.read()
+        with open(fname_coveragerc, "w") as fpw_coveragerc:
+            fpw_coveragerc.write(coverage_data.replace(
+                '    */build/*', '\t' +
+                '/*\n\t'.join(primary_path_modules.values()) + '/*'
+            ))
+    secondary_addons_path_list = set(addons_path_list) - set(
+        [travis_build_dir] + test_other_projects)
+    secondary_modules = []
+    for secondary_addons_path in secondary_addons_path_list:
+        secondary_modules.extend(get_modules(secondary_addons_path))
+    secondary_modules = set(secondary_modules) & all_depends
+    secondary_depends_primary = []
+    for secondary_module in secondary_modules:
+        for secondary_depend in get_depends(
+                addons_path_list, [secondary_module]):
+            if secondary_depend in primary_modules:
+                secondary_depends_primary.append(secondary_module)
+    preinstall_modules = list(
+        secondary_modules - set(secondary_depends_primary))
+
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules)

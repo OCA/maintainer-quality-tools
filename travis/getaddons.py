@@ -9,6 +9,8 @@ from __future__ import print_function
 import os
 import sys
 
+from itertools import ifilter, imap
+
 from git_run import GitRun
 
 MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
@@ -27,6 +29,17 @@ def is_module(path):
             path, next(x for x in filtered if x != '__init__.py'))
     else:
         return False
+
+
+def find_module(module, paths):
+    '''Find module in paths
+    :param module: String with name of module to find in paths.
+    :param paths: List of strings with paths to search.
+    :return: String with full path of manifest file found'''
+    for path in paths:
+        module_path = is_module(os.path.join(path, module))
+        if module_path:
+            return module_path
 
 
 def get_modules(path):
@@ -77,6 +90,34 @@ def get_modules_changed(path, ref='HEAD'):
         os.path.join(path, module_changed)
         for module_changed in modules_changed]
     return modules_changed_path
+
+
+def get_depends(addons_path_list, modules_list):
+    """Get recursive depends from addons_paths and modules list
+    :param modules_list: List of strings with name of modules
+    :param addons_path_list: List of strings with path of modules
+    :return set: Unsorted set of recursive dependencies of modules
+    """
+    modules = set(modules_list)
+    addons_paths = set(addons_path_list)
+    visited = set()
+    while modules != visited:
+        module = (modules - visited).pop()
+        visited.add(module)
+        manifest_path = find_module(module, addons_path_list)
+        assert manifest_path, "Module not found %s in addons_paths %s" % (
+            module, addons_path_list)
+        try:
+            manifest_filename = next(ifilter(
+                os.path.isfile,
+                imap(lambda p: os.path.join(p, manifest_path), addons_paths)
+            ))
+        except StopIteration:
+            # For some reason the module wasn't found
+            continue
+        manifest = eval(open(manifest_filename).read())
+        modules.update(manifest.get('depends', []))
+    return modules
 
 
 def main(argv=None):
