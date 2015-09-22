@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
-import time
 
 
 def main(test_list):
@@ -19,18 +18,6 @@ def main(test_list):
     :param list test_list: list of lists containing commands to run
     :return: highest error code
     """
-    subprocess.call(["shippable_start_service"])
-    print("Waiting to start psql service...")
-    while True:
-        psql_subprocess = subprocess.Popen(
-            ["psql", '-l'], stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
-        psql_subprocess.wait()
-        if not bool(psql_subprocess.stderr.read()):
-            break
-        time.sleep(5)
-    print("...psql service started.")
-
     args = sys.argv[1:]
     results = []
     for test in test_list:
@@ -61,7 +48,7 @@ def main(test_list):
 
 
 if __name__ == '__main__':
-    do_odoo_lint = os.environ.get("ODOO_LINT", '0') == "1" 
+    do_odoo_lint = os.environ.get("ODOO_LINT", '0') == "1"
     do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
     lint_check_disabled = os.environ.get('LINT_CHECK') == '0'
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
