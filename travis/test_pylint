@@ -66,7 +66,12 @@ def get_extra_params(odoo_version):
     return params
 
 
-extra_params_cmd = ['--extra-params', '--load-plugins=pylint_oca']
+extra_params_cmd = [
+    '--sys-paths', os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'pylint_deprecated_modules'),
+    '--extra-params', '--load-plugins=pylint_oca',
+]
 version = os.environ.get('VERSION', False)
 if version:
     extra_params = get_extra_params(version)
@@ -76,7 +81,7 @@ if version:
         ])
 else:
     print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
-        '\nSet `VERSION` for compatibility with guidelines by version.'))
+          '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
 pylint_rcfile = os.path.join(
