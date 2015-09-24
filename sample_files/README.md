@@ -5,8 +5,11 @@
 
 # ${REPO_NAME_VERBOSE}
 
-${REPO_DESCRIPTION_AND_MODULE_LIST}
+${REPO_DESCRIPTION}
 
+[//]: # (addons)
+This part will be replaced when running the gen_addon_tables script.
+[//]: # (end addons)
 
 Translation Status
 ------------------
