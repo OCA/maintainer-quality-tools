@@ -48,4 +48,4 @@ script:
   - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
 
 after_success:
-  - coveralls
+  - TESTS="1" LINT_CHECK="0" travis_after_tests_success

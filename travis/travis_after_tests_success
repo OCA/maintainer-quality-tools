@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 import os
+
+from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
 
 if (os.environ.get('TESTS', '1') == '1' and
         not os.environ.get('LINT_CHECK') == '1'):
+    coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
