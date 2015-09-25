@@ -3,6 +3,7 @@ set -v
 
 pip install -q QUnitSuite flake8 coveralls Click oca-pylint-plugin > /dev/null 2>&1
 pip install --upgrade --pre oca-pylint-plugin  # To test last developer version ever
+npm install -g jshint  # To oca-pylint-plugin
 
 ## We can exit here and do nothing if this only a LINT check
 if [ "${TESTS}" != "1" ] && [ "${LINT_CHECK}" == "1" ]; then
