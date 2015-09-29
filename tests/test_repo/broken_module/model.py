@@ -7,11 +7,6 @@ import os as os2  # W0404 - duplicated import
 
 import __openerp__  # W0403 - relative import
 
-# w0402 - deprecated module
-import pdb  # pylint: disable=W0403
-import pudb  # pylint: disable=W0403
-import ipdb  # pylint: disable=W0403
-
 
 class test_model(orm.Model):
     _name = "test.model"
@@ -60,7 +55,7 @@ class test_model(orm.Model):
     def method_w0102(self, arg1, arg2=[]):
         # avoid imported but unused
         all_imports = (
-            os, os2, __openerp__, pdb, pudb, ipdb)
+            os, os2, __openerp__)
         return all_imports
 
     def method_w0104_w0105(self):

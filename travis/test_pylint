@@ -63,6 +63,12 @@ def get_beta_msgs():
         for msg in config.get('MESSAGES CONTROL', 'enabled2beta').split(',')
         if msg.strip()]
 
+extra_params_cmd = [
+    '--sys-paths', os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'pylint_deprecated_modules'),
+    '--extra-params', '--load-plugins=pylint_oca',
+]
 version = os.environ.get('VERSION', False)
 
 if not version:
@@ -79,6 +85,9 @@ if version:
         extra_params_cmd.extend([
             '--extra-params', extra_param
         ])
+else:
+    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
+          '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
 pylint_rcfile = os.path.join(
