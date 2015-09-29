@@ -195,10 +195,9 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print("\nCreating instance:")
     db_tmpl_created = False
     try:
-        subprocess.check_call(["createdb", db])
+        db_tmpl_created = subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
         db_tmpl_created = True
-        pass
 
     if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
@@ -244,6 +243,7 @@ def main(argv=None):
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
     test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
+    instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -368,11 +368,29 @@ def main(argv=None):
     counted_errors = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
-        subprocess.call(["createdb", "-T", dbtemplate, database])
+        db_odoo_created = False
+        try:
+            db_odoo_created = subprocess.call(["createdb", "-T", dbtemplate, database])
+        except subprocess.CalledProcessError:
+            db_odoo_created = True
         for command, check_loaded in commands:
-            command[-1] = to_test
-            # Run test command; unbuffer keeps output colors
-            command_call = ["unbuffer"] + command
+            if db_odoo_created and instance_alive:
+                command_start = commands[0][0]
+                rm_items = [
+                    'coverage', 'run', '--stop-after-init',
+                    '--test-enable', '--init', None,
+                    '--log-handler', 'openerp.tools.yaml_import:DEBUG',
+                ]
+                for rm_item in rm_items:
+                    try:
+                        command_start.remove(rm_item)
+                    except ValueError:
+                        pass
+                command_call = command_start + ['--db-filter=^%s$'%database]
+            else:
+                command[-1] = to_test
+                # Run test command; unbuffer keeps output colors
+                command_call = ["unbuffer"] + command
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
@@ -397,7 +415,8 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        subprocess.call(["dropdb", database])
+        if not instance_alive:
+            subprocess.call(["dropdb", database])
 
     print('Module test summary')
     for to_test in to_test_list:
