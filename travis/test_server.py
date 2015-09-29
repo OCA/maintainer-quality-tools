@@ -244,6 +244,7 @@ def main(argv=None):
     odoo_version = os.environ.get("VERSION")
     test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
+    is_runbot = str2bool(os.environ.get('RUNBOT'))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -389,8 +390,12 @@ def main(argv=None):
                 command_call = command_start + ['--db-filter=^%s$'%database]
             else:
                 command[-1] = to_test
-                # Run test command; unbuffer keeps output colors
-                command_call = ["unbuffer"] + command
+                if is_runbot:
+                    command_call = []
+                else:
+                    # Run test command; unbuffer keeps output colors
+                    command_call = ["unbuffer"]
+                command_call += command
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
