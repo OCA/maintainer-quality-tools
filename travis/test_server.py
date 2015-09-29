@@ -195,10 +195,9 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     print("\nCreating instance:")
     db_tmpl_created = False
     try:
-        subprocess.check_call(["createdb", db])
+        db_tmpl_created = subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
         db_tmpl_created = True
-        pass
 
     if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
