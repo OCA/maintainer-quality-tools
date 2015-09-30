@@ -371,7 +371,8 @@ def main(argv=None):
         print("\nTesting %s:" % to_test)
         db_odoo_created = False
         try:
-            db_odoo_created = subprocess.call(["createdb", "-T", dbtemplate, database])
+            db_odoo_created = subprocess.call(
+                ["createdb", "-T", dbtemplate, database])
         except subprocess.CalledProcessError:
             db_odoo_created = True
         for command, check_loaded in commands:
@@ -387,7 +388,7 @@ def main(argv=None):
                         command_start.remove(rm_item)
                     except ValueError:
                         pass
-                command_call = command_start + ['--db-filter=^%s$'%database]
+                command_call = command_start + ['--db-filter=^%s$' % database]
             else:
                 command[-1] = to_test
                 if is_runbot:
