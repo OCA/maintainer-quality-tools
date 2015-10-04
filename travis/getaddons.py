@@ -6,6 +6,7 @@ With -m flag, will return a list of modules names instead.
 """
 
 from __future__ import print_function
+import ast
 import os
 import sys
 
@@ -15,18 +16,20 @@ MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
 
 
 def is_module(path):
-    """return False if the path doesn't contain an odoo module, and the full
-    path to the module manifest otherwise"""
+    """return False if the path doesn't contain an installable odoo module,
+    and the full path to the module manifest otherwise"""
 
     if not os.path.isdir(path):
         return False
     files = os.listdir(path)
     filtered = [x for x in files if x in (MANIFEST_FILES + ['__init__.py'])]
     if len(filtered) == 2 and '__init__.py' in filtered:
-        return os.path.join(
+        manifest_path = os.path.join(
             path, next(x for x in filtered if x != '__init__.py'))
-    else:
-        return False
+        manifest = ast.literal_eval(open(manifest_path).read())
+        if manifest.get('installable', True):
+            return manifest_path
+    return False
 
 
 def get_modules(path):
