@@ -16,16 +16,25 @@ MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
 
 
 def is_module(path):
-    """return False if the path doesn't contain an installable odoo module,
-    and the full path to the module manifest otherwise"""
+    """return False if the path doesn't contain an odoo module, and the full
+    path to the module manifest otherwise"""
 
     if not os.path.isdir(path):
         return False
     files = os.listdir(path)
     filtered = [x for x in files if x in (MANIFEST_FILES + ['__init__.py'])]
     if len(filtered) == 2 and '__init__.py' in filtered:
-        manifest_path = os.path.join(
+        return os.path.join(
             path, next(x for x in filtered if x != '__init__.py'))
+    else:
+        return False
+
+
+def is_installable_module(path):
+    """return False if the path doesn't contain an installable odoo module,
+    and the full path to the module manifest otherwise"""
+    manifest_path = is_module(path)
+    if manifest_path:
         manifest = ast.literal_eval(open(manifest_path).read())
         if manifest.get('installable', True):
             return manifest_path
@@ -41,7 +50,7 @@ def get_modules(path):
     res = []
     if os.path.isdir(path) and not os.path.basename(path)[0] == '.':
         res = [x for x in os.listdir(path)
-               if is_module(os.path.join(path, x))]
+               if is_installable_module(os.path.join(path, x))]
     return res
 
 
