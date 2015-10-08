@@ -9,7 +9,8 @@ import subprocess
 import sys
 import time
 
-from getaddons import get_addons, get_depends, get_modules, is_module
+from getaddons import get_addons, get_depends, get_modules, \
+    is_installable_module
 from travis_helpers import success_msg, fail_msg
 
 
@@ -169,7 +170,8 @@ def get_test_dependencies(addons_path, addons_list):
         return ['base']
     else:
         for path in addons_path.split(','):
-            manif_path = is_module(os.path.join(path, addons_list[0]))
+            manif_path = is_installable_module(
+                os.path.join(path, addons_list[0]))
             if not manif_path:
                 continue
             manif = eval(open(manif_path).read())
