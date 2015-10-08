@@ -6,6 +6,7 @@ With -m flag, will return a list of modules names instead.
 """
 
 from __future__ import print_function
+import ast
 import os
 import sys
 
@@ -29,6 +30,17 @@ def is_module(path):
         return False
 
 
+def is_installable_module(path):
+    """return False if the path doesn't contain an installable odoo module,
+    and the full path to the module manifest otherwise"""
+    manifest_path = is_module(path)
+    if manifest_path:
+        manifest = ast.literal_eval(open(manifest_path).read())
+        if manifest.get('installable', True):
+            return manifest_path
+    return False
+
+
 def get_modules(path):
 
     # Avoid empty basename when path ends with slash
@@ -38,7 +50,7 @@ def get_modules(path):
     res = []
     if os.path.isdir(path) and not os.path.basename(path)[0] == '.':
         res = [x for x in os.listdir(path)
-               if is_module(os.path.join(path, x))]
+               if is_installable_module(os.path.join(path, x))]
     return res
 
 

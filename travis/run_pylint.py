@@ -9,6 +9,8 @@ import sys
 import click
 import pylint.lint
 
+import getaddons
+
 CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 
 
@@ -38,9 +40,13 @@ def get_subpaths(paths):
             subpaths.extend(
                 [os.path.join(path, item)
                  for item in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, item, '__init__.py'))])
+                 if os.path.isfile(os.path.join(path, item, '__init__.py')) and
+                 (not getaddons.is_module(os.path.join(path, item)) or
+                  getaddons.is_installable_module(os.path.join(path, item)))])
         else:
-            subpaths.append(path)
+            if not getaddons.is_module(path) or \
+                    getaddons.is_installable_module(path):
+                subpaths.append(path)
     return subpaths
 
 
