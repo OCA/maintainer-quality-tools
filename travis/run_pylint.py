@@ -17,7 +17,7 @@ CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 def get_count_fails(linter_stats, msgs_no_count=None):
     """Verify the dictionary statistics to get number of errors.
     :param linter_stats: Dict of type pylint.lint.Run().linter.stats
-    :param no_count: List of messages that won't is added to counter fails.
+    :param no_count: List of messages that will not add to the failure count.
     :return: Integer with quantity of fails found.
     """
     count = 0
@@ -92,7 +92,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
               help="Extra pylint params to append "
                    "in pylint command")
 @click.option('--msgs-no-count', '-msgs-no-count', multiple=True,
-              help="List of messages that won't is added to counter fails.")
+              help="List of messages that will not add to the failure count.")
 def main(paths, config_file, msgs_no_count=None,
          sys_paths=None, extra_params=None):
     """Script to run pylint command with additional params

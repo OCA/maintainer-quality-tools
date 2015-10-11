@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-'''This script run `pylint` with plugins and special configuration files.
-Use next types of pylint configuration files:
+'''This script runs `pylint` with plugins and special configuration files.
+Use the following types of pylint configuration files:
 
  1) Global
  2) Pull request
@@ -22,22 +22,23 @@ Use next types of pylint configuration files:
 
   Used to check enabled messages on this file just in modules
   changed in a pull request of the project.
-  The result affect your build status.
+  The result affects your build status.
   File name: `travis_run_pylint_pr.cfg`
 
 
 2) Version
 
-  Used to disable the previous enabled messages of `global` or `pull request`
+  Used to disable the previously enabled messages of `global` or `pull request`
   configuration files based on `VERSION` variable environment.
   File name: `travis_run_pylint_{VERSION}.cfg`
 
 
 3) Beta
 
-  Used to avoid affect your build status.
-  Add the previous enabled messages in `global` or `pull request`
-  that you just want to display them, without affecting your build status.
+  Used to add the previously enabled messages in `global` or `pull request`
+  configuration files that you want to display, without affecting your build
+  status.
+
   File name: `travis_run_pylint_beta.cfg`
 '''
 
