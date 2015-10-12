@@ -20,12 +20,10 @@ def get_count_fails(linter_stats, msgs_no_count=None):
     :param no_count: List of messages that will not add to the failure count.
     :return: Integer with quantity of fails found.
     """
-    count = 0
-    for msg in linter_stats['by_msg']:
-        if msg in msgs_no_count:
-            continue
-        count += linter_stats['by_msg'][msg]
-    return count
+    return sum([
+        linter_stats['by_msg'][msg]
+        for msg in linter_stats['by_msg']
+        if msg not in msgs_no_count])
 
 
 def get_subpaths(paths):

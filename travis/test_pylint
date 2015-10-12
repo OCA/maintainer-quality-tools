@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-'''This script runs `pylint` with plugins and special configuration files.
+"""This script runs `pylint` with plugins and special configuration files.
 Use the following types of pylint configuration files:
 
  1) Global
@@ -26,11 +26,11 @@ Use the following types of pylint configuration files:
   File name: `travis_run_pylint_pr.cfg`
 
 
-2) Version
+2) Version Exclusions
 
   Used to disable the previously enabled messages of `global` or `pull request`
   configuration files based on `VERSION` variable environment.
-  File name: `travis_run_pylint_{VERSION}.cfg`
+  File name: `travis_run_pylint_exclude_{VERSION}.cfg`
 
 
 3) Beta
@@ -40,7 +40,7 @@ Use the following types of pylint configuration files:
   status.
 
   File name: `travis_run_pylint_beta.cfg`
-'''
+"""
 
 
 import os
@@ -92,7 +92,7 @@ def get_extra_params(odoo_version):
     odoo_version = odoo_version.replace('.', '')
     version_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'cfg/travis_run_pylint_{odoo_version}.cfg'.format(
+        'cfg/travis_run_pylint_exclude_{odoo_version}.cfg'.format(
             odoo_version=odoo_version))
     params = []
     if os.path.isfile(version_cfg):
