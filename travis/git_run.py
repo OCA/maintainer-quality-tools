@@ -34,3 +34,10 @@ class GitRun(object):
         res = self.run(command)
         items = res.split('\n') if res else []
         return items
+
+    def get_branch_name(self):
+        """Get branch name
+        :return: String with name of current branch name"""
+        command = ['rev-parse', '--abbrev-ref', 'HEAD']
+        res = self.run(command)
+        return res

@@ -71,6 +71,8 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         assert pre_commit_returned == 0, \
             "Git pre-commit script returned value != 0"
 
+# Testing git get branch
+
 
 # Testing git run from getaddons
 getaddons.get_modules_changed(repo_dir)
