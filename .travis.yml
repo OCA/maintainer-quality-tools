@@ -3,7 +3,10 @@
 # Instead use the files under the "/sample_files" directory for that purpose.
 language: python
 sudo: false
-cache: pip
+cache:
+  apt: true
+  directories:
+    - $HOME/.cache/pip
 
 build_image: vauxoo/odoo-80-image-shippable-auto
 commit_container: cowardvassal/vauxoo-dev
