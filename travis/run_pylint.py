@@ -14,15 +14,16 @@ import getaddons
 CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 
 
-def get_count_fails(linter_stats):
+def get_count_fails(linter_stats, msgs_no_count=None):
     """Verify the dictionary statistics to get number of errors.
     :param linter_stats: Dict of type pylint.lint.Run().linter.stats
+    :param no_count: List of messages that will not add to the failure count.
     :return: Integer with quantity of fails found.
     """
-    count = 0
-    for msg in linter_stats['by_msg']:
-        count += linter_stats['by_msg'][msg]
-    return count
+    return sum([
+        linter_stats['by_msg'][msg]
+        for msg in linter_stats['by_msg']
+        if msg not in msgs_no_count])
 
 
 def get_subpaths(paths):
@@ -50,7 +51,7 @@ def get_subpaths(paths):
     return subpaths
 
 
-def run_pylint(paths, cfg, sys_paths=None, extra_params=None):
+def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     """Execute pylint command from original python library
     :param paths: List of paths of python modules to check pylint
     :param cfg: String name of pylint configuration file
@@ -88,16 +89,20 @@ def run_pylint(paths, cfg, sys_paths=None, extra_params=None):
 @click.option('--extra-params', '-extra-param', multiple=True,
               help="Extra pylint params to append "
                    "in pylint command")
-def main(paths, config_file, sys_paths=None, extra_params=None):
+@click.option('--msgs-no-count', '-msgs-no-count', multiple=True,
+              help="List of messages that will not add to the failure count.")
+def main(paths, config_file, msgs_no_count=None,
+         sys_paths=None, extra_params=None):
     """Script to run pylint command with additional params
     to check fails of odoo modules.
     If expected errors is equal to count fails found then
     this program exit with zero otherwise exit with counted fails"""
     try:
         stats = run_pylint(
-            list(paths), config_file.name, sys_paths=sys_paths,
+            list(paths), config_file.name,
+            sys_paths=sys_paths,
             extra_params=extra_params)
-        count_fails = get_count_fails(stats)
+        count_fails = get_count_fails(stats, list(msgs_no_count))
     except UserWarning:
         count_fails = -1
     return count_fails
