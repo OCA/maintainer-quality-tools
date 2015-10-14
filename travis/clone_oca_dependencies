@@ -53,7 +53,7 @@ def parse_depfile(depfile, owner='OCA'):
         if len(parts) > 1:
             url = parts[1]
         else:
-            url = 'https://github.com/%s/%s' % (owner, repo)
+            url = 'https://github.com/%s/%s.git' % (owner, repo)
         deps.append((repo, url, branch))
     return deps
 
