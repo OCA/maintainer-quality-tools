@@ -76,7 +76,12 @@ def get_modules_changed(path, ref='HEAD'):
     :return: List of paths of modules changed
     '''
     git_run_obj = GitRun(os.path.join(path, '.git'))
-    git_run_obj.run(['fetch'] + ref.split('/'))
+    if ref != 'HEAD':
+        fetch_ref = ref
+        if ':' not in fetch_ref:
+            # to force create branch
+            fetch_ref += ':' + fetch_ref
+        git_run_obj.run(['fetch'] + fetch_ref.split('/', 1))
     items_changed = git_run_obj.get_items_changed(ref)
     folders_changed = set([
         item_changed.split('/')[0]
