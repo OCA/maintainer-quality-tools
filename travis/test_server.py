@@ -227,7 +227,12 @@ def start_shippable_psql_service():
                 break
             time.sleep(2)
         print("...psql service started.")
-
+        try:
+            subprocess.Popen(
+                ["psql", 'openerp_test', '-c', 'REINDEX INDEX ir_translation_src_hash_idx'], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        except BaseException:
+            pass
 
 def main(argv=None):
     start_shippable_psql_service()
