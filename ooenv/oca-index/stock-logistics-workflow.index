@@ -1,0 +1,7 @@
+stock_ownership_availability_rules: https://github.com/OCA/stock-logistics-workflow.git
+stock_dropshipping_dual_invoice: https://github.com/OCA/stock-logistics-workflow.git
+picking_dispatch: https://github.com/OCA/stock-logistics-workflow.git
+stock_picking_invoice_link: https://github.com/OCA/stock-logistics-workflow.git
+stock_transfer_split_multi: https://github.com/OCA/stock-logistics-workflow.git
+stock_cancel: https://github.com/OCA/stock-logistics-workflow.git
+stock_ownership_by_move: https://github.com/OCA/stock-logistics-workflow.git

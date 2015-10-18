@@ -1,0 +1,3 @@
+base_delivery_carrier_label: https://github.com/OCA/carrier-delivery.git
+delivery_carrier_deposit: https://github.com/OCA/carrier-delivery.git
+delivery_carrier_b2c: https://github.com/OCA/carrier-delivery.git

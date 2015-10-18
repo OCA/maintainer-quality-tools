@@ -1,0 +1,17 @@
+purchase_partial_invoicing: https://github.com/OCA/purchase-workflow.git
+purchase_transport_document: https://github.com/OCA/purchase-workflow.git
+vendor_consignment_stock: https://github.com/OCA/purchase-workflow.git
+purchase_partner_invoice_method: https://github.com/OCA/purchase-workflow.git
+purchase_fiscal_position_update: https://github.com/OCA/purchase-workflow.git
+purchase_discount: https://github.com/OCA/purchase-workflow.git
+purchase_rfq_bid_workflow: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_auto_rfq: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_transport_document: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_auto_rfq_bid_selection: https://github.com/OCA/purchase-workflow.git
+purchase_delivery_address: https://github.com/OCA/purchase-workflow.git
+framework_agreement: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_multicurrency: https://github.com/OCA/purchase-workflow.git
+purchase_all_shipments: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_bid_selection: https://github.com/OCA/purchase-workflow.git
+purchase_requisition_delivery_address: https://github.com/OCA/purchase-workflow.git
+purchase_origin_address: https://github.com/OCA/purchase-workflow.git

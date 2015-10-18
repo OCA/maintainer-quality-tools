@@ -1,0 +1,2 @@
+connector_base_product: https://github.com/OCA/connector.git
+connector: https://github.com/OCA/connector.git

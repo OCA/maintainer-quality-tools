@@ -1,0 +1,13 @@
+sale_quotation_number: https://github.com/OCA/sale-workflow.git
+sale_partner_order_policy: https://github.com/OCA/sale-workflow.git
+sale_sourced_by_line_sale_transport_multi_address: https://github.com/OCA/sale-workflow.git
+sale_exceptions: https://github.com/OCA/sale-workflow.git
+sale_exception_nostock: https://github.com/OCA/sale-workflow.git
+sale_order_back2draft: https://github.com/OCA/sale-workflow.git
+sale_sourced_by_line: https://github.com/OCA/sale-workflow.git
+sale_cancel_reason: https://github.com/OCA/sale-workflow.git
+sale_quotation_sourcing: https://github.com/OCA/sale-workflow.git
+sale_quotation_sourcing_stock_route_transit: https://github.com/OCA/sale-workflow.git
+sale_validity: https://github.com/OCA/sale-workflow.git
+partner_prepayment: https://github.com/OCA/sale-workflow.git
+sale_owner_stock_sourcing: https://github.com/OCA/sale-workflow.git

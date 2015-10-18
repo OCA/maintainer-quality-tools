@@ -15,11 +15,20 @@ fi
 
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
-ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
+ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
+ODOO_PATH="${HOME}/${REPO[1]}-${VERSION}"
+echo "==== Installing Odoo ${ODOO_URL} ===="
+git clone --depth=1 -b ${VERSION} ${ODOO_URL} ${ODOO_PATH}
+# wget -nv -O odoo.tar.gz ${ODOO_URL}
+# tar -xf odoo.tar.gz -C ${HOME}
 
-echo "Installing Odoo ${ODOO_URL}"
-wget -nv -O odoo.tar.gz ${ODOO_URL}
-tar -xf odoo.tar.gz -C ${HOME}
+echo "==== Installing ooenv ===="
+# Patch for Odoo PR #6335
+cd ${ODOO_PATH}
+git apply ${TRAVIS_BUILD_DIR}/travis/0001-Backport-client-command-discovery-optimization.patch
+cd ${TRAVIS_BUILD_DIR}
+MQT_PATH=${HOME}/maintainer-quality-tools
+ln -s ${MQT_PATH}/ooenv/odoo-env ${ODOO_PATH}/addons/odoo-env
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
@@ -29,8 +38,16 @@ pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
-echo "Getting dependencies"
-clone_oca_dependencies
+echo "==== Getting dependencies ===="
+cd ${TRAVIS_BUILD_DIR}  # Maybe redundant, but just in case go into the build dir
+if [ "${VERSION}" -lt "8.0" ] ; then
+    clone_oca_dependencies
+else
+    ${ODOO_PATH}/odoo.py env . --index=${MQT_PATH}/ooenv/oca-index
+    echo "Possible modules:"
+    find . -maxdepth 1 -mindepth 1 -type d -printf '%f\n'
+    find . -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | xargs ./odoo.sh get --verbose
+fi
 
 # Expected directory structure:
 #
@@ -41,5 +58,5 @@ clone_oca_dependencies
 #     |___ <DependencyRepo1>/
 #     |___ <DependencyRepo2>/
 #     |...
-echo "Content of ${HOME}:"
-ls -l ${HOME}
+echo "Build dir content:"
+ls -la

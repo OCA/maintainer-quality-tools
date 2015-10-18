@@ -1,0 +1,16 @@
+account_banking_sepa_credit_transfer: https://github.com/OCA/banking.git
+account_banking_mandate: https://github.com/OCA/banking.git
+account_payment_partner: https://github.com/OCA/banking.git
+account_banking_tests: https://github.com/OCA/banking.git
+account_voucher_killer: https://github.com/OCA/banking.git
+account_payment_sale: https://github.com/OCA/banking.git
+account_banking_pain_base: https://github.com/OCA/banking.git
+account_payment_purchase: https://github.com/OCA/banking.git
+account_payment_blocking: https://github.com/OCA/banking.git
+account_banking_payment_transfer: https://github.com/OCA/banking.git
+account_payment_include_draft_move: https://github.com/OCA/banking.git
+account_payment_mode_term: https://github.com/OCA/banking.git
+account_banking_sepa_direct_debit: https://github.com/OCA/banking.git
+account_banking_payment_export: https://github.com/OCA/banking.git
+account_payment_sale_stock: https://github.com/OCA/banking.git
+account_direct_debit: https://github.com/OCA/banking.git

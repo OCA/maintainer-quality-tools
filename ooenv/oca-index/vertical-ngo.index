@@ -1,0 +1,17 @@
+logistic_order: https://github.com/OCA/vertical-ngo.git
+logistic_budget: https://github.com/OCA/vertical-ngo.git
+logistic_order_donation: https://github.com/OCA/vertical-ngo.git
+logistic_requisition_multicurrency: https://github.com/OCA/vertical-ngo.git
+framework_agreement_requisition: https://github.com/OCA/vertical-ngo.git
+ngo_purchase: https://github.com/OCA/vertical-ngo.git
+logistic_consignee: https://github.com/OCA/vertical-ngo.git
+ngo_purchase_requisition: https://github.com/OCA/vertical-ngo.git
+logistic_requisition_donation: https://github.com/OCA/vertical-ngo.git
+ngo_shipment_plan: https://github.com/OCA/vertical-ngo.git
+framework_agreement_sourcing: https://github.com/OCA/vertical-ngo.git
+logistic_requisition: https://github.com/OCA/vertical-ngo.git
+logistic_order_donation_transit: https://github.com/OCA/vertical-ngo.git
+logistic_order_multicurrency: https://github.com/OCA/vertical-ngo.git
+logistic_requisition_department: https://github.com/OCA/vertical-ngo.git
+framework_agreement_sourcing_stock_route_transit: https://github.com/OCA/vertical-ngo.git
+logistic_order_donation_shipment_test: https://github.com/OCA/vertical-ngo.git

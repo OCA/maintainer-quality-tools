@@ -1,0 +1,5 @@
+runbot_janitor: https://github.com/OCA/runbot-addons.git
+runbot_gitlab: https://github.com/OCA/runbot-addons.git
+runbot_secure: https://github.com/OCA/runbot-addons.git
+runbot_build_instructions: https://github.com/OCA/runbot-addons.git
+runbot_skip_tests: https://github.com/OCA/runbot-addons.git
