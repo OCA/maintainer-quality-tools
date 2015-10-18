@@ -36,6 +36,7 @@ travis_repo_slug = os.environ.get(
     "TRAVIS_REPO_SLUG",
     "OCA/maintainer-quality-tools",
 )
+travis_repo_owner = travis_repo_slug.split("/")[0]
 
 
 def parse_depfile(depfile, owner='OCA'):
