@@ -22,7 +22,7 @@ For using it, you can choose from two options:
      /usr/share/git-core/templates/hooks/
 
 
-  In MAC, it's located in:
+  In OS X, it's located in:
 
     Installed from MAC-port
 
