@@ -7,8 +7,6 @@ import getaddons
 import travis_helpers
 from test_server import get_test_dependencies
 
-import run_pylint
-
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
 exclude = os.environ.get("EXCLUDE")
 
@@ -44,6 +42,7 @@ assert travis_helpers.yellow_light(u'\ntest\nnewline') == u"\033[33m\033[0;m\n\0
 # Testing empty paths and pylint_run fix of:
 # https://www.mail-archive.com/code-quality@python.org/msg00294.html
 if os.environ.get('LINT_CHECK', 0) == '1':
+    import run_pylint
     pylint_rcfile = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg',

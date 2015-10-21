@@ -107,7 +107,7 @@ extra_params_cmd = [
     '--sys-paths', os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'pylint_deprecated_modules'),
-    '--extra-params', '--load-plugins=pylint_oca',
+    '--extra-params', '--load-plugins=pylint_odoo',
 ]
 def get_beta_msgs():
     '''Get beta msgs from beta.cfg file
