@@ -34,7 +34,7 @@ and you will have these checks available for it.
 
    ```bash
    git clone git@github.com:OCA/maintainer-quality-tools.git ${HOME}/lint-hook
-   sudo ln -sf ${HOME}/lint-hook/* /usr/share/git-core/templates/hooks/.
+   sudo ln -sf ${HOME}/lint-hook/git/* /usr/share/git-core/templates/hooks/.
    cd {YOUR_PROJECT}
    git init .
    ```
