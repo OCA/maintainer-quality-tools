@@ -234,6 +234,13 @@ def start_shippable_psql_service():
         except BaseException:
             pass
 
+def hidden_line(line):
+    """Hidden line that no want show in log"""
+    if "no translation for language" in line:
+        # TODO: Add validation of module not in repo
+        return True
+    return False
+
 def main(argv=None):
     start_shippable_psql_service()
     if argv is None:
@@ -408,6 +415,8 @@ def main(argv=None):
                                     stdout=subprocess.PIPE)
             with open('stdout.log', 'w') as stdout:
                 for line in pipe.stdout:
+                    if hidden_line(line):
+                        continue
                     stdout.write(line)
                     print(line.strip())
             returncode = pipe.wait()
