@@ -17,6 +17,12 @@ if [ "${TESTS}" != "1" ] && [ "${LINT_CHECK}" == "1" ]; then
     exit 0
 fi
 
+
+# Install less
+ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
+npm install less less-plugin-clean-css
+
+
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
     VERSION="${1}"
