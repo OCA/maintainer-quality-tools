@@ -26,7 +26,7 @@ virtualenv:
 env:
 
   global:
-  - VERSION="8.0" TESTS="1" LINT_CHECK="0"
+  - VERSION="9.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
   - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
