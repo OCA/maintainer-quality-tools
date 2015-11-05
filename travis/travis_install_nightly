@@ -55,8 +55,10 @@ clone_oca_dependencies
 #     |___ <OdooRepo>-<Branch>/         <-- Odoo Server
 #     |___ maintainer-quality-tools/
 #     |___ build/<Owner>/<TestedRepo>/
-#     |___ <DependencyRepo1>/
-#     |___ <DependencyRepo2>/
+#     |___ dependencies/<DependencyRepo1>/
+#     |___ dependencies/<DependencyRepo2>/
 #     |...
 echo "Content of ${HOME}:"
 ls -l ${HOME}
+echo "Content of ${HOME}/dependencies:"
+ls -l ${HOME}/dependencies
