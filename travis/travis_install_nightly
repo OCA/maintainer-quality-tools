@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [ "${LINT_CHECK}" != "0" ]; then
     pip install -q flake8 Click pylint-mccabe
 
@@ -62,3 +64,5 @@ echo "Content of ${HOME}:"
 ls -l ${HOME}
 echo "Content of ${HOME}/dependencies:"
 ls -l ${HOME}/dependencies
+
+set +e
