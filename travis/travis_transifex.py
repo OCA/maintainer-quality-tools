@@ -36,6 +36,7 @@ def main(argv=None):
         return 1
 
     travis_home = os.environ.get("HOME", "~/")
+    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     travis_repo_slug = os.environ.get("TRAVIS_REPO_SLUG")
     travis_repo_owner = travis_repo_slug.split("/")[0]
@@ -70,7 +71,9 @@ def main(argv=None):
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
+    addons_path = get_addons_path(travis_dependencies_dir,
+                                  travis_build_dir,
+                                  server_path)
     addons_list = get_addons_to_check(travis_build_dir, odoo_include,
                                       odoo_exclude)
     addons = ','.join(addons_list)

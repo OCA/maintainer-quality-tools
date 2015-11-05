@@ -118,15 +118,15 @@ def get_server_path(odoo_full, odoo_version, travis_home):
     return server_path
 
 
-def get_addons_path(travis_home, travis_build_dir, server_path):
+def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
     """
     Calculate addons path
-    :param travis_home: Travis home directory
+    :param travis_dependencies_dir: Travis dependencies directory
     :param travis_build_dir: Travis build directory
     :param server_path: Server path
     :return: Addons path
     """
-    addons_path_list = get_addons(travis_home)
+    addons_path_list = get_addons(travis_dependencies_dir)
     addons_path_list.insert(0, travis_build_dir)
     addons_path_list.append(server_path + "/addons")
     addons_path = ','.join(addons_path_list)
@@ -208,6 +208,7 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     travis_home = os.environ.get("HOME", "~/")
+    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
     odoo_exclude = os.environ.get("EXCLUDE")
@@ -235,7 +236,9 @@ def main(argv=None):
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
+    addons_path = get_addons_path(travis_dependencies_dir,
+                                  travis_build_dir,
+                                  server_path)
 
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,

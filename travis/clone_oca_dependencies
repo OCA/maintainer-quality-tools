@@ -3,7 +3,8 @@
 
 Arguments:
 
-checkout_dir: the directory in which the dependency repositories will be cloned
+deps_checkout_dir: the directory in which the dependency repositories
+will be cloned
 build_dir: the directory in which the tested repositories have been cloned
 
 If no arguments are provided, default to the layout used in the OCA travis
@@ -32,12 +33,6 @@ import logging
 
 _logger = logging.getLogger()
 
-travis_repo_slug = os.environ.get(
-    "TRAVIS_REPO_SLUG",
-    "OCA/maintainer-quality-tools",
-)
-travis_repo_owner = travis_repo_slug.split("/")[0]
-
 
 def parse_depfile(depfile, owner='OCA'):
     deps = []
@@ -59,8 +54,8 @@ def parse_depfile(depfile, owner='OCA'):
     return deps
 
 
-def git_checkout(home, reponame, url, branch):
-    checkout_dir = osp.join(home, reponame)
+def git_checkout(deps_checkout_dir, reponame, url, branch):
+    checkout_dir = osp.join(deps_checkout_dir, reponame)
     if not osp.isdir(checkout_dir):
         command = ['git', 'clone', '-q', url, '-b', branch, checkout_dir]
         _logger.info('Calling %s', ' '.join(command))
@@ -68,13 +63,15 @@ def git_checkout(home, reponame, url, branch):
     return checkout_dir
 
 
-def run(home, build_dir):
+def run(deps_checkout_dir, build_dir):
     dependencies = []
     processed = set()
-    for repo in os.listdir(build_dir):
+    depfilename = osp.join(build_dir, 'oca_dependencies.txt')
+    dependencies.append(depfilename)
+    for repo in os.listdir(deps_checkout_dir):
         _logger.info('examining %s', repo)
         processed.add(repo)
-        depfilename = osp.join(build_dir, repo, 'oca_dependencies.txt')
+        depfilename = osp.join(deps_checkout_dir, repo, 'oca_dependencies.txt')
         dependencies.append(depfilename)
     for depfilename in dependencies:
         try:
@@ -83,11 +80,12 @@ def run(home, build_dir):
         except IOError:
             deps = []
         for depname, url, branch in deps:
-            _logger.info('* processing %s',  depname)
+            _logger.info('* processing %s', depname)
             if depname in processed:
                 continue
             processed.add(depname)
-            checkout_dir = git_checkout(home, depname, url, branch)
+            checkout_dir = git_checkout(deps_checkout_dir, depname,
+                                        url, branch)
             new_dep_filename = osp.join(checkout_dir, 'oca_dependencies.txt')
             if new_dep_filename not in dependencies:
                 dependencies.append(new_dep_filename)
@@ -95,12 +93,14 @@ def run(home, build_dir):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        home = os.environ['HOME']
-        build_dir = osp.join(home, 'build', travis_repo_owner)
+        deps_checkout_dir = osp.join(os.environ['HOME'], 'dependencies')
+        if not osp.exists(deps_checkout_dir):
+            os.makedirs(deps_checkout_dir)
+        build_dir = os.environ['TRAVIS_BUILD_DIR']
     elif len(sys.argv) == 2 or len(sys.argv) > 3:
         print(__doc__)
         sys.exit(1)
     else:
-        home = sys.argv[1]
+        deps_checkout_dir = sys.argv[1]
         build_dir = sys.argv[2]
-    run(home, build_dir)
+    run(deps_checkout_dir, build_dir)
