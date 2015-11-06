@@ -2,7 +2,7 @@
 set -v
 
 if [ "${LINT_CHECK}" != "0" ]; then
-    pip install -q QUnitSuite flake8 coveralls Click
+    pip install -q QUnitSuite flake8 Click
 
     # pylint plugin depends
     wget -q https://raw.githubusercontent.com/moylop260/pylint-oca/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
@@ -52,6 +52,7 @@ if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
     find -L ${HOME} -name common.py -exec sed -i "s/'phantomjs'/'disable_phantomjs'/g" {} \;
 fi
 
+pip install coveralls  # ToDo: Add to main image because in travis is installed
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
     apt-get -q -y install expect-dev  # provides unbuffer utility
