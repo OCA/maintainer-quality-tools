@@ -60,6 +60,8 @@ def is_addons(path):
 
 
 def get_addons(path):
+    if not os.path.exists(path):
+        return []
     if is_addons(path):
         res = [path]
     else:
