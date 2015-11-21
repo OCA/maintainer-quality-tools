@@ -6,6 +6,7 @@ import re
 import os
 import subprocess
 import sys
+import time
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
@@ -204,6 +205,54 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
+def docker_entrypoint(server_path):
+    if os.environ.get('TRAVIS', "false") == "true":
+        return True
+    # Fix postgresql
+    #  https://github.com/docker/docker/issues/783
+    #   issuecomment-56013588
+    cmds = [
+        ["mkdir", "-p", "/etc/ssl/private-copy"],
+        ["mkdir", "-p", "/etc/ssl/private"],
+        ["mv", "/etc/ssl/private/*", "/etc/ssl/private-copy/"],
+        ["rm", "-r", "/etc/ssl/private"],
+        ["mv", "/etc/ssl/private-copy", "/etc/ssl/private"],
+        ["chmod", "-R", "0700", "/etc/ssl/private"],
+        ["chown", "-R", "postgres", "/etc/ssl/private"],
+    ]
+    for cmd in cmds:
+        subprocess.call(' '.join(cmd), shell=True)
+
+    # Patch to force start odoo as root
+    sub_cmd1 = [
+        'find', '-L', server_path, '-name', 'server.py',
+    ]
+    subp1 = subprocess.Popen(sub_cmd1, stdout=subprocess.PIPE)
+    sub_cmd2 = [
+        'xargs', 'sed', '-i', "s/== 'root'/== 'force_root'/g"
+    ]
+    subprocess.Popen(sub_cmd2, stdin=subp1.stdout, stdout=subprocess.PIPE)
+
+    # Start postgresql service
+    # cmd = [
+    #     'sudo -u postgres /usr/lib/postgresql/9.3/bin/postgres '
+    #     '-c "config_file=/etc/postgresql/9.3/main/postgresql.conf"'
+    # ]
+    cmd = ['sudo', '/etc/init.d/postgresql', 'start']
+    subprocess.Popen(cmd)
+    print("Waiting to start psql service...")
+    while True:
+        psql_subprocess = subprocess.Popen(
+            ["psql", '-l'], stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+        psql_subprocess.wait()
+        if not bool(psql_subprocess.stderr.read()):
+            break
+        time.sleep(2)
+    print("...psql service started.")
+    return True
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -217,6 +266,8 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
+    is_runbot = str2bool(os.environ.get('RUNBOT'))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -253,7 +304,7 @@ def main(argv=None):
         return 0
     else:
         print("Modules to test: %s" % tested_addons)
-
+    docker_entrypoint(server_path)
     # setup the base module without running the tests
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
@@ -296,11 +347,35 @@ def main(argv=None):
     counted_errors = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
-        subprocess.call(["createdb", "-T", dbtemplate, database])
+        db_odoo_created = False
+        try:
+            db_odoo_created = subprocess.call(["createdb", "-T", dbtemplate, database])
+        except subprocess.CalledProcessError:
+            db_odoo_created = True
         for command, check_loaded in commands:
-            command[-1] = to_test
-            # Run test command; unbuffer keeps output colors
-            command_call = ["unbuffer"] + command
+            if db_odoo_created and instance_alive:
+                # If exists database of odoo test
+                # then start server with regular command without tests params
+                command_start = commands[0][0]
+                rm_items = [
+                    'coverage', 'run', '--stop-after-init',
+                    '--test-enable', '--init', None,
+                    '--log-handler', 'openerp.tools.yaml_import:DEBUG',
+                ]
+                for rm_item in rm_items:
+                    try:
+                        command_start.remove(rm_item)
+                    except ValueError:
+                        pass
+                command_call = command_start + ['--db-filter=^%s$'%database]
+            else:
+                command[-1] = to_test
+                if is_runbot:
+                    command_call = []
+                else:
+                    # Run test command; unbuffer keeps output colors
+                    command_call = ["unbuffer"]
+                command_call += command
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
@@ -325,7 +400,8 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        subprocess.call(["dropdb", database])
+        if not instance_alive:
+            subprocess.call(["dropdb", database])
 
     print('Module test summary')
     for to_test in to_test_list:
