@@ -192,22 +192,27 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if preinstall_modules is None:
         preinstall_modules = ['base']
     print("\nCreating instance:")
-    subprocess.check_call(["createdb", db])
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+    db_tmpl_created = False
+    try:
+        subprocess.check_call(["createdb", db])
+    except subprocess.CalledProcessError:
+        db_tmpl_created = True
+    if not db_tmpl_created:
+        cmd_odoo = ["%s/openerp-server" % server_path,
+                    "-d", db,
+                    "--log-level=warn",
+                    "--stop-after-init",
+                    "--addons-path", addons_path,
+                    "--init", ','.join(preinstall_modules),
+                    ] + install_options
+        print(" ".join(cmd_odoo))
+        subprocess.check_call(cmd_odoo)
+    else:
+        print("Using previous openerp_template database.")
     return 0
 
 
 def docker_entrypoint(server_path):
-    if os.environ.get('TRAVIS', "false") == "true":
-        return True
     # Fix postgresql
     #  https://github.com/docker/docker/issues/783
     #   issuecomment-56013588
@@ -268,6 +273,7 @@ def main(argv=None):
     odoo_version = os.environ.get("VERSION")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     is_runbot = str2bool(os.environ.get('RUNBOT'))
+    is_travis = str2bool(os.environ.get('TRAVIS'))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -304,7 +310,8 @@ def main(argv=None):
         return 0
     else:
         print("Modules to test: %s" % tested_addons)
-    docker_entrypoint(server_path)
+    if not is_travis:
+        docker_entrypoint(server_path)
     # setup the base module without running the tests
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
@@ -349,7 +356,8 @@ def main(argv=None):
         print("\nTesting %s:" % to_test)
         db_odoo_created = False
         try:
-            db_odoo_created = subprocess.call(["createdb", "-T", dbtemplate, database])
+            db_odoo_created = subprocess.call(
+                ["createdb", "-T", dbtemplate, database])
         except subprocess.CalledProcessError:
             db_odoo_created = True
         for command, check_loaded in commands:
@@ -367,7 +375,7 @@ def main(argv=None):
                         command_start.remove(rm_item)
                     except ValueError:
                         pass
-                command_call = command_start + ['--db-filter=^%s$'%database]
+                command_call = command_start + ['--db-filter=^%s$' % database]
             else:
                 command[-1] = to_test
                 if is_runbot:
@@ -380,8 +388,9 @@ def main(argv=None):
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
+            # lines_iterator = iter(pipe.stdout.readline, b"")
             with open('stdout.log', 'w') as stdout:
-                for line in pipe.stdout:
+                for line in pipe.stdout:  # lines_iterator:
                     stdout.write(line)
                     print(line.strip())
             returncode = pipe.wait()
