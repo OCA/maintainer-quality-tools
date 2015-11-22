@@ -41,7 +41,7 @@ env:
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
-  - mv tests/test_repo/* ./
+  - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly 8.0 # only used if VERSION not set in env
   - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
