@@ -180,6 +180,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules=None):
     """
     Setup the base module before running the tests
+    if the database template exists then will be used.
     :param db: Template database name
     :param odoo_unittest: Boolean for unit test (travis parameter)
     :param tested_addons: List of modules that need to be installed
@@ -196,6 +197,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
         subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
         db_tmpl_created = True
+        print("Using previous openerp_template database.")
     if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
                     "-d", db,
@@ -206,8 +208,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
                     ] + install_options
         print(" ".join(cmd_odoo))
         subprocess.check_call(cmd_odoo)
-    else:
-        print("Using previous openerp_template database.")
     return 0
 
 
@@ -314,18 +314,15 @@ def main(argv=None):
             if db_odoo_created and instance_alive:
                 # If exists database of odoo test
                 # then start server with regular command without tests params
-                command_start = commands[0][0]
                 rm_items = [
                     'coverage', 'run', '--stop-after-init',
                     '--test-enable', '--init', None,
                     '--log-handler', 'openerp.tools.yaml_import:DEBUG',
                 ]
-                for rm_item in rm_items:
-                    try:
-                        command_start.remove(rm_item)
-                    except ValueError:
-                        pass
-                command_call = command_start + ['--db-filter=^%s$' % database]
+                command_call = [item
+                                for item in commands[0][0]
+                                if item not in rm_items] + \
+                    ['--db-filter=^%s$' % database]
             else:
                 command[-1] = to_test
                 if is_runbot:
@@ -359,6 +356,7 @@ def main(argv=None):
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
         if not instance_alive:
+            # Don't drop the database if will be used later.
             subprocess.call(["dropdb", database])
 
     print('Module test summary')
