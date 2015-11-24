@@ -39,6 +39,7 @@ env:
   #   $ gem install travis --user-install
   # and use:
   #   $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
+  # Secure list for current OCA projects is in https://github.com/OCA/maintainer-quality-tools/issues/194
   - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
   # Use the following lines if you need to manually change the transifex project slug or/and the transifex organization.
   # The default project slug is owner-repo_name-version (with dash in the version string).
