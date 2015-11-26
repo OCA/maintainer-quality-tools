@@ -2,6 +2,9 @@
 
 import os
 import subprocess
+import signal
+import time
+import xmlrpclib
 
 import getaddons
 import travis_helpers
@@ -75,3 +78,43 @@ if os.environ.get('LINT_CHECK', 0) == '1':
 
 # Testing git run from getaddons
 getaddons.get_modules_changed(repo_dir)
+
+
+# Testing instance running
+def connection_test():
+    username = "admin"
+    password = "admin"
+    database_name = "openerp_test"
+    port = 8069
+    host = '127.0.0.1'
+    sock_common = xmlrpclib.ServerProxy(
+        "http://%s:%d/xmlrpc/common" % (host, port))
+    uid = sock_common.login(
+        database_name, username, password)
+    sock = xmlrpclib.ServerProxy(
+        "http://%s:%d/xmlrpc/object" % (host, port))
+    user_ids = sock.execute(
+        database_name, uid, password, 'res.users',
+        'search', [('login', '=', 'admin')])
+    return user_ids
+
+if os.environ.get('INSTANCE_ALIVE') == '1' and os.environ.get('TESTS') == '1':
+    travis_path = os.path.dirname(os.path.abspath(__file__))
+    travis_run_tests = os.path.join(travis_path, 'travis_run_tests')
+    command = ["coverage", "run", "--append", travis_run_tests, "8.0"]
+    env = os.environ
+    stdout = open('travis_run_tests.stdout', 'w')
+    stderr = open('travis_run_tests.stderr', 'w')
+    process = subprocess.Popen(
+        command, stdout=stdout, stderr=stderr,
+        preexec_fn=os.setsid, env=env)
+    for index in range(10):
+        try:
+            connection_result = connection_test()
+        except:
+            connection_result = None
+        if connection_result:
+            break
+        time.sleep(2)
+    os.killpg(process.pid, signal.SIGTERM)
+    assert None != connection_result, "Connection test failed"
