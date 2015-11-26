@@ -102,12 +102,9 @@ if os.environ.get('INSTANCE_ALIVE') == '1' and os.environ.get('TESTS') == '1':
     travis_path = os.path.dirname(os.path.abspath(__file__))
     travis_run_tests = os.path.join(travis_path, 'travis_run_tests')
     command = ["coverage", "run", "--append", travis_run_tests, "8.0"]
-    env = os.environ
-    stdout = open('travis_run_tests.stdout', 'w')
-    stderr = open('travis_run_tests.stderr', 'w')
     process = subprocess.Popen(
-        command, stdout=stdout, stderr=stderr,
-        preexec_fn=os.setsid, env=env)
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        preexec_fn=os.setsid)
     for index in range(10):
         try:
             connection_result = connection_test()
