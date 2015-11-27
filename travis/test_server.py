@@ -192,23 +192,20 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if preinstall_modules is None:
         preinstall_modules = ['base']
     print("\nCreating instance:")
-    start_dbtmpl = True
     try:
         subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
-        start_dbtmpl = False
         print("Using previous openerp_template database.")
-    if not start_dbtmpl:
-        return 0
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+    else:
+        cmd_odoo = ["%s/openerp-server" % server_path,
+                    "-d", db,
+                    "--log-level=warn",
+                    "--stop-after-init",
+                    "--addons-path", addons_path,
+                    "--init", ','.join(preinstall_modules),
+                    ] + install_options
+        print(" ".join(cmd_odoo))
+        subprocess.check_call(cmd_odoo)
     return 0
 
 
