@@ -64,6 +64,11 @@ def git_checkout(home, reponame, url, branch):
         command = ['git', 'clone', '-q', url, '-b', branch, checkout_dir]
         _logger.info('Calling %s', ' '.join(command))
         subprocess.check_call(command)
+    else:
+        command = ['git', '--git-dir=' + os.path.join(checkout_dir, '.git'),
+                   'pull', url, branch]
+        _logger.info('Calling %s', ' '.join(command))
+        subprocess.check_call(command)
     return checkout_dir
 
 
