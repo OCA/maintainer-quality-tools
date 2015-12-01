@@ -2,9 +2,13 @@
 
 import os
 import subprocess
+import threading
+import time
+import xmlrpclib
 
 import getaddons
 import travis_helpers
+from test_server import main as test_server_main
 from test_server import get_test_dependencies
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
@@ -75,3 +79,43 @@ if os.environ.get('LINT_CHECK', 0) == '1':
 
 # Testing git run from getaddons
 getaddons.get_modules_changed(repo_dir)
+
+
+# Testing instance running
+def connection_test():
+    username = "admin"
+    password = "admin"
+    database_name = "openerp_test"
+    port = 8069
+    host = '127.0.0.1'
+    sock_common = xmlrpclib.ServerProxy(
+        "http://%s:%d/xmlrpc/common" % (host, port))
+    uid = sock_common.login(
+        database_name, username, password)
+    sock = xmlrpclib.ServerProxy(
+        "http://%s:%d/xmlrpc/object" % (host, port))
+    user_ids = sock.execute(
+        database_name, uid, password, 'res.users',
+        'search', [('login', '=', 'admin')])
+    return user_ids
+
+
+class TestServerThread(threading.Thread):
+    def run(self):
+        test_server_main()
+
+
+if os.environ.get('INSTANCE_ALIVE') == '1' and os.environ.get('TESTS') == '1':
+    thread = TestServerThread()
+    thread.daemon = True
+    thread.start()
+
+    for index in range(10):
+        try:
+            connection_result = connection_test()
+        except:
+            connection_result = None
+        if connection_result:
+            break
+        time.sleep(2)
+    assert None != connection_result, "Connection test failed"

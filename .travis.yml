@@ -29,7 +29,7 @@ env:
   - VERSION="9.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
   - EXCLUDE="broken_module,broken_lint" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info"
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
@@ -41,15 +41,15 @@ env:
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
-  - mv tests/test_repo/* ./
+  - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly 8.0 # only used if VERSION not set in env
   - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:
-  - coverage run --append ./travis/self_tests
   - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/self_tests
 
 after_success:
   - TESTS="1" LINT_CHECK="0" travis_after_tests_success

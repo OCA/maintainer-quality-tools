@@ -180,6 +180,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules=None):
     """
     Setup the base module before running the tests
+    if the database template exists then will be used.
     :param db: Template database name
     :param odoo_unittest: Boolean for unit test (travis parameter)
     :param tested_addons: List of modules that need to be installed
@@ -191,16 +192,20 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if preinstall_modules is None:
         preinstall_modules = ['base']
     print("\nCreating instance:")
-    subprocess.check_call(["createdb", db])
-    cmd_odoo = ["%s/openerp-server" % server_path,
-                "-d", db,
-                "--log-level=warn",
-                "--stop-after-init",
-                "--addons-path", addons_path,
-                "--init", ','.join(preinstall_modules),
-                ] + install_options
-    print(" ".join(cmd_odoo))
-    subprocess.check_call(cmd_odoo)
+    try:
+        subprocess.check_call(["createdb", db])
+    except subprocess.CalledProcessError:
+        print("Using previous openerp_template database.")
+    else:
+        cmd_odoo = ["%s/openerp-server" % server_path,
+                    "-d", db,
+                    "--log-level=warn",
+                    "--stop-after-init",
+                    "--addons-path", addons_path,
+                    "--init", ','.join(preinstall_modules),
+                    ] + install_options
+        print(" ".join(cmd_odoo))
+        subprocess.check_call(cmd_odoo)
     return 0
 
 
@@ -217,6 +222,8 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
+    unbuffer = str2bool(os.environ.get('UNBUFFER', True))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -253,7 +260,6 @@ def main(argv=None):
         return 0
     else:
         print("Modules to test: %s" % tested_addons)
-
     # setup the base module without running the tests
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
@@ -296,11 +302,29 @@ def main(argv=None):
     counted_errors = 0
     for to_test in to_test_list:
         print("\nTesting %s:" % to_test)
-        subprocess.call(["createdb", "-T", dbtemplate, database])
+        db_odoo_created = False
+        try:
+            db_odoo_created = subprocess.call(
+                ["createdb", "-T", dbtemplate, database])
+        except subprocess.CalledProcessError:
+            db_odoo_created = True
         for command, check_loaded in commands:
-            command[-1] = to_test
-            # Run test command; unbuffer keeps output colors
-            command_call = ["unbuffer"] + command
+            if db_odoo_created and instance_alive:
+                # If exists database of odoo test
+                # then start server with regular command without tests params
+                rm_items = [
+                    'coverage', 'run', '--stop-after-init',
+                    '--test-enable', '--init', None,
+                    '--log-handler', 'openerp.tools.yaml_import:DEBUG',
+                ]
+                command_call = [item
+                                for item in commands[0][0]
+                                if item not in rm_items] + \
+                    ['--db-filter=^%s$' % database]
+            else:
+                command[-1] = to_test
+                # Run test command; unbuffer keeps output colors
+                command_call = (["unbuffer"] if unbuffer else []) + command
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
@@ -325,7 +349,9 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        subprocess.call(["dropdb", database])
+        if not instance_alive:
+            # Don't drop the database if will be used later.
+            subprocess.call(["dropdb", database])
 
     print('Module test summary')
     for to_test in to_test_list:
