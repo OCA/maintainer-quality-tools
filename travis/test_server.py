@@ -228,11 +228,14 @@ def start_shippable_psql_service():
             time.sleep(2)
         print("...psql service started.")
         try:
-            subprocess.Popen(
-                ["psql", 'openerp_test', '-c', 'REINDEX INDEX ir_translation_src_hash_idx'], stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            subprocess.Popen([
+                "psql", 'openerp_test', '-c',
+                'REINDEX INDEX ir_translation_src_hash_idx'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
         except BaseException:
             pass
+
 
 def hidden_line(line):
     """Hidden line that no want show in log"""
@@ -240,6 +243,7 @@ def hidden_line(line):
         # TODO: Add validation of module not in repo
         return True
     return False
+
 
 def main(argv=None):
     start_shippable_psql_service()
