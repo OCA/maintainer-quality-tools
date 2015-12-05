@@ -53,7 +53,7 @@ if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
     find -L ${HOME} -name common.py -exec sed -i "s/'phantomjs'/'disable_phantomjs'/g" {} \;
 else
     # Increase default timeout of all phantom tests
-    find -L ${HOME} -name common.py -exec sed -i "s/ login=None, timeout=60, / login=None, timeout=160, /g" {} \;
+    find -L ${HOME} -name common.py -exec sed -i "s/ login=None, timeout=60, / login=None, timeout=360, /g" {} \;
 fi
 
 pip install coveralls  # ToDo: Add to main image because in travis is installed
