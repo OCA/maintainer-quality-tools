@@ -122,4 +122,5 @@ class Odoo7Context(_OdooBaseContext):
 context_mapping = {
     "7.0": Odoo7Context,
     "8.0": Odoo8Context,
+    "9.0": Odoo8Context,
 }
