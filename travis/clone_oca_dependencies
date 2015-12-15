@@ -38,6 +38,7 @@ travis_repo_slug = os.environ.get(
 )
 travis_repo_owner = travis_repo_slug.split("/")[0]
 
+
 def parse_depfile(depfile):
     deps = []
     for line in depfile:
@@ -62,13 +63,11 @@ def git_checkout(home, reponame, url, branch):
     checkout_dir = osp.join(home, reponame)
     if not osp.isdir(checkout_dir):
         command = ['git', 'clone', '-q', url, '-b', branch, checkout_dir]
-        _logger.info('Calling %s', ' '.join(command))
-        subprocess.check_call(command)
     else:
         command = ['git', '--git-dir=' + os.path.join(checkout_dir, '.git'),
-                   'pull', url, branch]
-        _logger.info('Calling %s', ' '.join(command))
-        subprocess.check_call(command)
+                   '--work-tree=' + checkout_dir, 'pull', url, branch]
+    _logger.info('Calling %s', ' '.join(command))
+    subprocess.check_call(command)
     return checkout_dir
 
 
