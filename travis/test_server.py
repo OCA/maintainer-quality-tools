@@ -251,8 +251,6 @@ def create_server_conf(data, version=None):
     with open(fname_conf, "w") as fconf:
         fconf.write('[options]\n')
         for key, value in data.iteritems():
-            if key == 'addons_path' and ',' in value and not version <= '7.0':
-                value = value.replace(',', ',\n    ')
             fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
 
 
