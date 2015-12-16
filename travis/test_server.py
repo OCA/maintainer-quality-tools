@@ -204,7 +204,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
                     "-d", db,
                     "--log-level=warn",
                     "--stop-after-init",
-                    "--addons-path", addons_path,
                     "--init", ','.join(preinstall_modules),
                     ] + install_options
         print(" ".join(cmd_odoo))
@@ -245,6 +244,18 @@ def hidden_line(line):
     return False
 
 
+def create_server_conf(data):
+    '''Create default configuration file of odoo
+    :params data: Dict with all info to save in file'''
+    fname_conf = os.path.expanduser('~/.openerp_serverrc')
+    with open(fname_conf, "w") as fconf:
+        fconf.write('[options]\n')
+        for key, value in data.iteritems():
+            if key == 'addons_path' and ',' in value:
+                value = value.replace(',', ',\n    ')
+            fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+
+
 def main(argv=None):
     start_shippable_psql_service()
     if argv is None:
@@ -281,7 +292,10 @@ def main(argv=None):
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
-
+    create_server_conf({
+        'addons_path': addons_path,
+        'data_dir': '~/data_dir',
+    })
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
@@ -359,7 +373,6 @@ def main(argv=None):
                      "-d", database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
-                     "--addons-path", addons_path,
                      ]
 
     if test_loghandler is not None:
@@ -372,7 +385,6 @@ def main(argv=None):
                             "-d", database,
                             "--stop-after-init",
                             "--log-level=warn",
-                            "--addons-path", addons_path,
                             ] + install_options + ["--init", None]
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
