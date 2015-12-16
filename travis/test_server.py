@@ -248,10 +248,12 @@ def create_server_conf(data, version=None):
     '''Create default configuration file of odoo
     :params data: Dict with all info to save in file'''
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
+    print("Generating file: ", fname_conf)
     with open(fname_conf, "w") as fconf:
         fconf.write('[options]\n')
         for key, value in data.iteritems():
             fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+    print("Configuration file generated.")
 
 
 def copy_attachments(dbtemplate, dbdest, data_dir):
