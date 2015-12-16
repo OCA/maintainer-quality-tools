@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -262,7 +263,7 @@ def copy_attachments(dbtemplate, dbdest, data_dir):
     attach_dest_dir = os.path.join(attach_dir, dbdest)
     if os.path.isdir(attach_tmpl_dir) and not os.path.isdir(attach_dest_dir):
         print("copy", attach_tmpl_dir, attach_dest_dir)
-        subprocess.call(['cp', '-r', attach_tmpl_dir, attach_dest_dir])
+        shutil.copytree(attach_tmpl_dir, attach_dest_dir)
 
 
 def main(argv=None):
