@@ -256,6 +256,14 @@ def create_server_conf(data):
             fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
 
 
+def copy_attachments(dbtemplate, dbdest, data_dir):
+    attach_dir = os.path.join(os.path.expanduser(data_dir), 'filestore')
+    attach_tmpl_dir = os.path.join(attach_dir, dbtemplate)
+    if os.path.isdir(attach_tmpl_dir):
+        attach_dest_dir = os.path.join(attach_dir, dbdest)
+        print("TODO: copy", attach_tmpl_dir, attach_dest_dir)
+
+
 def main(argv=None):
     start_shippable_psql_service()
     if argv is None:
@@ -292,9 +300,10 @@ def main(argv=None):
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
+    data_dir = '~/data_dir'
     create_server_conf({
         'addons_path': addons_path,
-        'data_dir': '~/data_dir',
+        'data_dir': data_dir,
     })
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
@@ -401,6 +410,7 @@ def main(argv=None):
         try:
             db_odoo_created = subprocess.call(
                 ["createdb", "-T", dbtemplate, database])
+            copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
         for command, check_loaded in commands:
