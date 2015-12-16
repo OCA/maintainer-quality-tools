@@ -244,14 +244,14 @@ def hidden_line(line):
     return False
 
 
-def create_server_conf(data):
+def create_server_conf(data, version=None):
     '''Create default configuration file of odoo
     :params data: Dict with all info to save in file'''
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
     with open(fname_conf, "w") as fconf:
         fconf.write('[options]\n')
         for key, value in data.iteritems():
-            if key == 'addons_path' and ',' in value:
+            if key == 'addons_path' and ',' in value and not version <= '7.0':
                 value = value.replace(',', ',\n    ')
             fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
 
@@ -280,6 +280,7 @@ def main(argv=None):
     test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     is_runbot = str2bool(os.environ.get('RUNBOT'))
+    data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -300,11 +301,10 @@ def main(argv=None):
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
-    data_dir = '~/data_dir'
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
-    })
+    }, odoo_version)
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
