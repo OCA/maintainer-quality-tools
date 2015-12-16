@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -259,9 +260,10 @@ def create_server_conf(data, version=None):
 def copy_attachments(dbtemplate, dbdest, data_dir):
     attach_dir = os.path.join(os.path.expanduser(data_dir), 'filestore')
     attach_tmpl_dir = os.path.join(attach_dir, dbtemplate)
-    if os.path.isdir(attach_tmpl_dir):
-        attach_dest_dir = os.path.join(attach_dir, dbdest)
-        print("TODO: copy", attach_tmpl_dir, attach_dest_dir)
+    attach_dest_dir = os.path.join(attach_dir, dbdest)
+    if os.path.isdir(attach_tmpl_dir) and not os.path.isdir(attach_dest_dir):
+        print("copy", attach_tmpl_dir, attach_dest_dir)
+        shutil.copytree(attach_tmpl_dir, attach_dest_dir)
 
 
 def main(argv=None):
