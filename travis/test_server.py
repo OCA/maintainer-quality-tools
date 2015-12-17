@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 import os
+import shutil
 import subprocess
 import sys
 from getaddons import get_addons, get_modules, is_installable_module
@@ -234,6 +235,15 @@ def create_server_conf(data, version):
             fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
 
 
+def copy_attachments(dbtemplate, dbdest, data_dir):
+    attach_dir = os.path.join(os.path.expanduser(data_dir), 'filestore')
+    attach_tmpl_dir = os.path.join(attach_dir, dbtemplate)
+    attach_dest_dir = os.path.join(attach_dir, dbdest)
+    if os.path.isdir(attach_tmpl_dir) and not os.path.isdir(attach_dest_dir):
+        print("copy", attach_tmpl_dir, attach_dest_dir)
+        shutil.copytree(attach_tmpl_dir, attach_dest_dir)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -334,6 +344,7 @@ def main(argv=None):
         try:
             db_odoo_created = subprocess.call(
                 ["createdb", "-T", dbtemplate, database])
+            copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
         for command, check_loaded in commands:
