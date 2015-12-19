@@ -92,6 +92,12 @@ def run(home, build_dir):
             processed.add(depname)
             checkout_dir = git_checkout(home, depname, url, branch)
             new_dep_filename = osp.join(checkout_dir, 'oca_dependencies.txt')
+            # TODO: Improvement this install process of requirements.txt files
+            freq = osp.join(checkout_dir, 'requirements.txt')
+            if osp.isfile(freq):
+                command = ['pip', 'install', '-r', freq]
+                _logger.info('Calling %s', ' '.join(command))
+                subprocess.check_call(command)
             if new_dep_filename not in dependencies:
                 dependencies.append(new_dep_filename)
 
