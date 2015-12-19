@@ -74,11 +74,15 @@ def git_checkout(home, reponame, url, branch):
 def run(home, build_dir):
     dependencies = []
     processed = set()
+    reqfilenames = []
     for repo in os.listdir(build_dir):
         _logger.info('examining %s', repo)
         processed.add(repo)
         depfilename = osp.join(build_dir, repo, 'oca_dependencies.txt')
         dependencies.append(depfilename)
+        reqfilename = osp.join(build_dir, repo, 'requirements.txt')
+        if osp.isfile(reqfilename):
+            reqfilenames.append(reqfilename)
     for depfilename in dependencies:
         try:
             with open(depfilename) as depfile:
@@ -92,8 +96,15 @@ def run(home, build_dir):
             processed.add(depname)
             checkout_dir = git_checkout(home, depname, url, branch)
             new_dep_filename = osp.join(checkout_dir, 'oca_dependencies.txt')
+            reqfilename = osp.join(checkout_dir, 'requirements.txt')
+            if osp.isfile(reqfilename):
+                reqfilenames.append(reqfilename)
             if new_dep_filename not in dependencies:
                 dependencies.append(new_dep_filename)
+    for reqfilename in reqfilenames:
+        command = ['pip', 'install', '-r', reqfilename]
+        _logger.info('Calling %s', ' '.join(command))
+        subprocess.check_call(command)
 
 
 if __name__ == '__main__':
