@@ -79,6 +79,7 @@ clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
 # Install web ribbon
 git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web_environment_ribbon
 find ${HOME}/web_environment_ribbon/web_environment_ribbon -name __openerp__.py -exec sed -i 's/"auto_install": False/"auto_install": True/g' {} \;
+(cd ${HOME}/web_environment_ribbon; rm -rf $(ls | grep -v web_environment_ribbon$))
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
