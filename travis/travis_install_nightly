@@ -73,6 +73,10 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
 
 fi
 
+# Install web ribbon
+git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web
+find ${HOME}/web/web_environment_ribbon -name __openerp__.py -exec sed -i 's/"auto_install": False/"auto_install": True/g' {} \;
+
 echo "Getting addons dependencies"
 clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
 
