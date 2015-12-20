@@ -285,6 +285,8 @@ def main(argv=None):
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     stdout_log = os.environ.get(
         "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
+    if not os.path.isdir(os.path.dirname(stdout_log)):
+        os.makedirs(os.path.dirname(stdout_log))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
