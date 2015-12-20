@@ -283,6 +283,8 @@ def main(argv=None):
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     is_runbot = str2bool(os.environ.get('RUNBOT'))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
+    stdout_log = os.environ.get(
+        "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -441,7 +443,7 @@ def main(argv=None):
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
-            with open('stdout.log', 'w') as stdout:
+            with open(stdout_log, 'w') as stdout:
                 for line in pipe.stdout:
                     if hidden_line(line):
                         continue
@@ -450,7 +452,7 @@ def main(argv=None):
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(
-                "stdout.log", database, odoo_version, check_loaded)
+                stdout_log, database, odoo_version, check_loaded)
             if returncode != 0:
                 all_errors.append(to_test)
                 print(fail_msg, "Command exited with code %s" % returncode)
