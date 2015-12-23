@@ -209,9 +209,26 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
+def run_from_env_var(env_name_startswith, environ):
+    '''Method to run a script defined from a environment variable
+    :param env_name_startswith: String with name of first letter of
+                                environment variable to find.
+    :param environ: Dictionary with full environ to search
+    '''
+    commands = [
+        command
+        for environ_variable, command in sorted(environ.iteritems())
+        if environ_variable.startswith(env_name_startswith)
+    ]
+    for command in commands:
+        print("command: ", command)
+        subprocess.call(command, shell=True)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
+    run_from_env_var('RUN_COMMAND_MQT', os.environ)
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
