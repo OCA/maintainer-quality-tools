@@ -37,14 +37,14 @@ if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
 else
     echo "Installing Odoo from cache"
-    export REPO=$(python -c "print '${REPO[0]}'.lower()")
+    export REMOTE=$(python -c "print '${REPO[0]}'.lower()")
     export BRANCH=$(python -c "print '${VERSION}'.lower()")
     export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
-       && git checkout -f ${REPO}/${BRANCH} \
-       && git reset --hard ${REPO}/${BRANCH}
+       && git fetch ${REMOTE} ${BRANCH} \
+       && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
 fi
 
 echo "x${PHANTOMJS_TESTS}"
