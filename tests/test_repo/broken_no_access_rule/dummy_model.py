@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from openerp.osv import fields, orm
-import sys
 
 
 class DummyModel(orm.Model):
