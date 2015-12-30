@@ -29,7 +29,7 @@ env:
   - VERSION="9.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="2"  # test errors are detected
   - EXCLUDE="broken_module,broken_lint,broken_no_access_rule" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests'
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
