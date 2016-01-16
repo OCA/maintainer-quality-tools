@@ -412,7 +412,17 @@ def main(argv=None):
                     )
     all_errors = []
     counted_errors = 0
+    stdout_log_base = stdout_log
+    database_base = database
     for to_test in to_test_list:
+        if odoo_unittest:
+            database = database_base + '_' + to_test
+            db_index = cmd_odoo_install.index('-d') + 1
+            cmd_odoo_install[db_index] = database
+
+            stdout_log, stdout_ext = os.path.splitext(stdout_log_base)
+            stdout_log += '_' + database + stdout_ext
+
         print("\nTesting %s:" % to_test)
         db_odoo_created = False
         try:
@@ -434,7 +444,8 @@ def main(argv=None):
                         command_start.remove(rm_item)
                     except ValueError:
                         pass
-                command_call = command_start + ['--db-filter=^%s$' % database]
+                command_call = command_start + [
+                    '--db-filter=^' + database_base]
             else:
                 command[-1] = to_test
                 if is_runbot:
@@ -443,6 +454,9 @@ def main(argv=None):
                     # Run test command; unbuffer keeps output colors
                     command_call = ["unbuffer"]
                 command_call += command
+            if odoo_unittest:
+                db_index = command_call.index('-d') + 1
+                command_call[db_index] = database
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
