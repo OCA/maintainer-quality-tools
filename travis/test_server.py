@@ -172,9 +172,9 @@ def get_test_dependencies(addons_path, addons_list):
                 continue
             manif = eval(open(manif_path).read())
             return list(
-                set(manif.get('depends', []))
-                | set(get_test_dependencies(addons_path, addons_list[1:]))
-                - set(addons_list))
+                set(manif.get('depends', [])) |
+                set(get_test_dependencies(addons_path, addons_list[1:])) -
+                set(addons_list))
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
