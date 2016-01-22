@@ -226,13 +226,20 @@ def run_from_env_var(env_name_startswith, environ):
 
 
 def create_server_conf(data, version):
-    '''Create default configuration file of odoo
+    '''Create (or edit) default configuration file of odoo
     :params data: Dict with all info to save in file'''
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
-    with open(fname_conf, "w") as fconf:
+    if not os.path.exists(fname_conf):
+        fconf = open(fname_conf, "w")
         fconf.write('[options]\n')
-        for key, value in data.iteritems():
-            fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+    else:
+        # file is there, created by .travis.yml, assume the section is
+        # present and only append our stuff
+        fconf = open(fname_conf, "a")
+        fconf.write('\n')
+    for key, value in data.iteritems():
+        fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+    fconf.close()
 
 
 def copy_attachments(dbtemplate, dbdest, data_dir):
