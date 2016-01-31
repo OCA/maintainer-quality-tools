@@ -216,29 +216,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
-def start_shippable_psql_service():
-    if os.environ.get('TRAVIS', "false") != "true":
-        subprocess.call(["shippable_start_service"])
-        print("Waiting to start psql service...")
-        while True:
-            psql_subprocess = subprocess.Popen(
-                ["psql", '-l'], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            psql_subprocess.wait()
-            if not bool(psql_subprocess.stderr.read()):
-                break
-            time.sleep(2)
-        print("...psql service started.")
-        try:
-            subprocess.Popen([
-                "psql", 'openerp_test', '-c',
-                'REINDEX INDEX ir_translation_src_hash_idx'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        except BaseException:
-            pass
-
-
 def hidden_line(line):
     """Hidden line that no want show in log"""
     if "no translation for language" in line:
@@ -269,7 +246,6 @@ def copy_attachments(dbtemplate, dbdest, data_dir):
 
 
 def main(argv=None):
-    start_shippable_psql_service()
     if argv is None:
         argv = sys.argv
     travis_home = os.environ.get("HOME", "~/")
