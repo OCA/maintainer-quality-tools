@@ -216,29 +216,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
-def start_shippable_psql_service():
-    if os.environ.get('TRAVIS', "false") != "true":
-        subprocess.call(["shippable_start_service"])
-        print("Waiting to start psql service...")
-        while True:
-            psql_subprocess = subprocess.Popen(
-                ["psql", '-l'], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            psql_subprocess.wait()
-            if not bool(psql_subprocess.stderr.read()):
-                break
-            time.sleep(2)
-        print("...psql service started.")
-        try:
-            subprocess.Popen([
-                "psql", 'openerp_test', '-c',
-                'REINDEX INDEX ir_translation_src_hash_idx'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        except BaseException:
-            pass
-
-
 def hidden_line(line):
     """Hidden line that no want show in log"""
     if "no translation for language" in line:
@@ -268,10 +245,26 @@ def copy_attachments(dbtemplate, dbdest, data_dir):
         shutil.copytree(attach_tmpl_dir, attach_dest_dir)
 
 
+def run_from_env_var(env_name_startswith, environ):
+    '''Method to run a script defined from a environment variable
+    :param env_name_startswith: String with name of first letter of
+                                environment variable to find.
+    :param environ: Dictionary with full environ to search
+    '''
+    commands = [
+        command
+        for environ_variable, command in sorted(environ.iteritems())
+        if environ_variable.startswith(env_name_startswith)
+    ]
+    for command in commands:
+        print("command: ", command)
+        subprocess.call(command, shell=True)
+
+
 def main(argv=None):
-    start_shippable_psql_service()
     if argv is None:
         argv = sys.argv
+    run_from_env_var('RUN_COMMAND_MQT', os.environ)
     travis_home = os.environ.get("HOME", "~/")
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
