@@ -155,11 +155,17 @@ beta_msgs = get_beta_msgs()
 [extra_params_cmd.extend(['--msgs-no-count', beta_msg])
  for beta_msg in beta_msgs]
 
-
+# Look for an environment variable
+# whose value is the name of a proper configuration file for pylint
+# (this file will then be expected to be found in the 'cfg/' folder).
+# If such an environment variable is not found,
+# it defaults to the standard configuration file.
+pylint_config_file = os.environ.get('PYLINT_CONFIG_FILE',
+                                    'travis_run_pylint.cfg')
 pylint_rcfile = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
-    "travis_run_pylint.cfg")
+    pylint_config_file)
 count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
     ] + extra_params_cmd, standalone_mode=False)
