@@ -10,6 +10,9 @@ if [ "${LINT_CHECK}" != "0" ]; then
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/moylop260/pylint_oca.git   # To test last developer version ever
     npm install -g jshint  # To oca-pylint-plugin
+    # First install show error and second time install fine!
+    npm install -g jshint  # To oca-pylint-plugin
+    npm install -g jshint  # To oca-pylint-plugin
     # Get pylint configuration file of vauxoo
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
 fi
