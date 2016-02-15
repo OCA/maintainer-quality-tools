@@ -69,12 +69,14 @@ def run(deps_checkout_dir, build_dir):
     depfilename = osp.join(build_dir, 'oca_dependencies.txt')
     dependencies.append(depfilename)
     reqfilenames = []
+    if osp.isfile(osp.join(build_dir, 'requirements.txt')):
+        reqfilenames.append(osp.join(build_dir, 'requirements.txt'))
     for repo in os.listdir(deps_checkout_dir):
         _logger.info('examining %s', repo)
         processed.add(repo)
         depfilename = osp.join(deps_checkout_dir, repo, 'oca_dependencies.txt')
         dependencies.append(depfilename)
-        reqfilename = osp.join(build_dir, repo, 'requirements.txt')
+        reqfilename = osp.join(deps_checkout_dir, repo, 'requirements.txt')
         if osp.isfile(reqfilename):
             reqfilenames.append(reqfilename)
     for depfilename in dependencies:
