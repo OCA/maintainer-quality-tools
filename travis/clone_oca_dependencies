@@ -75,6 +75,8 @@ def run(home, build_dir):
     dependencies = []
     processed = set()
     reqfilenames = []
+    if osp.isfile(osp.join(build_dir, 'requirements.txt')):
+        reqfilenames.append(osp.join(build_dir, 'requirements.txt'))
     for repo in os.listdir(build_dir):
         _logger.info('examining %s', repo)
         processed.add(repo)
