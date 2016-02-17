@@ -378,7 +378,7 @@ def main(argv=None):
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
             with open('stdout.log', 'w') as stdout:
-                for line in pipe.stdout:
+                for line in iter(pipe.stdout.readline, ''):
                     stdout.write(line)
                     print(line.strip())
             returncode = pipe.wait()
