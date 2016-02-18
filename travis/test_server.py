@@ -44,10 +44,12 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         for i in range(len(pattern_list)):
             if isinstance(pattern_list[i], basestring):
                 regex = re.compile(pattern_list[i])
-                pattern_list[i] = lambda x: regex.match(x['message'])
+                pattern_list[i] = lambda x, regex=regex:\
+                    regex.search(x['message'])
             elif hasattr(pattern_list[i], 'match'):
                 regex = pattern_list[i]
-                pattern_list[i] = lambda x: regex.match(x['message'])
+                pattern_list[i] = lambda x, regex=regex:\
+                    regex.search(x['message'])
 
     make_pattern_list_callable(errors_ignore)
     make_pattern_list_callable(errors_report)

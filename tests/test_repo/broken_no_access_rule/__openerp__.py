@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Broken deprecated module for tests MQT',
+    'name': 'Test module with model without access rights',
     'license': 'AGPL-3',
     'author': 'Odoo Community Association (OCA)',
-    'version': '8.0.0.1.0.0',
+    'version': '1.0',
     'depends': [
         'base',
     ],
     'data': [
-        'security/ir.model.access.csv',
+    ],
+    'images': [
     ],
 }
