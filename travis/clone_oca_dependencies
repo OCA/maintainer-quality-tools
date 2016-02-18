@@ -68,11 +68,17 @@ def run(deps_checkout_dir, build_dir):
     processed = set()
     depfilename = osp.join(build_dir, 'oca_dependencies.txt')
     dependencies.append(depfilename)
+    reqfilenames = []
+    if osp.isfile(osp.join(build_dir, 'requirements.txt')):
+        reqfilenames.append(osp.join(build_dir, 'requirements.txt'))
     for repo in os.listdir(deps_checkout_dir):
         _logger.info('examining %s', repo)
         processed.add(repo)
         depfilename = osp.join(deps_checkout_dir, repo, 'oca_dependencies.txt')
         dependencies.append(depfilename)
+        reqfilename = osp.join(deps_checkout_dir, repo, 'requirements.txt')
+        if osp.isfile(reqfilename):
+            reqfilenames.append(reqfilename)
     for depfilename in dependencies:
         try:
             with open(depfilename) as depfile:
@@ -87,8 +93,15 @@ def run(deps_checkout_dir, build_dir):
             checkout_dir = git_checkout(deps_checkout_dir, depname,
                                         url, branch)
             new_dep_filename = osp.join(checkout_dir, 'oca_dependencies.txt')
+            reqfilename = osp.join(checkout_dir, 'requirements.txt')
+            if osp.isfile(reqfilename):
+                reqfilenames.append(reqfilename)
             if new_dep_filename not in dependencies:
                 dependencies.append(new_dep_filename)
+    for reqfilename in reqfilenames:
+        command = ['pip', 'install', '-r', reqfilename]
+        _logger.info('Calling %s', ' '.join(command))
+        subprocess.check_call(command)
 
 
 if __name__ == '__main__':

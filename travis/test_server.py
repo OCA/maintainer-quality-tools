@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import re
 import os
+import shutil
 import subprocess
 import sys
 from getaddons import get_addons, get_modules, is_installable_module
@@ -173,9 +174,9 @@ def get_test_dependencies(addons_path, addons_list):
                 continue
             manif = eval(open(manif_path).read())
             return list(
-                set(manif.get('depends', []))
-                | set(get_test_dependencies(addons_path, addons_list[1:]))
-                - set(addons_list))
+                set(manif.get('depends', [])) |
+                set(get_test_dependencies(addons_path, addons_list[1:])) -
+                set(addons_list))
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
@@ -203,7 +204,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
                     "-d", db,
                     "--log-level=warn",
                     "--stop-after-init",
-                    "--addons-path", addons_path,
                     "--init", ','.join(preinstall_modules),
                     ] + install_options
         print(" ".join(cmd_odoo))
@@ -227,6 +227,32 @@ def run_from_env_var(env_name_startswith, environ):
         subprocess.call(command, shell=True)
 
 
+def create_server_conf(data, version):
+    '''Create (or edit) default configuration file of odoo
+    :params data: Dict with all info to save in file'''
+    fname_conf = os.path.expanduser('~/.openerp_serverrc')
+    if not os.path.exists(fname_conf):
+        fconf = open(fname_conf, "w")
+        fconf.write('[options]\n')
+    else:
+        # file is there, created by .travis.yml, assume the section is
+        # present and only append our stuff
+        fconf = open(fname_conf, "a")
+        fconf.write('\n')
+    for key, value in data.iteritems():
+        fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+    fconf.close()
+
+
+def copy_attachments(dbtemplate, dbdest, data_dir):
+    attach_dir = os.path.join(os.path.expanduser(data_dir), 'filestore')
+    attach_tmpl_dir = os.path.join(attach_dir, dbtemplate)
+    attach_dest_dir = os.path.join(attach_dir, dbdest)
+    if os.path.isdir(attach_tmpl_dir) and not os.path.isdir(attach_dest_dir):
+        print("copy", attach_tmpl_dir, attach_dest_dir)
+        shutil.copytree(attach_tmpl_dir, attach_dest_dir)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -243,6 +269,7 @@ def main(argv=None):
     odoo_version = os.environ.get("VERSION")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
+    data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -265,7 +292,10 @@ def main(argv=None):
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
-
+    create_server_conf({
+        'addons_path': addons_path,
+        'data_dir': data_dir,
+    }, odoo_version)
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
@@ -283,6 +313,8 @@ def main(argv=None):
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
+    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
+        os.environ.get('TRAVIS_BUILD_DIR'))))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules)
@@ -295,7 +327,6 @@ def main(argv=None):
                      "-d", database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
-                     "--addons-path", addons_path,
                      ]
 
     if test_loghandler is not None:
@@ -308,7 +339,6 @@ def main(argv=None):
                             "-d", database,
                             "--stop-after-init",
                             "--log-level=warn",
-                            "--addons-path", addons_path,
                             ] + install_options + ["--init", None]
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
@@ -325,6 +355,7 @@ def main(argv=None):
         try:
             db_odoo_created = subprocess.call(
                 ["createdb", "-T", dbtemplate, database])
+            copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
         for command, check_loaded in commands:
