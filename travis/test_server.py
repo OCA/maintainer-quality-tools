@@ -205,7 +205,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
                     "-d", db,
-                    "--log-level=warn",
+                    "--log-level=info",
                     "--stop-after-init",
                     "--init", ','.join(preinstall_modules),
                     ] + install_options
@@ -455,7 +455,7 @@ def main(argv=None):
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
             with open(stdout_log, 'w') as stdout:
-                for line in pipe.stdout:
+                for line in iter(pipe.stdout.readline, ''):
                     if hidden_line(line):
                         continue
                     stdout.write(line)
