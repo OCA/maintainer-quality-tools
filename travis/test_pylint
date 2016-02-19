@@ -22,7 +22,7 @@ def get_extra_params(odoo_version):
     :param version: String with name of version of odoo
     :return: List of extra pylint params
     '''
-    params = ["--load-plugins=pylint_oca"]
+    params = ["--load-plugins=pylint_odoo"]
     odoo_version = odoo_version.replace('.', '')
     custom_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
