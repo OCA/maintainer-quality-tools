@@ -24,7 +24,11 @@ def print_stats(filter_fnames=None, exclude_fnames=None,
     if not os.path.isfile(fname):
         print "No cProfile stats to report."
         return False
-    fstats = pstats.Stats(fname)
+    try:
+        fstats = pstats.Stats(fname)
+    except TypeError:
+        print "No cProfile stats valid."
+        return False
     stats = fstats.stats
 
     stats_filter = {}
