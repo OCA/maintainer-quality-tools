@@ -180,7 +180,8 @@ def get_test_dependencies(addons_path, addons_list):
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules=None):
+                 addons_path, install_options, preinstall_modules=None,
+                 unbuffer=True):
     """
     Setup the base module before running the tests
     if the database template exists then will be used.
@@ -200,12 +201,14 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
     else:
-        cmd_odoo = ["%s/openerp-server" % server_path,
-                    "-d", db,
-                    "--log-level=info",
-                    "--stop-after-init",
-                    "--init", ','.join(preinstall_modules),
-                    ] + install_options
+        # unbuffer keeps output colors
+        cmd_odoo = ["unbuffer"] if unbuffer else []
+        cmd_odoo += ["%s/openerp-server" % server_path,
+                     "-d", db,
+                     "--log-level=info",
+                     "--stop-after-init",
+                     "--init", ','.join(preinstall_modules),
+                     ] + install_options
         print(" ".join(cmd_odoo))
         subprocess.check_call(cmd_odoo)
     return 0
@@ -317,7 +320,7 @@ def main(argv=None):
         os.environ.get('TRAVIS_BUILD_DIR'))))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules)
+                 addons_path, install_options, preinstall_modules, unbuffer)
 
     # Running tests
     database = "openerp_test"
