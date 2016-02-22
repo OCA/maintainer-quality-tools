@@ -12,19 +12,21 @@ odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
 odoo_version = os.environ.get("VERSION")
 travis_home = os.environ.get("HOME", "~/")
 server_path = get_server_path(odoo_full, odoo_version, travis_home)
+travis_py = '/home/travis/virtualenv/python2.7_with_system_site_packages'
+
 
 if os.environ.get('TESTS', '0') == '1':
     print "Print cProfile sorted by index 0:"
     get_profile_stats.print_stats(
         filter_fnames=[travis_home,],
-        exclude_fnames=[server_path, 'odoo-profiler'],
+        exclude_fnames=[server_path, 'odoo-profiler', travis_py],
         sort_index=0,
         limit=30,
     )
     print "Print cProfile sorted by index 3:"
     get_profile_stats.print_stats(
         filter_fnames=[travis_home,],
-        exclude_fnames=[server_path, 'odoo-profiler'],
+        exclude_fnames=[server_path, 'odoo-profiler', travis_py],
         sort_index=3,
         limit=30,
     )
