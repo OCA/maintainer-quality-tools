@@ -8,7 +8,7 @@ import sys
 from slumber import API, exceptions
 from odoo_connection import context_mapping
 from test_server import setup_server, get_addons_path, \
-    get_server_path, get_addons_to_check
+    get_server_path, get_addons_to_check, create_server_conf
 from travis_helpers import yellow, yellow_light, red
 from txclib import utils, commands
 
