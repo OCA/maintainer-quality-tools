@@ -68,7 +68,7 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     apt-get -q -y install expect-dev  # provides unbuffer utility
     apt-get -q -y install python-lxml  # because pip installation is slooow
 
-    pip install -q QUnitSuite flake8 coveralls pylint
+    pip install -q QUnitSuite flake8 coveralls pylint pstats_print2list
     pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
     #  Install new dependence: npm package
