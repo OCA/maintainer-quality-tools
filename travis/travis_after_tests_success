@@ -20,7 +20,6 @@ fname_pstats = os.environ.get("FNAME_PSTATS", '~/.openerp_server.stats')
 
 
 def print_pstats(sort='cumulative'):
-    print("Print cProfile sorted by ", sort)
     pstats_list = get_pstats_print2list(
         os.path.expanduser(fname_pstats),
         filter_fnames=[travis_home],
@@ -28,12 +27,16 @@ def print_pstats(sort='cumulative'):
         sort=sort,
         limit=30,
     )
+    if not pstats_list:
+        return False
+    print("Print cProfile sorted by ", sort)
     print_pstats_list(pstats_list)
+    return True
 
 
 if os.environ.get('TESTS', '0') == '1':
-    print_pstats('cumulative')
-    print_pstats('ncalls')
-    print_pstats('time')
+    if print_pstats('cumulative'):
+        print_pstats('ncalls')
+        print_pstats('time')
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
