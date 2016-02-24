@@ -34,5 +34,6 @@ def print_pstats(sort='cumulative'):
 if os.environ.get('TESTS', '0') == '1':
     print_pstats('cumulative')
     print_pstats('ncalls')
+    print_pstats('time')
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
