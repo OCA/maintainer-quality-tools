@@ -63,12 +63,13 @@ else
 fi
 
 pip install coveralls  # ToDo: Add to main image because in travis is installed
+pip install pstats_print2list
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
     apt-get -q -y install expect-dev  # provides unbuffer utility
     apt-get -q -y install python-lxml  # because pip installation is slooow
 
-    pip install -q QUnitSuite flake8 coveralls pylint pstats_print2list
+    pip install -q QUnitSuite flake8 coveralls pylint
     pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
     #  Install new dependence: npm package
