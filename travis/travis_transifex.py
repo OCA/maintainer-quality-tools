@@ -50,7 +50,7 @@ def main(argv=None):
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
-        odoo_version = sys.argv[1]
+        odoo_version = argv[1]
         print(yellow_light("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version))
 
@@ -77,6 +77,7 @@ def main(argv=None):
     addons_list = get_addons_to_check(travis_build_dir, odoo_include,
                                       odoo_exclude)
     addons = ','.join(addons_list)
+    create_server_conf({'addons_path': addons_path}, odoo_version)
 
     print("\nWorking in %s" % travis_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
@@ -139,7 +140,7 @@ def main(argv=None):
             as odoo_context:
         for module in addons_list:
             print()
-            print(yellow("Downloading PO file for %s" % module))
+            print(yellow("Downloading POT file for %s" % module))
             source_filename = os.path.join(travis_build_dir, module, 'i18n',
                                            module + ".pot")
             # Create i18n/ directory if doesn't exist
@@ -149,7 +150,7 @@ def main(argv=None):
                 f.write(odoo_context.get_pot_contents(module))
 
             print()
-            print(yellow("Linking PO file and Transifex resource"))
+            print(yellow("Linking POT file and Transifex resource"))
             set_args = ['-t', 'PO',
                         '--auto-local',
                         '-r', '%s.%s' % (transifex_project_slug, module),
