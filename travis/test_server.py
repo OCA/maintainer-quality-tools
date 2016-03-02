@@ -258,7 +258,9 @@ def run_from_env_var(env_name_startswith, environ):
     ]
     for command in commands:
         print("command: ", command)
-        subprocess.call(command, shell=True)
+        result = subprocess.call(command, shell=True)
+        if result:
+            raise RuntimeWarning("Return different to zero")
 
 
 def main(argv=None):
