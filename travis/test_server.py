@@ -203,6 +203,25 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
         db_tmpl_created = True
 
     if not db_tmpl_created:
+        # Try create database from file backup
+        fname_db = os.path.join(
+            os.path.expanduser(os.environ.get('TRAVIS_BUILD_DIR', '~')),
+            db + '.backup')
+        if os.path.isfile(fname_db):
+            print("\nCreating", db, "from file", fname_db)
+            try:
+                cmd = ['psql', '-q', '-d', db, '-f', fname_db]
+                close_fds = os.name == "posix"
+                env = os.environ
+                process = subprocess.Popen(
+                    cmd, bufsize=-1, stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE, close_fds=close_fds, env=env)
+                db_tmpl_created = not process.wait()
+                print("Database from file created.")
+            except subprocess.CalledProcessError:
+                print("Error to create database from file.")
+
+    if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
                     "-d", db,
                     "--log-level=info",

@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import os
+import subprocess
 
 from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
@@ -34,9 +35,28 @@ def print_pstats(sort='cumulative'):
     return True
 
 
+def db_backup(dbname='openerp_template', fname=None):
+    if fname is None:
+        fname = os.path.join(
+            os.path.expanduser(os.environ.get('TRAVIS_BUILD_DIR', '~')),
+            dbname + '.backup'
+        )
+    if os.path.isfile(fname):
+        # Backup previously created then don't create it again.
+        return -2
+    try:
+        db_dump_result = subprocess.check_call([
+            "pg_dump", "--no-owner", dbname, '-f', fname])
+    except subprocess.CalledProcessError:
+        db_dump_result = -1
+    return db_dump_result
+
+
 if os.environ.get('TESTS', '0') == '1':
     if print_pstats('cumulative'):
         print_pstats('ncalls')
         print_pstats('time')
+    if os.environ.get('DB_BACKUP', False):
+        db_backup()
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
