@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 
+import db_run
 from getaddons import get_addons, get_depends, get_modules, \
     is_installable_module
 from travis_helpers import success_msg, fail_msg
@@ -201,6 +202,14 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
         db_tmpl_created = subprocess.check_call(["createdb", db])
     except subprocess.CalledProcessError:
         db_tmpl_created = True
+
+    if not db_tmpl_created:
+        print("Try restore database from file backup.")
+        db_tmpl_created = db_run.restore(db)
+        if db_tmpl_created:
+            print("Database from file created.")
+        else:
+            print("Error to create database from file.")
 
     if not db_tmpl_created:
         cmd_odoo = ["%s/openerp-server" % server_path,
