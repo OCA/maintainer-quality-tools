@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 
+import db_run
 from getaddons import get_addons, get_depends, get_modules, \
     is_installable_module
 from travis_helpers import success_msg, fail_msg
@@ -202,20 +203,12 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     except subprocess.CalledProcessError:
         db_tmpl_created = True
 
-    fname_db = os.path.join(travis_build_dir, db + '.backup')
-    if os.path.isfile(fname_db) and not db_tmpl_created:
-        # Try create database from file backup
-        print("\nCreating", db, "from file", fname_db)
-        close_fds = os.name == "posix"
-        env = os.environ
-        cmd = ['psql', '-q', '-d', db, '-f', fname_db]
-        try:
-            process = subprocess.Popen(
-                cmd, bufsize=-1, stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE, close_fds=close_fds, env=env)
-            db_tmpl_created = not process.wait()
+    if not db_tmpl_created:
+        print("Try restore database from file backup.")
+        db_tmpl_created = db_run.restore(db)
+        if db_tmpl_created:
             print("Database from file created.")
-        except subprocess.CalledProcessError:
+        else:
             print("Error to create database from file.")
 
     if not db_tmpl_created:

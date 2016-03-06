@@ -3,12 +3,12 @@
 from __future__ import print_function
 
 import os
-import subprocess
 
 from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
-from pstats_print2list import get_pstats_print2list, print_pstats_list
 
+import db_run
+from pstats_print2list import get_pstats_print2list, print_pstats_list
 from test_server import get_server_path
 
 
@@ -35,35 +35,15 @@ def print_pstats(sort='cumulative'):
     return True
 
 
-def db_backup(dbname='openerp_template', fname=None, env=None):
-    if fname is None:
-        fname = os.path.join(
-            os.path.expanduser(os.environ.get('TRAVIS_BUILD_DIR', '~')),
-            dbname + '.backup'
-        )
-    if env is None:
-        env = os.environ
-    if os.path.isfile(fname):
-        # Backup previously created then don't create it again.
-        return -2
-    close_fds = os.name == "posix"
-    cmd = ["pg_dump", "--no-owner", dbname, '-f', fname]
-    print("Backup", dbname, "to file", fname)
-    try:
-        process = subprocess.Popen(
-            cmd, bufsize=-1, stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, close_fds=close_fds, env=env)
-        db_dump_result = process.wait()
-    except subprocess.CalledProcessError:
-        db_dump_result = -1
-    return db_dump_result
-
-
 if os.environ.get('TESTS', '0') == '1':
     if print_pstats('cumulative'):
         print_pstats('ncalls')
         print_pstats('time')
     if os.environ.get('DB_BACKUP', False):
-        db_backup()
+        backup_result = db_run.backup('openerp_template')
+        if backup_result:
+            print("Backup of database created successfully.")
+        else:
+            print("Error creating backup of database.")
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
