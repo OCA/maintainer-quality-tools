@@ -226,11 +226,15 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
-def hidden_line(line):
+def hidden_line(line, main_modules):
     """Hidden line that no want show in log"""
-    if "no translation for language" in line:
-        # TODO: Add validation of module not in repo
-        return True
+    lang_regex = re.compile(
+        r": module (?P<module>\w+): no translation for language")
+    lang_regex_search = lang_regex.search(line)
+    if lang_regex_search:
+        module = lang_regex_search.group('module')
+        if module not in main_modules:
+            return True
     return False
 
 
@@ -356,7 +360,8 @@ def main(argv=None):
     for path, modules in main_projects.items():
         primary_modules.extend(modules)
     primary_modules = set(primary_modules) & all_depends
-
+    # Extend list of list in one
+    main_modules = sum(main_projects.values(), [])
     primary_path_modules = {}
     for path, modules in main_projects.items():
         for module in modules:
@@ -474,7 +479,7 @@ def main(argv=None):
                                     stdout=subprocess.PIPE, env=env)
             with open(stdout_log, 'w') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
-                    if hidden_line(line):
+                    if hidden_line(line, main_modules):
                         continue
                     stdout.write(line)
                     print(line.strip())
