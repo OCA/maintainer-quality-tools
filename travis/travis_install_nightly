@@ -82,6 +82,11 @@ fi
 
 echo "Getting addons dependencies"
 clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
+clone_result=$?
+if [ clone_result != 0  ]; then
+    echo "Error cloning dependencies"
+    exit clone_result
+fi;
 
 # Install web ribbon
 git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web-environment-ribbon-isolated \
