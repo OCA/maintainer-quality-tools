@@ -35,7 +35,8 @@ def print_pstats(sort='cumulative'):
     return True
 
 
-if os.environ.get('TESTS', '0') == '1':
+if os.environ.get('TESTS', '0') == '1' and \
+        os.environ.get('TEST_ENABLE', '1') == '1':
     if print_pstats('cumulative'):
         print_pstats('calls')
         print_pstats('time')
