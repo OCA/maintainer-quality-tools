@@ -289,6 +289,7 @@ def main(argv=None):
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     is_runbot = str2bool(os.environ.get('RUNBOT'))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
+    test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     stdout_log = os.environ.get(
         "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
     if not os.path.isdir(os.path.dirname(stdout_log)):
@@ -304,7 +305,8 @@ def main(argv=None):
         install_options += ["--test-disable"]
         test_loglevel = 'test'
     else:
-        options += ["--test-enable"]
+        if test_enable:
+            options += ["--test-enable"]
         if odoo_version == '7.0':
             test_loglevel = 'test'
         else:
