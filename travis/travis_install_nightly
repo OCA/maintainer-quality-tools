@@ -83,9 +83,9 @@ fi
 echo "Getting addons dependencies"
 clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
 clone_result=$?
-if [ clone_result != 0  ]; then
+if [ "$clone_result" != "0"  ]; then
     echo "Error cloning dependencies"
-    exit clone_result
+    exit $clone_result
 fi;
 
 # Install web ribbon
