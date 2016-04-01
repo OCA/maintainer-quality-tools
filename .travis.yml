@@ -37,6 +37,7 @@ env:
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="25" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
   - VERSION="master" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="60" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
   - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="49" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+  - EXCLUDE="broken_module,broken_lint" OPTIONS="--load-language=es_MX" INSTALL_OPTIONS="--load-language=es_MX"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
