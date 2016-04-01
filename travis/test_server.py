@@ -10,6 +10,7 @@ import sys
 import time
 
 import db_run
+import psql_log
 from getaddons import get_addons, get_depends, get_modules, \
     is_installable_module
 from travis_helpers import success_msg, fail_msg
@@ -290,6 +291,7 @@ def main(argv=None):
     is_runbot = str2bool(os.environ.get('RUNBOT'))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
+    pg_logs_enable = str2bool(os.environ.get('PG_LOGS_ENABLE', False))
     stdout_log = os.environ.get(
         "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
     if not os.path.isdir(os.path.dirname(stdout_log)):
@@ -464,9 +466,12 @@ def main(argv=None):
                 db_index = command_call.index('-d') + 1
                 command_call[db_index] = database
             print(' '.join(command_call))
+            env = None
+            if pg_logs_enable and '--test-enable' in command_call:
+                env = psql_log.get_env_log(os.environ)
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
-                                    stdout=subprocess.PIPE)
+                                    stdout=subprocess.PIPE, env=env)
             with open(stdout_log, 'w') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
                     if hidden_line(line):
