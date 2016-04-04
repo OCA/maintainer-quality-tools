@@ -3,13 +3,17 @@
 from __future__ import print_function
 
 import os
+try:
+    depends_error = False
+    from coverage.cmdline import main as coverage_main
+    from coveralls import cli as coveralls_cli
 
-from coverage.cmdline import main as coverage_main
-from coveralls import cli as coveralls_cli
+    import db_run
+    from pstats_print2list import get_pstats_print2list, print_pstats_list
+    from test_server import get_server_path
+except ImportError:
+    depends_error = True
 
-import db_run
-from pstats_print2list import get_pstats_print2list, print_pstats_list
-from test_server import get_server_path
 
 
 odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
@@ -36,7 +40,7 @@ def print_pstats(sort='cumulative'):
 
 
 if os.environ.get('TESTS', '0') == '1' and \
-        os.environ.get('TEST_ENABLE', '1') == '1':
+        os.environ.get('TEST_ENABLE', '1') == '1' and not depends_error:
     if print_pstats('cumulative'):
         print_pstats('calls')
         print_pstats('time')
