@@ -9,11 +9,11 @@ try:
     from coveralls import cli as coveralls_cli
 
     import db_run
+    import psql_log
     from pstats_print2list import get_pstats_print2list, print_pstats_list
     from test_server import get_server_path
 except ImportError:
     depends_error = True
-
 
 
 odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
@@ -39,6 +39,51 @@ def print_pstats(sort='cumulative'):
     return True
 
 
+def list2param(param, items):
+    params = []
+    for item in items:
+        params.extend([param, item])
+    return params
+
+
+def generate_pgbadger(exclude_regex=None):
+    # TODO: Receive the begin and end dates params
+    if exclude_regex is None:
+        exclude_regex = [
+            r"(v.model = 'res\.lang')",
+            r"^(INSERT INTO|DELETE FROM|CREATE TEMP TABLE|DROP TABLE|drop table|update|UPDATE)( tmp_ir_translation_import)",  # noqa
+            r"^(INSERT INTO|UPDATE ONLY|insert into|update only)( ir_translation)",  # noqa
+            r'^(SELECT|select)( \"res_lang\".id FROM \"res_lang\" WHERE )',
+            r'^(UPDATE|SELECT|INSERT INTO)( \"ir_module_module\")',
+            r'^(UPDATE|SELECT|INSERT INTO)( \"ir_model\")',
+            r'^(SELECT "ir_ui_view".id FROM \"ir_model_data\" )',
+            r'(from|FROM|update|UPDATE)( wkf)(_|\w)*( )',
+            r'^(COPY|COMMIT|SAVEPOINT|commit|copy|savepoint)',
+            r'^(INSERT INTO \"ir_attachment\" )',
+        ]
+    fname_log = psql_log.get_current_log_path()
+    if not fname_log:
+        print("postgresql log file don't exists.", fname_log)
+        return False
+    pgbadger_out = os.path.join(
+        os.path.expanduser("~"), '.openerp_server.pgbadger')
+    extra_params = list2param('--exclude-query', exclude_regex)
+    extra_params.extend([
+        '--top', '15', '--sample', '2',
+        '--disable-type', '--disable-error', '--disable-hourly',
+        '--disable-session', '--disable-connection', '--disable-temporary',
+        '--maxlength', '400', '--quiet',
+    ])
+    psql_log.generate_pgbadger_html(
+        fname_log, fout=pgbadger_out,
+        extra_params=extra_params,
+    )
+    with open(pgbadger_out) as p_pgbadger_out:
+        print("*" * 50, "PGBADGER STATS \n",
+              p_pgbadger_out.read(), "\n", "*" * 50,)
+    return True
+
+
 if os.environ.get('TESTS', '0') == '1' and \
         os.environ.get('TEST_ENABLE', '1') == '1' and not depends_error:
     if print_pstats('cumulative'):
@@ -50,5 +95,7 @@ if os.environ.get('TESTS', '0') == '1' and \
             print("Backup of database created successfully.")
         else:
             print("Error creating backup of database.")
+    if os.environ.get('PG_LOGS_ENABLE', False):
+        generate_pgbadger()
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))
