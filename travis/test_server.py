@@ -11,7 +11,7 @@ import time
 
 import db_run
 import psql_log
-from getaddons import get_addons, get_depends, get_modules, \
+from getaddons import find_module, get_addons, get_depends, get_modules, \
     is_installable_module
 from travis_helpers import success_msg, fail_msg
 
@@ -226,11 +226,25 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     return 0
 
 
-def hidden_line(line):
-    """Hidden line that no want show in log"""
-    if "no translation for language" in line:
-        # TODO: Add validation of module not in repo
-        return True
+def hidden_line(line, main_modules, addons_path_list=None):
+    """Hidden line that no want show in log
+     - Hidden "waning no translation" of not main modules
+     - Hidden "warning no translation" if the main lang file exists.
+    """
+    lang_regex = re.compile(
+        r": module (?P<module>\w+): no translation for language (?P<lang>\w+)")
+    lang_regex_search = lang_regex.search(line)
+    if lang_regex_search:
+        module = lang_regex_search.group('module')
+        lang = lang_regex_search.group('lang')
+        main_lang = lang[:2]
+        module_path = os.path.dirname(find_module(module, addons_path_list))
+        i18n_main_lang_path = os.path.join(
+            module_path, 'i18n', main_lang + '.po')
+        if module not in main_modules:
+            return True
+        if os.path.isfile(i18n_main_lang_path):
+            return True
     return False
 
 
@@ -356,7 +370,8 @@ def main(argv=None):
     for path, modules in main_projects.items():
         primary_modules.extend(modules)
     primary_modules = set(primary_modules) & all_depends
-
+    # Extend list of list in one
+    main_modules = sum(main_projects.values(), [])
     primary_path_modules = {}
     for path, modules in main_projects.items():
         for module in modules:
@@ -474,7 +489,7 @@ def main(argv=None):
                                     stdout=subprocess.PIPE, env=env)
             with open(stdout_log, 'w') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
-                    if hidden_line(line):
+                    if hidden_line(line, main_modules, addons_path_list):
                         continue
                     stdout.write(line)
                     print(line.strip())
