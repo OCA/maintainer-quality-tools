@@ -50,7 +50,8 @@ else
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
        && git fetch ${REMOTE} ${BRANCH} \
-       && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+       && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH} \
+       && git reset --hard ${REMOTE}/${BRANCH}
 fi
 
 echo "x${PHANTOMJS_TESTS}"
