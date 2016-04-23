@@ -1,11 +1,42 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 
 from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
+from pstats_print2list import get_pstats_print2list, print_pstats_list
 
-if (os.environ.get('TESTS', '1') == '1' and
-        not os.environ.get('LINT_CHECK') == '1'):
+from test_server import get_server_path
+
+
+odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
+odoo_version = os.environ.get("VERSION")
+travis_home = os.environ.get("HOME", "~/")
+server_path = get_server_path(odoo_full, odoo_version, travis_home)
+travis_py = '/home/travis/virtualenv/python2.7_with_system_site_packages'
+fname_pstats = os.environ.get("FNAME_PSTATS", '~/.openerp_server.stats')
+
+
+def print_pstats(sort='cumulative'):
+    pstats_list = get_pstats_print2list(
+        os.path.expanduser(fname_pstats),
+        filter_fnames=[travis_home],
+        exclude_fnames=[server_path, 'odoo-profiler', travis_py],
+        sort=sort,
+        limit=30,
+    )
+    if not pstats_list:
+        return False
+    print("Print cProfile sorted by ", sort)
+    print_pstats_list(pstats_list)
+    return True
+
+
+if os.environ.get('TESTS', '0') == '1':
+    if print_pstats('cumulative'):
+        print_pstats('ncalls')
+        print_pstats('time')
     coverage_main(["report", "--show-missing"])
     exit(coveralls_cli.main(argv=None))

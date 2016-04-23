@@ -43,10 +43,17 @@ tar -xf odoo.tar.gz -C ${HOME}
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
 pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
-pip install -q QUnitSuite coveralls
+pip install -q QUnitSuite coveralls pstats_print2list
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
+
+echo "Getting profiler module"
+git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git -b ${VERSION} ${HOME}/odoo-profiler \
+    && sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoo-profiler/profiler/__openerp__.py \
+    && sed -i "s/return new_api/with profiling(): return new_api/g" ${ODOO_PATH}/openerp/api.py \
+    && sed -i "s/return old_api/with profiling(): return old_api/g" ${ODOO_PATH}/openerp/api.py \
+    && sed -i "/# avoid hasattr/a \ \ \ \ \ \ \ \ from openerp.addons.profiler import profiling" ${ODOO_PATH}/openerp/api.py
 
 echo "Getting dependencies"
 clone_oca_dependencies
