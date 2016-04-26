@@ -1,5 +1,6 @@
 # missing coding
 from openerp.osv import orm, fields
+from openerp.exceptions import Warning as UserError
 
 import os
 import os as os2  # W0404 - duplicated import
@@ -19,7 +20,27 @@ class test_model(orm.Model):
     }
 
     def method_test(self, arg1, arg2):
+        '''
+        Docstring error: bad-docstring-quotes & docstring-first-line-empty
+        '''
         return None
+
+    def sql_injection_method(self, ids):
+        # sql-injection
+        self.env.cr.execute('SELECT DISTINCT child_id '
+                            'FROM account_account_consol_rel '
+                            'WHERE parent_id IN %s'
+                            % (tuple(ids),))
+
+    def invalid_commit_method(self, variable2):
+        self.env.cr.commit()  # invalid-commit
+        return variable2
+
+    def translation_required_method(self):
+        user_id = 1
+        if user_id != 99:
+            # translation-required
+            raise UserError('String without translation')
 
     def method_e1124(self):
         value = self.method_test(

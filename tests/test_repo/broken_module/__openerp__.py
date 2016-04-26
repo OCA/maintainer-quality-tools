@@ -4,7 +4,7 @@
     # missing license
     'author': 'Many People',  # Missing oca author
     'description': 'Should be a README.rst file',
-    'version': '1.0',
+    'version': '1.0',  # manifest-version-format
     'depends': ['base'],
     'data': ['model_view.xml'],
     'test': ['test.yml'],
