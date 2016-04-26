@@ -8,7 +8,7 @@ if [ "${LINT_CHECK}" != "0" ]; then
     wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
-    pip install --upgrade --pre --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To test last developer version ever
+    pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To test last developer version ever
     npm install -g jshint  # To oca-pylint-plugin
     # First install show error and second time install fine!
     npm install -g jshint  # To oca-pylint-plugin
