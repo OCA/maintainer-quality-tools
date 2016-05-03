@@ -16,14 +16,6 @@ except ImportError:
     depends_error = True
 
 
-odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-odoo_version = os.environ.get("VERSION")
-travis_home = os.environ.get("HOME", "~/")
-server_path = get_server_path(odoo_full, odoo_version, travis_home)
-travis_py = '/home/travis/virtualenv/python2.7_with_system_site_packages'
-fname_pstats = os.environ.get("FNAME_PSTATS", '~/.openerp_server.stats')
-
-
 def print_pstats(sort='cumulative'):
     pstats_list = get_pstats_print2list(
         os.path.expanduser(fname_pstats),
@@ -86,6 +78,14 @@ def generate_pgbadger(exclude_regex=None):
 
 if os.environ.get('TESTS', '0') == '1' and \
         os.environ.get('TEST_ENABLE', '1') == '1' and not depends_error:
+
+    odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
+    odoo_version = os.environ.get("VERSION")
+    travis_home = os.environ.get("HOME", "~/")
+    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    travis_py = '/home/travis/virtualenv/python2.7_with_system_site_packages'
+    fname_pstats = os.environ.get("FNAME_PSTATS", '~/.openerp_server.stats')
+
     if print_pstats('cumulative'):
         print_pstats('calls')
         print_pstats('time')
