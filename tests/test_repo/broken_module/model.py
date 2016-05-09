@@ -80,6 +80,64 @@ class test_model(orm.Model):
         my_regex_str_good = r'\d'
         return my_regex_str_bad, my_regex_str_good
 
+    def method_too_complex(self, param1):
+        # pylint: disable=unnecessary-pass,unused-variable,translation-required
+        """McCabe rating: 18"""
+        if not param1:
+            pass
+        pass
+        if param1:
+            pass
+        else:
+            pass
+
+        pass
+
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            pass
+        if param1:
+            for value in range(5):
+                pass
+
+        pass
+        for count in range(6):
+            with open('myfile') as fp:
+                fp.write("")
+                count += 1
+            pass
+        pass
+        try:
+            pass
+            if not param1:
+                pass
+            else:
+                pass
+            if param1:
+                raise BaseException('Error')
+            with open('myfile2') as fp2:
+                fp2.write("")
+                pass
+            pass
+        finally:
+            if param1 is not None:
+                pass
+            for count2 in range(8):
+                try:
+                    pass
+                except BaseException('Error2'):
+                    pass
+        return param1
+
 
 if __name__ == '__main__':
 
