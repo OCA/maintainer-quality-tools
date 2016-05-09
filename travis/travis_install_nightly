@@ -48,8 +48,13 @@ pip install -q QUnitSuite coveralls
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
-echo "Getting dependencies"
+echo "Getting addons dependencies"
 clone_oca_dependencies
+clone_result=$?
+if [ "$clone_result" != "0"  ]; then
+    echo "Error cloning dependencies"
+    exit $clone_result
+fi;
 
 # Expected directory structure:
 #
@@ -62,7 +67,8 @@ clone_oca_dependencies
 #     |...
 echo "Content of ${HOME}:"
 ls -l ${HOME}
+
 echo "Content of ${HOME}/dependencies:"
-ls -l ${HOME}/dependencies
+mkdir -p ${HOME}/dependencies && ls -l ${HOME}/dependencies
 
 set +e
