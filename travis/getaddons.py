@@ -61,7 +61,7 @@ def get_modules(path):
         path = os.path.dirname(path)
 
     res = []
-    if os.path.isdir(path) and not os.path.basename(path)[0] == '.':
+    if os.path.isdir(path):
         res = [x for x in os.listdir(path)
                if is_installable_module(os.path.join(path, x))]
     return res
