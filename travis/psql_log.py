@@ -3,7 +3,6 @@ from __future__ import print_function
 import glob
 import os
 import subprocess
-import time
 
 
 def get_psql_conf_files(psql_conf_path=None):
