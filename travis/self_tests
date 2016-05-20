@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import os
+import subprocess
+
 import getaddons
 import travis_helpers
 from test_server import get_test_dependencies
-
-import run_pylint
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
 exclude = os.environ.get("EXCLUDE")
@@ -32,9 +32,17 @@ assert travis_helpers.green(u'test') == u"\033[1;32mtest\033[0;m"
 assert travis_helpers.yellow(u'test') == u"\033[1;33mtest\033[0;m"
 assert travis_helpers.yellow_light(u'test') == u"\033[33mtest\033[0;m"
 
+
+assert travis_helpers.red(u'\ntest\nnewline') == u"\033[1;31m\033[0;m\n\033[1;31mtest\033[0;m\n\033[1;31mnewline\033[0;m"
+assert travis_helpers.green(u'\ntest\nnewline') == u"\033[1;32m\033[0;m\n\033[1;32mtest\033[0;m\n\033[1;32mnewline\033[0;m"
+assert travis_helpers.yellow(u'\ntest\nnewline') == u"\033[1;33m\033[0;m\n\033[1;33mtest\033[0;m\n\033[1;33mnewline\033[0;m"
+assert travis_helpers.yellow_light(u'\ntest\nnewline') == u"\033[33m\033[0;m\n\033[33mtest\033[0;m\n\033[33mnewline\033[0;m"
+
+
 # Testing empty paths and pylint_run fix of:
 # https://www.mail-archive.com/code-quality@python.org/msg00294.html
 if os.environ.get('LINT_CHECK', 0) == '1':
+    import run_pylint
     pylint_rcfile = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg',
@@ -53,6 +61,17 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         "--config-file=" + pylint_rcfile,
         "--path", empty_path], standalone_mode=False)
     assert -1 == count_errors
+
+    if os.environ.get('TRAVIS_PULL_REQUEST', 'false') != 'false':
+        git_script_path = os.path.join(os.path.dirname(
+            os.path.dirname(os.path.realpath(__file__))), 'git')
+        pre_commit_returned = subprocess.call(os.path.join(
+            git_script_path, 'pre-commit'))
+        assert pre_commit_returned == 0, \
+            "Git pre-commit script returned value != 0"
+
+# Testing git get branch
+
 
 # Testing git run from getaddons
 getaddons.get_modules_changed(repo_dir)

@@ -4,21 +4,22 @@ set -v
 if [ "${LINT_CHECK}" != "0" ]; then
     pip install -q QUnitSuite flake8 Click
 
-    # pylint plugin depends
+    # Install pylint plugin depends without lxml
     wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
-    pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To test last developer version ever
-    npm install -g jshint  # To oca-pylint-plugin
+    pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To use last version ever
+    npm install -g jshint  # Extra package for pylint-odoo plugin
     # First install show error and second time install fine!
     npm install -g jshint  # To oca-pylint-plugin
     npm install -g jshint  # To oca-pylint-plugin
     # Get pylint configuration file of vauxoo
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_pr.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_pr.cfg
+    wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_beta.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_beta.cfg
 fi
 
-## We can exit here and do nothing if this only a LINT check
+# We can exit here and do nothing if this only a LINT check
 if [ "${TESTS}" != "1" ] && [ "${LINT_CHECK}" == "1" ]; then
     exit 0
 fi
@@ -108,6 +109,7 @@ git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git 
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
 pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+pip install -q QUnitSuite coveralls
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc ${TRAVIS_BUILD_DIR}
