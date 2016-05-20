@@ -16,6 +16,7 @@ if [ "${LINT_CHECK}" != "0" ]; then
     # Get pylint configuration file of vauxoo
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_pr.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_pr.cfg
+    wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_beta.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_beta.cfg
 fi
 
 # We can exit here and do nothing if this only a LINT check
