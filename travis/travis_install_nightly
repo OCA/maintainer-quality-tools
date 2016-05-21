@@ -5,14 +5,11 @@ if [ "${LINT_CHECK}" != "0" ]; then
     pip install -q QUnitSuite flake8 Click
 
     # Install pylint plugin depends without lxml
-    wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
-    find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
-    pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
+    wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
+    sed -i '/lxml/d' $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt  # lxml depends is too slow
+    pip install --upgrade -r $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
     pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To use last version ever
     npm install -g jshint  # Extra package for pylint-odoo plugin
-    # First install show error and second time install fine!
-    npm install -g jshint  # To oca-pylint-plugin
-    npm install -g jshint  # To oca-pylint-plugin
     # Get pylint configuration file of vauxoo
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint.cfg
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_pr.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_pr.cfg
