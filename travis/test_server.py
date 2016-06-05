@@ -183,7 +183,8 @@ def get_test_dependencies(addons_path, addons_list):
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules=None):
+                 addons_path, install_options, preinstall_modules=None,
+                 unbuffer=True, test_loghandler=None):
     """
     Setup the base module before running the tests
     :param db: Template database name
@@ -196,6 +197,8 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     """
     if preinstall_modules is None:
         preinstall_modules = ['base']
+    if test_loghandler is None:
+        test_loghandler = []
     print("\nCreating instance:")
     db_tmpl_created = False
     try:
@@ -212,20 +215,42 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
             print("Error to create database from file.")
 
     if not db_tmpl_created:
-        cmd_odoo = ["%s/openerp-server" % server_path,
-                    "-d", db,
-                    "--log-level=info",
-                    "--stop-after-init",
-                    "--init", ','.join(preinstall_modules),
-                    ] + install_options
+        # unbuffer keeps output colors
+        cmd_odoo = ["unbuffer"] if unbuffer else []
+
+        cmd_odoo += ["%s/openerp-server" % server_path,
+                     "-d", db,
+                     "--log-level=info",
+                     "--stop-after-init",
+                     "--init", ','.join(preinstall_modules),
+                     ] + install_options
+
+        # For template db don't is necessary use the log-handler
+        # but I need see them to check if the app projects have a
+        # dependency that change database values.
+        for lghd in test_loghandler:
+            cmd_odoo += ['--log-handler', lghd]
+
         print(" ".join(cmd_odoo))
-        subprocess.check_call(cmd_odoo)
+
+        pipe = subprocess.Popen(cmd_odoo,
+                                stderr=subprocess.STDOUT,
+                                stdout=subprocess.PIPE)
+        for line in iter(pipe.stdout.readline, ''):
+            if hidden_line(line, main_modules=[], addons_path_list=[],
+                           hidden_all_no_translation=True):
+                continue
+            # No show a warning from template runtime
+            # if 'openerp.models.schema' in line:
+            #     line = line.replace('DEBUG', 'WARNING')
+            print(line.strip())
     else:
         print("Using current openerp_template database.")
     return 0
 
 
-def hidden_line(line, main_modules, addons_path_list=None):
+def hidden_line(line, main_modules, addons_path_list=None,
+                hidden_all_no_translation=False):
     """Hidden line that no want show in log
      - Hidden "waning no translation" of not main modules
      - Hidden "warning no translation" if the main lang file exists.
@@ -234,6 +259,8 @@ def hidden_line(line, main_modules, addons_path_list=None):
         r": module (?P<module>\w+): no translation for language (?P<lang>\w+)")
     lang_regex_search = lang_regex.search(line)
     if lang_regex_search:
+        if hidden_all_no_translation:
+            return True
         module = lang_regex_search.group('module')
         lang = lang_regex_search.group('lang')
         main_lang = lang[:2]
@@ -243,6 +270,12 @@ def hidden_line(line, main_modules, addons_path_list=None):
         if module not in main_modules:
             return True
         if os.path.isfile(i18n_main_lang_path):
+            return True
+    schema_regex = re.compile(r'[\d\w$_]+ openerp.models.schema: ')
+    schema_regex_search = schema_regex.search(line)
+    if schema_regex_search:
+        if 'dropped column' not in line and 'changed size from' not in line:
+            # hidden all schema debug except dropped column and changed size
             return True
     return False
 
@@ -301,7 +334,8 @@ def main(argv=None):
     odoo_version = os.environ.get("VERSION")
     test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
-    is_runbot = str2bool(os.environ.get('RUNBOT'))
+    unbuffer = str2bool(os.environ.get('UNBUFFER', True))
+    # is_runbot = str2bool(os.environ.get('RUNBOT'))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     pg_logs_enable = str2bool(os.environ.get('PG_LOGS_ENABLE', False))
@@ -326,7 +360,8 @@ def main(argv=None):
             test_loglevel = 'test'
         else:
             test_loglevel = 'info'
-            test_loghandler = 'openerp.tools.yaml_import:DEBUG'
+            test_loghandler = ['openerp.tools.yaml_import:DEBUG',
+                               'openerp.models.schema:DEBUG']
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
@@ -402,7 +437,8 @@ def main(argv=None):
 
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules)
+                 addons_path, install_options, preinstall_modules, unbuffer,
+                 test_loghandler)
 
     # Running tests
     database = "openerp_test"
@@ -415,7 +451,8 @@ def main(argv=None):
                      ]
 
     if test_loghandler is not None:
-        cmd_odoo_test += ['--log-handler', test_loghandler]
+        for lghd in test_loghandler:
+            cmd_odoo_test += ['--log-handler', lghd]
     cmd_odoo_test += options + ["--init", None]
 
     if odoo_unittest:
@@ -470,7 +507,7 @@ def main(argv=None):
                     '--db-filter=^' + database_base]
             else:
                 command[-1] = to_test
-                if is_runbot:
+                if not unbuffer:
                     command_call = []
                 else:
                     # Run test command; unbuffer keeps output colors
@@ -490,6 +527,8 @@ def main(argv=None):
                 for line in iter(pipe.stdout.readline, ''):
                     if hidden_line(line, main_modules, addons_path_list):
                         continue
+                    if 'openerp.models.schema' in line:
+                        line = line.replace('DEBUG', 'WARNING')
                     stdout.write(line)
                     print(line.strip())
             returncode = pipe.wait()

@@ -102,6 +102,14 @@ git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git 
     && sed -i "s/return old_api/with profiling(): return old_api/g" ${ODOO_PATH}/openerp/api.py \
     && sed -i "/# avoid hasattr/a \ \ \ \ \ \ \ \ from openerp.addons.profiler import profiling" ${ODOO_PATH}/openerp/api.py
 
+# Install odoolint module
+if [ "$VERSION" == "8.0"  ]; then
+    echo "Install odoo lint SQA isolated"
+    git clone --single-branch --depth=1 https://github.com/vauxoo/server-tools.git -b ${VERSION} ${HOME}/odoolintsqa
+    (cd ${HOME}/odoolintsqa; rm -rf $(ls | grep -v odoolint); mv odoolint odoolint_isolated)
+    sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/odoolintsqa/odoolint_isolated/__openerp__.py
+fi;
+
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
