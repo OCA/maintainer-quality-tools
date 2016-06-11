@@ -69,6 +69,8 @@ echo "Content of ${HOME}:"
 ls -l ${HOME}
 
 echo "Content of ${HOME}/dependencies:"
-mkdir -p ${HOME}/dependencies && ls -l ${HOME}/dependencies
+mkdir -p ${HOME}/dependencies/odoolint-repo/
+cp -r ${HOME}/maintainer-quality-tools/odoolint ${HOME}/dependencies/odoolint-repo/
+ls -l ${HOME}/dependencies
 
 set +e
