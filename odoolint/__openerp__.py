@@ -11,7 +11,7 @@
     "license": "AGPL-3",
     "depends": [],
     "sequence": 1,
-    "auto_install": False,
+    "auto_install": True,
     "installable": True,
     "post_load": 'post_load',
 }
