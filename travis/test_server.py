@@ -273,9 +273,11 @@ def hidden_line(line, main_modules, addons_path_list=None,
             return True
     schema_regex = re.compile(r'[\d\w$_]+ openerp.models.schema: ')
     schema_regex_search = schema_regex.search(line)
-    if schema_regex_search:
-        if 'dropped column' not in line and 'changed size from' not in line:
-            # hidden all schema debug except dropped column and changed size
+    if schema_regex_search and 'DEBUG' in line:
+        if 'dropped column' not in line and 'changed size from' not in line \
+                and 'changed type from' not in line:
+            # hidden all schema debug except
+            #   dropped column, changed type and changed size
             return True
     return False
 
@@ -527,7 +529,7 @@ def main(argv=None):
                 for line in iter(pipe.stdout.readline, ''):
                     if hidden_line(line, main_modules, addons_path_list):
                         continue
-                    if 'openerp.models.schema' in line:
+                    if 'openerp.models.schema: ' in line and 'DEBUG' in line:
                         line = line.replace('DEBUG', 'WARNING')
                     stdout.write(line)
                     print(line.strip())
