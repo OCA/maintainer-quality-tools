@@ -279,6 +279,13 @@ def hidden_line(line, main_modules, addons_path_list=None,
             # hidden all schema debug except
             #   dropped column, changed type and changed size
             return True
+    if 'superfluous' in line and 'dependency' in line:
+        superfluous_regex = re.compile(r'\.(?P<module>[\d\w$_]+): ')
+        superfluous_regex_search = superfluous_regex.search(line)
+        if superfluous_regex_search:
+            module = superfluous_regex_search.group('module')
+            if module not in main_modules:
+                return True
     return False
 
 
@@ -380,6 +387,8 @@ def main(argv=None):
         lambda other_project: os.path.join(travis_home, other_project),
         test_other_projects)
     tested_addons = ','.join(tested_addons_list)
+    if tested_addons and odoo_version == '8.0':
+        tested_addons += ',odoolint_isolated'
 
     print("Working in %s" % travis_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
