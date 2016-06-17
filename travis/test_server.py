@@ -348,6 +348,7 @@ def main(argv=None):
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     pg_logs_enable = str2bool(os.environ.get('PG_LOGS_ENABLE', False))
+    phantomjs_test = str2bool(os.environ.get('PHANTOMJS_TESTS'))
     stdout_log = os.environ.get(
         "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
     if not os.path.isdir(os.path.dirname(stdout_log)):
@@ -445,7 +446,14 @@ def main(argv=None):
                 secondary_depends_primary.append(secondary_module)
     preinstall_modules = list(
         secondary_modules - set(secondary_depends_primary))
-
+    if phantomjs_test:
+        # If you explicitly define this environ variable is because you want
+        # run just phantomjs without normal unit-test.
+        # Then we need install from template database ALL modules to run:
+        # dbtemplate -i ALL_MODULES
+        # dbtest --test-enable (without -i)
+        # This run just phantomjs tests
+        preinstall_modules += tested_addons.split(',')
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules, unbuffer,
@@ -517,7 +525,11 @@ def main(argv=None):
                 command_call = command_start + [
                     '--db-filter=^' + database_base]
             else:
-                command[-1] = to_test
+                if phantomjs_test:
+                    # Remove the (--init, None) parameters
+                    command = command[:-2]
+                else:
+                    command[-1] = to_test
                 if not unbuffer:
                     command_call = []
                 else:
