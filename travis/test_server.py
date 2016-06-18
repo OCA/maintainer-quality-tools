@@ -297,7 +297,7 @@ def create_server_conf(data, version=None):
     with open(fname_conf, "w") as fconf:
         fconf.write('[options]\n')
         for key, value in data.iteritems():
-            fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
+            fconf.write(key + ' = ' + os.path.expanduser(str(value)) + '\n')
     print("Configuration file generated.")
 
 
@@ -378,6 +378,9 @@ def main(argv=None):
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
+        # Fix wkhtmltopdf freezing issue
+        'limit_memory_soft': 1073741824,
+        'limit_memory_hard': 1610612736,
     }, odoo_version)
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
