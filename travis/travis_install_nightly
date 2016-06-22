@@ -56,10 +56,12 @@ fi
 echo "x${PHANTOMJS_TESTS}"
 if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
     # Disable phantom tests
-    find -L ${HOME} -name common.py -exec sed -i "s/'phantomjs'/'disable_phantomjs'/g" {} \;
+    sed -i "s/'phantomjs'/'disable_phantomjs'/g" ${HOME}/*/openerp/tests/common.py
 else
     # Increase default timeout of all phantom tests
-    find -L ${HOME} -name common.py -exec sed -i "s/ login=None, timeout=60, / login=None, timeout=360, /g" {} \;
+    sed -i "s/ login=None, timeout=60, / login=None, timeout=360, /g" ${HOME}/*/openerp/tests/common.py
+    # Increase default delay of all phantom tests
+    sed -i "s/defaultDelay: 50,/defaultDelay: 120,/g" ${HOME}/*/addons/web/static/src/js/tour.js
 fi
 
 pip install coveralls  # ToDo: Add to main image because in travis is installed
