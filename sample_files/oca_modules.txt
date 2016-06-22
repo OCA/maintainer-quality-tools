@@ -1,0 +1,15 @@
+# List the OCA satellite projects to merge into this repo
+# Format <repo identifier> <repo git url> <repo branch>
+
+# Examples
+# ========
+#
+# To integrate the modules in the 'OCA/web' repository, use:
+# web
+#
+# To explicitely give the URL of a fork, and still use the version specified in
+# .travis.yml, use:
+# web https://github.com/OCA/web.git
+#
+# To provide both the URL and a branch, use:
+# web https://github.com/OCA/web.git branchname

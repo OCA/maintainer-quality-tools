@@ -1,0 +1,4 @@
+# List the OCA satellite projects to merge into this repo
+# Format <repo identifier> <repo git url> <repo branch>
+
+integrated-repo https://github.com/OCA/maintainer-quality-tools.git test-dependencies

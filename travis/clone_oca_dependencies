@@ -68,6 +68,22 @@ def git_clone(checkout_path, reponame, url, branch):
     return checkout_path
 
 
+def git_merge(checkout_path, reponame, url, branch):
+    if osp.isdir(checkout_path):
+        run_shell(
+            ['git', 'config', '--global',
+             'user.email', 'bot@odoo-community.org'])
+        run_shell(
+            ['git', 'config', '--global',
+             'user.name', 'OCA Bot'])
+        run_shell(
+            ['git', '-C', checkout_path, 'fetch', url, branch])
+        run_shell(
+            ['git', '-C', checkout_path, 'merge', '--no-edit',
+             '-X', 'ours', 'FETCH_HEAD'])
+    return checkout_path
+
+
 def clone_repos(method, deps_path, deps_name, target_path):
     """Recursively install all dependency repositories
 
@@ -104,6 +120,8 @@ def install_requirements(parent_path):
 
 
 def run(deps_checkout_dir, build_dir):
+    clone_repos(
+        git_merge, build_dir, 'oca_modules.txt', build_dir)
     clone_repos(
         git_clone, build_dir, 'oca_dependencies.txt', deps_checkout_dir)
     install_requirements(deps_checkout_dir)
