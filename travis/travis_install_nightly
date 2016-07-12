@@ -43,7 +43,7 @@ tar -xf odoo.tar.gz -C ${HOME}
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
 pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
-pip install -q QUnitSuite coveralls
+pip install -q QUnitSuite coveralls codecov
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
