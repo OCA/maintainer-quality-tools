@@ -67,20 +67,41 @@ fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
-pip install --upgrade pip
+
+echo "Installing MQT requirements"
+pip install --upgrade "pip>=8.1.0"
 pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 pip install -q QUnitSuite coveralls codecov
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
-echo "Getting addons dependencies"
-clone_oca_dependencies
-clone_result=$?
-if [ "$clone_result" != "0"  ]; then
-    echo "Error cloning dependencies"
-    exit $clone_result
-fi;
+if [ -f "oca_dependencies.txt" ]; then
+    echo "Getting addons dependencies"
+    clone_oca_dependencies
+    clone_result=$?
+    if [ "$clone_result" != "0" ]; then
+        echo "Error cloning dependencies"
+        exit $clone_result
+    fi
+else
+    echo "Installing Odoo"
+    pip install -e ${HOME}/${REPO[1]}-${VERSION}
+    echo "Installing addons and dependencies"
+    pip install setuptools-odoo
+    setuptools-odoo-make-default -d .
+    for addon in $(ls setup/ -I README) ; do
+        echo "-e ./setup/$addon" >> requirements.txt
+    done
+    cat requirements.txt
+    # use --pre to get .devN versions from the wheelhouse
+    pip install --pre -r requirements.txt -f https://wheelhouse.odoo-community.org/oca
+    install_result=$?
+    if [ "$install_result" != "0"  ]; then
+        echo "Error installing addons and dependencies"
+        exit $install_result
+    fi
+fi
 
 echo "Install webkit (wkhtmltopdf) patched"
 (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
@@ -99,5 +120,13 @@ ls -l ${HOME}
 
 echo "Content of ${HOME}/dependencies:"
 mkdir -p ${HOME}/dependencies && ls -l ${HOME}/dependencies
+echo "pip installed packages:"
+echo VIRTUAL_ENV=$VIRTUAL_ENV
+echo PATH=$PATH
+which pip
+which python
+pip --version
+python -c "import sys; print sys.path"
+pip list
 
 set +e

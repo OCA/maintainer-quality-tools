@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
@@ -132,6 +133,10 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
     addons_path_list = get_addons(travis_build_dir)
     addons_path_list.extend(get_addons(travis_dependencies_dir))
     addons_path_list.append(os.path.join(server_path, "addons"))
+    site_package_addons = os.environ['VIRTUAL_ENV'] + \
+        "/lib/python2.7/site-packages/odoo_addons"
+    if os.path.isdir(site_package_addons):
+        addons_path_list.append(site_package_addons)
     addons_path = ','.join(addons_path_list)
     return addons_path
 
