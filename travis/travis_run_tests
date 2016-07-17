@@ -61,7 +61,7 @@ if __name__ == '__main__':
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
     # Avoid false red from forks using OCA transifex user
     is_valid_transifex = not is_pull_request and \
-        is_oca_project == is_oca_transifex_user
+        (is_oca_project or not is_oca_transifex_user)
 
     # Test list. Each test is a list with command + arguments.
     tests = []
