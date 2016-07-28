@@ -47,7 +47,7 @@ else
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH} \
-       && git fetch ${REMOTE} ${BRANCH} \
+       && git fetch --depth=1 ${REMOTE} ${BRANCH} \
        && git config --local --bool core.bare false \
        && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH} \
        ; git reset --hard ${REMOTE}/${BRANCH}
