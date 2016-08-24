@@ -273,6 +273,7 @@ def main(argv=None):
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
+    test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     if not odoo_version:
         # For backward compatibility, take version from parameter
         # if it's not globally set
@@ -284,7 +285,8 @@ def main(argv=None):
         install_options += ["--test-disable"]
         test_loglevel = 'test'
     else:
-        options += ["--test-enable"]
+        if test_enable:
+            options += ["--test-enable"]
         if odoo_version == '7.0':
             test_loglevel = 'test'
         else:
