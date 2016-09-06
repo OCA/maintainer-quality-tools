@@ -475,9 +475,9 @@ def main(argv=None):
     if test_loghandler is not None:
         for lghd in test_loghandler:
             cmd_odoo_test += ['--log-handler', lghd]
-    cmd_odoo_test += options + ["--init", None]
 
     if odoo_unittest:
+        cmd_odoo_test += options + ["--update", None]
         to_test_list = tested_addons_list
         cmd_odoo_install = ["%s/openerp-server" % server_path,
                             "-d", database,
@@ -488,6 +488,7 @@ def main(argv=None):
                     (cmd_odoo_test, True),
                     )
     else:
+        cmd_odoo_test += options + ["--init", None]
         to_test_list = [tested_addons]
         commands = ((cmd_odoo_test, True),
                     )
