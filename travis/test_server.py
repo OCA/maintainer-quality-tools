@@ -478,7 +478,7 @@ def main(argv=None):
 
     if odoo_unittest:
         cmd_odoo_test += options + ["--update", None]
-        to_test_list = tested_addons_list
+        to_test_list = primary_modules
         cmd_odoo_install = ["%s/openerp-server" % server_path,
                             "-d", database,
                             "--stop-after-init",
