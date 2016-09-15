@@ -30,7 +30,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         'failed sending mail',
         ]
     errors_report = [
-        lambda x: x['loglevel'] == 'CRITICAL',
+        lambda x: x['loglevel'] in ['CRITICAL', 'ERROR'],
         'At least one test failed',
         'no access rules, consider adding one',
         'invalid module names, ignored',
