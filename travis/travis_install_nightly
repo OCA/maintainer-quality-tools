@@ -99,7 +99,7 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
-if [ "$VERSION" == "8.0"  ]; then
+if [[ "$VERSION" == "8.0"  && -z "$NO_EXTRA_REPOS" ]]; then
  # Install web ribbon
  git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web-environment-ribbon-isolated \
     && sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon/__openerp__.py \

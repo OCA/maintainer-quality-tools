@@ -349,6 +349,7 @@ def main(argv=None):
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     pg_logs_enable = str2bool(os.environ.get('PG_LOGS_ENABLE', False))
     phantomjs_test = str2bool(os.environ.get('PHANTOMJS_TESTS'))
+    no_extra_repos = str2bool(os.environ.get('NO_EXTRA_REPOS'))
     stdout_log = os.environ.get(
         "STDOUT_LOG", os.path.join(os.path.expanduser(data_dir), 'stdout.log'))
     if not os.path.isdir(os.path.dirname(stdout_log)):
@@ -391,7 +392,7 @@ def main(argv=None):
         lambda other_project: os.path.join(travis_home, other_project),
         test_other_projects)
     tested_addons = ','.join(tested_addons_list)
-    if tested_addons and odoo_version == '8.0':
+    if tested_addons and odoo_version == '8.0' and not no_extra_repos:
         tested_addons += ',odoolint_isolated'
 
     print("Working in %s" % travis_build_dir)
