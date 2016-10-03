@@ -3,3 +3,4 @@ pyserial
 pyyaml
 coveralls
 lxml
+click
