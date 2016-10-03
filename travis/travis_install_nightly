@@ -41,8 +41,8 @@ tar -xf odoo.tar.gz -C ${HOME}
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
-
-pip install --user -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+pip install --upgrade pip
+pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 pip install -q QUnitSuite coveralls codecov
 
 # Use reference .coveragerc
