@@ -58,3 +58,11 @@ To avoid making again these checks on other builds, you have to add
 LINT_CHECK="0" variable on the line:
 
     - VERSION="7.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
+
+
+Disable test
+------------
+If you want to make a build without tests, you can add use the environment variable:
+`TEST_ENABLE="0"`
+
+You will get the databases with packages installed but without run test.

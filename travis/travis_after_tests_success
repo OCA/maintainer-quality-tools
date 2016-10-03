@@ -4,8 +4,12 @@ import os
 
 from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
+from codecov import main as codecov_main
+
 
 if (os.environ.get('TESTS', '1') == '1' and
+        os.environ.get('TEST_ENABLE', '1') == '1' and
         not os.environ.get('LINT_CHECK') == '1'):
     coverage_main(["report", "--show-missing"])
-    exit(coveralls_cli.main(argv=None))
+    coveralls_cli.main(argv=None)
+    codecov_main(argv=None)
