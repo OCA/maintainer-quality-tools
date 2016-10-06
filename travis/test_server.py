@@ -198,6 +198,8 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     """
     if preinstall_modules is None:
         preinstall_modules = ['base']
+    if server_options is None:
+        server_options = []
     if test_loghandler is None:
         test_loghandler = []
     print("\nCreating instance:")
