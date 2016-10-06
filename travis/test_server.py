@@ -139,6 +139,10 @@ def get_addons_path(travis_home, travis_build_dir, server_path):
     return addons_path
 
 
+def get_server_script(odoo_version):
+    return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
+
+
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     """
     Get the list of modules that need to be installed
@@ -182,7 +186,7 @@ def get_test_dependencies(addons_path, addons_list):
                 set(addons_list))
 
 
-def setup_server(db, odoo_unittest, tested_addons, server_path,
+def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                  addons_path, install_options, preinstall_modules=None,
                  unbuffer=True, server_options=None, test_loghandler=None):
     """
@@ -220,8 +224,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path,
     if not db_tmpl_created:
         # unbuffer keeps output colors
         cmd_odoo = ["unbuffer"] if unbuffer else []
-
-        cmd_odoo += ["%s/openerp-server" % server_path,
+        cmd_odoo += ["%s/%s" % (server_path, script_name),
                      "-d", db,
                      "--log-level=info",
                      "--stop-after-init",
@@ -379,6 +382,7 @@ def main(argv=None):
                                'openerp.models.schema:DEBUG']
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    script_name = get_server_script(odoo_version)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
     create_server_conf({
         'addons_path': addons_path,
@@ -464,14 +468,14 @@ def main(argv=None):
         preinstall_modules += tested_addons.split(',')
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 addons_path, install_options, preinstall_modules, unbuffer,
-                 server_options, test_loghandler)
+                 script_name, addons_path, install_options, preinstall_modules,
+                 unbuffer, server_options, test_loghandler)
 
     # Running tests
     database = "openerp_test"
 
     cmd_odoo_test = ["coverage", "run",
-                     "%s/openerp-server" % server_path,
+                     "%s/%s" % (server_path, script_name),
                      "-d", database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
@@ -484,12 +488,12 @@ def main(argv=None):
     if odoo_unittest:
         cmd_odoo_test += options + ["--update", None]
         to_test_list = primary_modules
-        cmd_odoo_install = ["%s/openerp-server" % server_path,
-                            "-d", database,
-                            "--stop-after-init",
-                            "--log-level=warn",
-                            ] + install_options + ["--init", None] +\
-                            server_options
+        cmd_odoo_install = [
+            "%s/%s" % (server_path, script_name),
+            "-d", database,
+            "--stop-after-init",
+            "--log-level=warn",
+            ] + install_options + ["--init", None] + server_options
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
