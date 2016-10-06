@@ -44,7 +44,8 @@ if [ -z "${REPO_CACHED}"  ]; then
     tar -xf odoo.tar.gz -C ${HOME}
 
     # support for 10.0+
-    if [[ -f ${HOME}/odoo-${VERSION}/openerp-server ]] || ln -s odoo-bin ${HOME}/odoo-${VERSION}/openerp-server
+    [[ -f ${HOME}/odoo-${VERSION}/openerp-server ]] || ln -s odoo-bin ${HOME}/odoo-${VERSION}/openerp-server
+
 else
     echo "Using Odoo from cache ${REPO_CACHED}"
     chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}
