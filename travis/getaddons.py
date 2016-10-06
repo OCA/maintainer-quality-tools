@@ -14,7 +14,12 @@ from itertools import ifilter, imap
 
 from git_run import GitRun
 
-MANIFEST_FILES = ['__odoo__.py', '__openerp__.py', '__terp__.py']
+MANIFEST_FILES = [
+    '__manifest__.py',
+    '__odoo__.py',
+    '__openerp__.py',
+    '__terp__.py',
+]
 
 
 def is_module(path):

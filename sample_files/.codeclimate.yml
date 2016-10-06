@@ -4,4 +4,5 @@ languages:
 exclude_paths:
 - "__unported__/*"
 - "*/__openerp__.py"   # because this is fed to eval
+- "*/__manifest__.py"
 - "*/migrations/*"     # without OpenUpgrade, repetitions can be necessary
