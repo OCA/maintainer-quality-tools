@@ -52,6 +52,9 @@ else
         && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
 fi
 
+# support for 10.0+
+[[ -f odoo-${VERSION}/openerp-server ]] || ln -s odoo-${VERSION}/odoo-bin odoo-${VERSION}/openerp-server
+
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 pip install --upgrade pip
