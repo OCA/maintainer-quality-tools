@@ -33,11 +33,24 @@ fi
 
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
-ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
-
-echo "Installing Odoo ${ODOO_URL}"
-wget -nv -O odoo.tar.gz ${ODOO_URL}
-tar -xf odoo.tar.gz -C ${HOME}
+export REMOTE="${REPO[0],,}"
+export REPO_NAME="${REPO[1],,}"
+export BRANCH="${VERSION,,}"
+export ODOO_PATH=${HOME}/$REPO_NAME-$BRANCH
+if [ -z "${REPO_CACHED}"  ]; then
+    export ODOO_URL="https://github.com/$REMOTE/$REPO_NAME/archive/$BRANCH.tar.gz"
+    echo "Installing Odoo $ODOO_URL"
+    wget -nv -O odoo.tar.gz $ODOO_URL
+    tar -xf odoo.tar.gz -C ${HOME}
+else
+    echo "Using Odoo from cache ${REPO_CACHED}"
+    chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}
+    ln -sf ${REPO_CACHED}/odoo ${ODOO_PATH}
+    cd ${ODOO_PATH} \
+        && git fetch --depth=1 ${REMOTE} ${BRANCH} \
+        && git config --local --bool core.bare false \
+        && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
