@@ -81,7 +81,8 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     apt-get -q -y install python-lxml  # because pip installation is slooow
 
     pip install -q QUnitSuite flake8 coveralls pylint
-    pip install -q -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+    pip install --upgrade pip
+    pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 
     #  Install new dependence: npm package
     wget -qO- https://deb.nodesource.com/setup | sudo bash -
