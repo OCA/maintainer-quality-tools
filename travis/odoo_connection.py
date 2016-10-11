@@ -52,6 +52,45 @@ class _OdooBaseContext(object):
             return buf.getvalue()
 
 
+class Odoo10Context(_OdooBaseContext):
+    """A context for connecting to a odoo 10 server with function to export
+    .pot files.
+    """
+
+    def __enter__(self):
+        """
+        Context enter function.
+        Temporarily add odoo 10 server path to system path and pop afterwards.
+        Import odoo 10 server from path as library.
+        Init logger, registry and environment.
+        Add addons path to config.
+        :returns Odoo10Context: This instance
+        """
+        sys.path.append(self.server_path)
+        from odoo import netsvc, api
+        from odoo.modules.registry import RegistryManager
+        from odoo.tools import trans_export, config
+        self.trans_export = trans_export
+        sys.path.pop()
+        netsvc.init_logger()
+        config['addons_path'] = (
+            config.get('addons_path') + ',' + self.addons_path
+        )
+        registry = RegistryManager.new(self.dbname)
+        self.environment_manage = api.Environment.manage()
+        self.environment_manage.__enter__()
+        self.cr = registry.cursor()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Context exit function.
+        Cleanly close environment manage and cursor.
+        """
+        self.environment_manage.__exit__(exc_type, exc_val, exc_tb)
+        super(Odoo10Context, self).__exit__(exc_type, exc_val, exc_tb)
+
+
 class Odoo8Context(_OdooBaseContext):
     """
     A context for connecting to a odoo 8 server with function to export .pot
@@ -123,4 +162,5 @@ context_mapping = {
     "7.0": Odoo7Context,
     "8.0": Odoo8Context,
     "9.0": Odoo8Context,
+    "10.0": Odoo10Context,
 }
