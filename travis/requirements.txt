@@ -29,7 +29,7 @@ reportlab
 requests[security]
 simplejson
 slumber
-transifex-client == 0.11b3
+transifex-client
 unittest2
 vatnumber
 vobject
