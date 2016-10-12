@@ -134,7 +134,10 @@ def get_addons_path(travis_home, travis_build_dir, server_path):
     addons_path_list = get_addons(travis_home)
     addons_path_list.insert(0, travis_build_dir)
     addons_path_list.append(server_path + "/addons")
-    addons_path_list.append(server_path + "/openerp/addons")
+    if os.path.isdir(server_path + "/openerp/addons"):
+        addons_path_list.append(server_path + "/openerp/addons")
+    elif os.path.isdir(server_path + "/odoo/addons"):
+        addons_path_list.append(server_path + "/odoo/addons")
     addons_path = ','.join(addons_path_list)
     return addons_path
 
