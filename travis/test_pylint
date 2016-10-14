@@ -147,7 +147,7 @@ if version:
         extra_params_cmd.extend([
             '--extra-params', extra_param
         ])
-    is_version_number = re.match('\d+.\d+', version)
+    is_version_number = re.match(r'\d+.\d+', version)
     if is_version_number:
         extra_params_cmd.extend([
             '--extra-params', '--valid_odoo_versions=%s' % version])
