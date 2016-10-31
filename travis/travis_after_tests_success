@@ -52,6 +52,11 @@ def generate_pgbadger(exclude_regex=None):
             r'(from|FROM|update|UPDATE)( wkf)(_|\w)*( )',
             r'^(COPY|COMMIT|SAVEPOINT|commit|copy|savepoint)',
             r'^(INSERT INTO \"ir_attachment\" )',
+            r'^(select \"res_company\"\.id from \"res_company\" )',
+            r'^(select id from ir_model_fields where)',
+            r'^(select \"res_users\"\.\"id\",\"res_users\"\.\"company_id\" from)',
+            r'^(select \"ir_config_parameter\"\.id)',
+            r'^(select name from ir_module_module_dependency)',
         ]
     fname_log = psql_log.get_current_log_path()
     if not fname_log:
