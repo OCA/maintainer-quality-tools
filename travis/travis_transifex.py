@@ -1,0 +1,1 @@
+../ci/transifex.py

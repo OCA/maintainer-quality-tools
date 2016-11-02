@@ -1,0 +1,1 @@
+../ci/getaddons.py

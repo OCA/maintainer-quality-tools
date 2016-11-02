@@ -1,0 +1,1 @@
+../ci/odoo_connection.py
