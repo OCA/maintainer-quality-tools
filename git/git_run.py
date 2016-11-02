@@ -1,1 +1,1 @@
-../travis/git_run.py
+../ci/git_run.py

@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "WARNING: calling 'ci_run_flake8' is deprecated."
+echo "It can be removed from your '.ci.yml'"

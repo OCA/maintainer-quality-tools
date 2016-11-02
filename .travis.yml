@@ -24,6 +24,10 @@ env:
 
   global:
   - VERSION="9.0" TESTS="1" LINT_CHECK="0"
+  - CI_BUILD_DIR=${TRAVIS_BUILD_DIR}
+  - CI_REPO_SLUG=${TRAVIS_REPO_SLUG} 
+  - CI_BRANCH=${TRAVIS_BRANCH} 
+  - CI_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
 
   matrix:
   - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="2"  # test errors are detected
@@ -31,23 +35,23 @@ env:
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
   - VERSION="6.1" INCLUDE="test_module,second_module"
-  - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
-  - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
+  - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" CI_PULL_REQUEST="false" # Use main pylint config file
+  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" CI_PULL_REQUEST="true"  # Use PR pylint config file
+  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" CI_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+  - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" CI_PULL_REQUEST="false"  # To check VERSION empty or unset case.
   - INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - cp -r tests/test_repo/* ./
-  - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly 8.0 # only used if VERSION not set in env
+  - export PATH=$HOME/maintainer-quality-tools/ci:$PATH
+  - ci_install_nightly 8.0 # only used if VERSION not set in env
   - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
-  - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
+  - git --git-dir=${CI_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:
-  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
-  - coverage run --append ./travis/self_tests
+  - coverage run --append ./ci/ci_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./ci/self_tests
 
 after_success:
-  - TESTS="1" LINT_CHECK="0" travis_after_tests_success
+  - TESTS="1" LINT_CHECK="0" ci_after_tests_success

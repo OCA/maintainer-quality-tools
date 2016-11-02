@@ -33,6 +33,10 @@ addons:
 env:
   global:
   - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - CI_BUILD_DIR=${TRAVIS_BUILD_DIR}
+  - CI_REPO_SLUG=${TRAVIS_REPO_SLUG} 
+  - CI_BRANCH=${TRAVIS_BRANCH} 
+  - CI_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
   # To encrypt transifex password, install travis ruby utils with:
@@ -68,11 +72,11 @@ virtualenv:
 
 install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
-  - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - travis_install_nightly
+  - export PATH=${HOME}/maintainer-quality-tools/ci:${PATH}
+  - ci_install_nightly
 
 script:
-  - travis_run_tests
+  - ci_run_tests
 
 after_success:
-  - travis_after_tests_success
+  - ci_after_tests_success
