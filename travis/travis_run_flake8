@@ -1,3 +1,0 @@
-#!/bin/bash
-echo "WARNING: calling 'travis_run_flake8' is deprecated."
-echo "It can be removed from your '.travis.yml'"

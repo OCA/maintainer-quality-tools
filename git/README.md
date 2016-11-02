@@ -1,8 +1,8 @@
-Script for making the same tests as in Travis before committing
-===============================================================
+Script for making the same tests as in your CI before committing
+================================================================
 
 This script allows to make a test before each commit you make on your local
-git repository, checking same things as in Travis LINT_CHECK phase of
+git repository, checking same things as in your CI LINT_CHECK phase of
 OCA maintainer quality tools.
 
 For using it, you can choose from two options:
@@ -40,7 +40,7 @@ and you will have these checks available for it.
    ```
 
 **IMPORTANT** Don't forget to install/update flake8, pep8 and pylint-odoo modules to
-have the same checks as Travis. Don't use distribution packages, as they are 
+have the same checks as your CI. Don't use distribution packages, as they are 
 outdated. Use pip ones:
 
 ```bash

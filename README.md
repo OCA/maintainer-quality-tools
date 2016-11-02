@@ -47,12 +47,12 @@ to the repository. Please note that if you do it, it will be ignored.
 Isolated pylint+flake8 checks
 -----------------------------
 If you want to make a build exclusive for these checks, you can add a line
-on the `env:` section of the .travis.yml file with this content:
+on the `env:` section of your ci config file with this content:
 
     - VERSION="7.0" LINT_CHECK="1"
 
 You will get a faster answer about these questions and also a fast view over
-semaphore icons in Travis build view.
+semaphore icons in your CI's build view.
 
 To avoid making again these checks on other builds, you have to add
 LINT_CHECK="0" variable on the line:

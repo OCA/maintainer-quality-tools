@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import subprocess
 import sys
-from travis_helpers import success_msg, fail_msg
+from ci_helpers import success_msg, fail_msg
 
 
 def main(test_list):
@@ -53,12 +53,12 @@ if __name__ == '__main__':
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
     transifex_enabled = os.environ.get('TRANSIFEX') == '1'
-    is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+    is_oca_project = os.environ.get('CI_REPO_SLUG', '').startswith('OCA/')
     is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
         'transbot@odoo-community.org'
 
-    # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
-    is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
+    # CI_PULL_REQUEST contains the pull request number or 'false'
+    is_pull_request = os.environ.get('CI_PULL_REQUEST') != 'false'
     # Avoid false red from forks using OCA transifex user
     is_valid_transifex = not is_pull_request and \
         (is_oca_project or not is_oca_transifex_user)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         tests.append(['test_server.py'])
 
     if transifex_enabled and is_valid_transifex:
-        tests.append(['travis_transifex.py'])
+        tests.append(['ci_transifex.py'])
 
     if tests:
         exit(main(tests))

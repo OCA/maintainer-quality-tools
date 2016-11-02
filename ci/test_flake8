@@ -13,10 +13,10 @@ status = 0
 
 for addon in get_modules(os.path.abspath('.')):
     status += subprocess.call(['flake8', addon,
-                               '--config=%s/travis_run_flake8__init__.cfg' %
+                               '--config=%s/ci_run_flake8__init__.cfg' %
                                flake8_config_dir])
     status += subprocess.call(['flake8', addon,
-                               '--config=%s/travis_run_flake8.cfg' %
+                               '--config=%s/ci_run_flake8.cfg' %
                                flake8_config_dir])
 
 sys.exit(0 if status == 0 else 1)

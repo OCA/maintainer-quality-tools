@@ -7,7 +7,7 @@ deps_checkout_dir: the directory in which the dependency repositories
 will be cloned
 build_dir: the directory in which the tested repositories have been cloned
 
-If no arguments are provided, default to the layout used in the OCA travis
+If no arguments are provided, default to the layout used in the OCA CI
 configuration.
 
 The program will process the file oca_dependencies.txt at the root of the
@@ -113,7 +113,7 @@ if __name__ == '__main__':
         deps_checkout_dir = osp.join(os.environ['HOME'], 'dependencies')
         if not osp.exists(deps_checkout_dir):
             os.makedirs(deps_checkout_dir)
-        build_dir = os.environ['TRAVIS_BUILD_DIR']
+        build_dir = os.environ['CI_BUILD_DIR']
     elif len(sys.argv) == 2 or len(sys.argv) > 3:
         print(__doc__)
         sys.exit(1)

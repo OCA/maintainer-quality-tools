@@ -11,14 +11,14 @@ from slumber import API, exceptions
 from odoo_connection import context_mapping, Odoo10Context
 from test_server import setup_server, get_addons_path, \
     get_server_path, get_addons_to_check, create_server_conf, get_server_script
-from travis_helpers import yellow, yellow_light, red
+from ci_helpers import yellow, yellow_light, red
 from txclib import utils, commands
 
 
 def main(argv=None):
     """
     Export translation files and push them to Transifex
-    The transifex password should be encrypted in .travis.yml
+    The transifex password should be encrypted in your ci config file
     If not, export exits early.
     """
     if argv is None:
@@ -37,12 +37,12 @@ def main(argv=None):
               "exiting early."))
         return 1
 
-    travis_home = os.environ.get("HOME", "~/")
-    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
-    travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
-    travis_repo_slug = os.environ.get("TRAVIS_REPO_SLUG")
-    travis_repo_owner = travis_repo_slug.split("/")[0]
-    travis_repo_shortname = travis_repo_slug.split("/")[1]
+    ci_home = os.environ.get("HOME", "~/")
+    ci_dependencies_dir = os.path.join(ci_home, 'dependencies')
+    ci_build_dir = os.environ.get("CI_BUILD_DIR", "../..")
+    ci_repo_slug = os.environ.get("CI_REPO_SLUG")
+    ci_repo_owner = ci_repo_slug.split("/")[0]
+    ci_repo_shortname = ci_repo_slug.split("/")[1]
     odoo_unittest = False
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
@@ -56,32 +56,32 @@ def main(argv=None):
         print(yellow_light("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version))
 
-    default_project_slug = "%s-%s" % (travis_repo_slug.replace('/', '-'),
+    default_project_slug = "%s-%s" % (ci_repo_slug.replace('/', '-'),
                                       odoo_version.replace('.', '-'))
     transifex_project_slug = os.environ.get("TRANSIFEX_PROJECT_SLUG",
                                             default_project_slug)
-    transifex_project_name = "%s (%s)" % (travis_repo_shortname, odoo_version)
+    transifex_project_name = "%s (%s)" % (ci_repo_shortname, odoo_version)
     transifex_organization = os.environ.get("TRANSIFEX_ORGANIZATION",
-                                            travis_repo_owner)
+                                            ci_repo_owner)
     transifex_fill_up_resources = os.environ.get(
         "TRANSIFEX_FILL_UP_RESOURCES", "True"
     )
     transifex_team = os.environ.get(
         "TRANSIFEX_TEAM", "23907"
     )
-    repository_url = "https://github.com/%s" % travis_repo_slug
+    repository_url = "https://github.com/%s" % ci_repo_slug
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    addons_path = get_addons_path(travis_dependencies_dir,
-                                  travis_build_dir,
+    server_path = get_server_path(odoo_full, odoo_version, ci_home)
+    addons_path = get_addons_path(ci_dependencies_dir,
+                                  ci_build_dir,
                                   server_path)
-    addons_list = get_addons_to_check(travis_build_dir, odoo_include,
+    addons_list = get_addons_to_check(ci_build_dir, odoo_include,
                                       odoo_exclude)
     addons = ','.join(addons_list)
     create_server_conf({'addons_path': addons_path}, odoo_version)
 
-    print("\nWorking in %s" % travis_build_dir)
+    print("\nWorking in %s" % ci_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
 
     if not addons:
@@ -118,7 +118,7 @@ def main(argv=None):
             print(red('Error: Authentication failed. Please verify that '
                       'Transifex organization, user and password are '
                       'correct. You can change these variables in your '
-                      '.travis.yml file.'))
+                      'ci config file.'))
             raise
 
     print("\nModules to translate: %s" % addons)
@@ -145,7 +145,7 @@ def main(argv=None):
         for module in addons_list:
             print()
             print(yellow("Obtaining POT file for %s" % module))
-            i18n_folder = os.path.join(travis_build_dir, module, 'i18n')
+            i18n_folder = os.path.join(ci_build_dir, module, 'i18n')
             source_filename = os.path.join(i18n_folder, module + ".pot")
             # Create i18n/ directory if doesn't exist
             if not os.path.exists(os.path.dirname(source_filename)):

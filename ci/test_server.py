@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 from getaddons import get_addons, get_modules, is_installable_module
-from travis_helpers import success_msg, fail_msg
+from ci_helpers import success_msg, fail_msg
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -107,30 +107,30 @@ def str2bool(string):
     return str(string or '').lower() in ['1', 'true', 'yes']
 
 
-def get_server_path(odoo_full, odoo_version, travis_home):
+def get_server_path(odoo_full, odoo_version, ci_home):
     """
     Calculate server path
     :param odoo_full: Odoo repository path
     :param odoo_version: Odoo version
-    :param travis_home: Travis home directory
+    :param ci_home: CI home directory
     :return: Server path
     """
     odoo_org, odoo_repo = odoo_full.split('/')
     server_dirname = "%s-%s" % (odoo_repo, odoo_version)
-    server_path = os.path.join(travis_home, server_dirname)
+    server_path = os.path.join(ci_home, server_dirname)
     return server_path
 
 
-def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
+def get_addons_path(ci_dependencies_dir, ci_build_dir, server_path):
     """
     Calculate addons path
-    :param travis_dependencies_dir: Travis dependencies directory
-    :param travis_build_dir: Travis build directory
+    :param ci_dependencies_dir: CI dependencies directory
+    :param ci_build_dir: CI build directory
     :param server_path: Server path
     :return: Addons path
     """
-    addons_path_list = get_addons(travis_dependencies_dir)
-    addons_path_list.insert(0, travis_build_dir)
+    addons_path_list = get_addons(ci_dependencies_dir)
+    addons_path_list.insert(0, ci_build_dir)
     addons_path_list.append(server_path + "/addons")
     addons_path = ','.join(addons_path_list)
     return addons_path
@@ -140,18 +140,18 @@ def get_server_script(odoo_version):
     return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
 
 
-def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
+def get_addons_to_check(ci_build_dir, odoo_include, odoo_exclude):
     """
     Get the list of modules that need to be installed
-    :param travis_build_dir: Travis build directory
-    :param odoo_include: addons to include (travis parameter)
-    :param odoo_exclude: addons to exclude (travis parameter)
+    :param ci_build_dir: CI build directory
+    :param odoo_include: addons to include (ci parameter)
+    :param odoo_exclude: addons to exclude (ci parameter)
     :return: List of addons to test
     """
     if odoo_include:
         addons_list = parse_list(odoo_include)
     else:
-        addons_list = get_modules(travis_build_dir)
+        addons_list = get_modules(ci_build_dir)
 
     if odoo_exclude:
         exclude_list = parse_list(odoo_exclude)
@@ -190,12 +190,12 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     Setup the base module before running the tests
     if the database template exists then will be used.
     :param db: Template database name
-    :param odoo_unittest: Boolean for unit test (travis parameter)
+    :param odoo_unittest: Boolean for unit test (ci parameter)
     :param tested_addons: List of modules that need to be installed
     :param server_path: Server path
-    :param travis_build_dir: path to the modules to be tested
+    :param ci_build_dir: path to the modules to be tested
     :param addons_path: Addons path
-    :param install_options: Install options (travis parameter)
+    :param install_options: Install options (ci parameter)
     :param server_options: (list) Add these flags to the Odoo server init
     """
     if preinstall_modules is None:
@@ -245,7 +245,7 @@ def create_server_conf(data, version):
         fconf = open(fname_conf, "w")
         fconf.write('[options]\n')
     else:
-        # file is there, created by .travis.yml, assume the section is
+        # file is there, created by the CI, assume the section is
         # present and only append our stuff
         fconf = open(fname_conf, "a")
         fconf.write('\n')
@@ -267,9 +267,9 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     run_from_env_var('RUN_COMMAND_MQT', os.environ)
-    travis_home = os.environ.get("HOME", "~/")
-    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
-    travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
+    ci_home = os.environ.get("HOME", "~/")
+    ci_dependencies_dir = os.path.join(ci_home, 'dependencies')
+    ci_build_dir = os.environ.get("CI_BUILD_DIR", "../..")
     odoo_unittest = str2bool(os.environ.get("UNIT_TEST"))
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
@@ -301,21 +301,21 @@ def main(argv=None):
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = get_server_path(odoo_full, odoo_version, ci_home)
     script_name = get_server_script(odoo_version)
-    addons_path = get_addons_path(travis_dependencies_dir,
-                                  travis_build_dir,
+    addons_path = get_addons_path(ci_dependencies_dir,
+                                  ci_build_dir,
                                   server_path)
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
     }, odoo_version)
-    tested_addons_list = get_addons_to_check(travis_build_dir,
+    tested_addons_list = get_addons_to_check(ci_build_dir,
                                              odoo_include,
                                              odoo_exclude)
     tested_addons = ','.join(tested_addons_list)
 
-    print("Working in %s" % travis_build_dir)
+    print("Working in %s" % ci_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
 
     if not tested_addons:
@@ -328,7 +328,7 @@ def main(argv=None):
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
     preinstall_modules = list(set(preinstall_modules) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR'))))
+        os.environ.get('CI_BUILD_DIR'))))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,

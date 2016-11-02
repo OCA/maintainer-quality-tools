@@ -1,1 +1,1 @@
-../travis/travis_helpers.py
+../ci/ci_helpers.py

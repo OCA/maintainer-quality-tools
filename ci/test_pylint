@@ -15,7 +15,7 @@ Use the following types of pylint configuration files:
 
   Used to check enabled messages on this file in all modules of the project.
   The result affect your build status.
-  File name: `travis_run_pylint.cfg`
+  File name: `ci_run_pylint.cfg`
 
 
 2) Pull request
@@ -23,14 +23,14 @@ Use the following types of pylint configuration files:
   Used to check enabled messages on this file just in modules
   changed in a pull request of the project.
   The result affects your build status.
-  File name: `travis_run_pylint_pr.cfg`
+  File name: `ci_run_pylint_pr.cfg`
 
 
 2) Version Exclusions
 
   Used to disable the previously enabled messages of `global` or `pull request`
   configuration files based on `VERSION` variable environment.
-  File name: `travis_run_pylint_exclude_{VERSION}.cfg`
+  File name: `ci_run_pylint_exclude_{VERSION}.cfg`
 
 
 3) Beta
@@ -39,7 +39,7 @@ Use the following types of pylint configuration files:
   configuration files that you want to display, without affecting your build
   status.
 
-  File name: `travis_run_pylint_beta.cfg`
+  File name: `ci_run_pylint_beta.cfg`
 """
 
 
@@ -48,7 +48,7 @@ import re
 import ConfigParser
 
 import run_pylint
-import travis_helpers
+import ci_helpers
 
 from getaddons import get_modules_changed
 from git_run import GitRun
@@ -94,7 +94,7 @@ def get_extra_params(odoo_version):
     odoo_version = odoo_version.replace('.', '')
     version_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'cfg/travis_run_pylint_exclude_{odoo_version}.cfg'.format(
+        'cfg/ci_run_pylint_exclude_{odoo_version}.cfg'.format(
             odoo_version=odoo_version))
     params = []
     if os.path.isfile(version_cfg):
@@ -105,10 +105,10 @@ def get_extra_params(odoo_version):
                 params.extend(['--' + option, value])
     return params
 
-git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
+git_work_dir = os.environ.get('CI_BUILD_DIR', False)
 is_pull_request = os.environ.get(
-    'TRAVIS_PULL_REQUEST', 'false') != 'false'
-branch_base = os.environ.get('TRAVIS_BRANCH', False)
+    'CI_PULL_REQUEST', 'false') != 'false'
+branch_base = os.environ.get('CI_BRANCH', False)
 
 extra_params_cmd = [
     '--sys-paths', os.path.join(
@@ -121,7 +121,7 @@ def get_beta_msgs():
     :return: List of strings with beta message names'''
     beta_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'cfg/travis_run_pylint_beta.cfg')
+        'cfg/ci_run_pylint_beta.cfg')
     if not os.path.isfile(beta_cfg):
         return []
     config = ConfigParser.ConfigParser()
@@ -152,7 +152,7 @@ if version:
         extra_params_cmd.extend([
             '--extra-params', '--valid_odoo_versions=%s' % version])
 else:
-    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
+    print(ci_helpers.yellow('Undefined environment variable `VERSION`.'
           '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
@@ -166,7 +166,7 @@ beta_msgs = get_beta_msgs()
 # If such an environment variable is not found,
 # it defaults to the standard configuration file.
 pylint_config_file = os.environ.get('PYLINT_CONFIG_FILE',
-                                    'travis_run_pylint.cfg')
+                                    'ci_run_pylint.cfg')
 pylint_rcfile = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
@@ -178,7 +178,7 @@ count_errors = run_pylint.main([
 pylint_rcfile_pr = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
-    "travis_run_pylint_pr.cfg")
+    "ci_run_pylint_pr.cfg")
 
 
 if is_pull_request and branch_base and git_work_dir:
@@ -188,7 +188,7 @@ if is_pull_request and branch_base and git_work_dir:
         git_work_dir,
         branch_base)
     if modules_changed and count_errors >= 0:
-        print(travis_helpers.green(
+        print(ci_helpers.green(
             'Start lint check just in modules changed'))
         modules_changed_cmd = []
         for module_changed in modules_changed:
@@ -200,7 +200,7 @@ if is_pull_request and branch_base and git_work_dir:
             "--config-file=" + pylint_rcfile_pr,
         ] + modules_changed_cmd + extra_params_cmd, standalone_mode=False)
         if pr_errors:
-            print(travis_helpers.yellow(
+            print(ci_helpers.yellow(
                 "Found {pr_errors} errors".format(pr_errors=pr_errors) +
                 " in modules changed."
             ))
@@ -216,15 +216,15 @@ expected_errors = int(
 
 exit_status = 0
 if count_errors == -1:
-    print(travis_helpers.yellow('Python modules not found'))
+    print(ci_helpers.yellow('Python modules not found'))
 elif count_errors != expected_errors:
-    print(travis_helpers.red("pylint expected errors {expected_errors}, "
+    print(ci_helpers.red("pylint expected errors {expected_errors}, "
           "found {number_errors}!".format(
               expected_errors=expected_errors,
               number_errors=count_errors)))
     exit_status = 1
 if beta_msgs and count_errors >= 0:
-    print(travis_helpers.green(
+    print(ci_helpers.green(
         "\nNext checks are still in beta "
         "they won't affect your build status for now: "
         '\n' + ', '.join(sorted(beta_msgs))))
