@@ -68,7 +68,8 @@ def get_default_params_non_durability(extra_params=None):
     params = [
         "fsync=off",
         "full_page_writes=off",
-        "checkpoint_segments=100",
+        # psql>=9.5 is deprecated
+        # "checkpoint_segments=100",
         "checkpoint_timeout=45min",
         "synchronous_commit=off",
     ]
