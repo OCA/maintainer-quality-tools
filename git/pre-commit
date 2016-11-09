@@ -11,6 +11,6 @@ status1=$?
 flake8 . --config=${FLAKE8_CONFIG_DIR}/travis_run_flake8.cfg
 status2=$?
 
-TRAVIS_PULL_REQUEST="true" TRAVIS_BRANCH="HEAD" TRAVIS_BUILD_DIR=`pwd -P` $(dirname $0)/test_pylint
+PYLINT_RECURSIVE="true" TRAVIS_PULL_REQUEST="true" TRAVIS_BRANCH="HEAD" TRAVIS_BUILD_DIR=`pwd -P` $(dirname $0)/test_pylint
 pylint_status=$?
 exit $((${status1} || ${status2} || ${pylint_status}))

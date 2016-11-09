@@ -57,7 +57,7 @@ def is_included_dir(path):
         not os.path.basename(path) in EXCLUDED_DIR)
 
 
-def get_subpaths(paths, subpaths=[]):
+def get_subpaths(paths, subpaths=[], recursion=0):
     """Get list of python modules recursively (excluding non-installable
     odoo modules, but including python modules which are not odoo modules).
 
@@ -92,10 +92,19 @@ def get_subpaths(paths, subpaths=[]):
                     is_installable_module(path):
                 subpaths.append(path)
         elif os.path.isdir(path):
+
+            if (recursion > 0 and
+                    os.environ.get('PYLINT_RECURSIVE', 'false') != 'true'):
+                continue
+
+            print(
+                'get_subpaths: checking recursively: %s ' % path)
+
             x_paths = []
             for x_path in os.listdir(path):
                 x_paths.append(os.path.join(path, x_path))
-            subpaths = get_subpaths(x_paths, subpaths)
+
+            subpaths = get_subpaths(x_paths, subpaths, recursion + 1)
     return subpaths
 
 
@@ -115,7 +124,10 @@ def get_modules(path, return_modules_path=False, res=[]):
             if is_installable_module(x_path):
                 res.append(return_modules_path and x_path or x)
             elif not is_module(x_path):
-                res = get_modules(x_path, return_modules_path, res)
+                if os.environ.get('PYLINT_RECURSIVE', 'false') == 'true':
+                    print(
+                        'get_modules: checking recursively: %s ' % x_path)
+                    res = get_modules(x_path, return_modules_path, res)
 
     return res
 
