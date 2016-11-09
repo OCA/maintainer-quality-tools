@@ -19,6 +19,8 @@ MANIFEST_FILES = [
     '__terp__.py',
 ]
 
+EXCLUDED_DIR = ['odoo', 'config']
+
 
 def is_module(path):
     """return False if the path doesn't contain an odoo module, and the full
@@ -46,16 +48,75 @@ def is_installable_module(path):
     return False
 
 
-def get_modules(path):
+def is_included_dir(path):
+    """Must be a directory not starting with . and not excluded.
+    """
+    return (
+        os.path.isdir(path) and
+        not os.path.basename(path).startswith('.') and
+        not os.path.basename(path) in EXCLUDED_DIR)
+
+
+def get_subpaths(paths, subpaths=[]):
+    """Get list of python modules recursively (excluding non-installable
+    odoo modules, but including python modules which are not odoo modules).
+
+    Why do we need path to python modules? More info here:
+        https://www.mail-archive.com/code-quality@python.org/msg00294.html
+
+    Pylint tests are executed twice:
+     - First time with the repository paht
+     - Second with the path of each module to analyse
+    For the first time, it is necessary to recursively search for python
+    modules as the sub-directories might not be directly modules. For
+    instance for a complete project with the below structure:
+    - Project repo
+      - addons
+        - hr: oca hr repository as subtree / sub-modules
+        - server-tools: oca hr repository as subtree / sub-modules
+        - my_project_modules
+          - my_module_1
+          - my_module_2
+      - odoo
+
+    :param paths: List of paths
+    :return: Return list of paths with subdirectories.
+    """
+    for path in paths:
+
+        if not is_included_dir(path):
+            continue
+
+        if os.path.isfile(os.path.join(path, '__init__.py')):
+            if not is_module(path) or \
+                    is_installable_module(path):
+                subpaths.append(path)
+        elif os.path.isdir(path):
+            x_paths = []
+            for x_path in os.listdir(path):
+                x_paths.append(os.path.join(path, x_path))
+            subpaths = get_subpaths(x_paths, subpaths)
+    return subpaths
+
+
+def get_modules(path, return_modules_path=False, res=[]):
 
     # Avoid empty basename when path ends with slash
     if not os.path.basename(path):
         path = os.path.dirname(path)
 
-    res = []
     if os.path.isdir(path):
-        res = [x for x in os.listdir(path)
-               if is_installable_module(os.path.join(path, x))]
+        for x in os.listdir(path):
+            x_path = os.path.join(path, x)
+
+            if not is_included_dir(x_path):
+                continue
+
+            if is_installable_module(x_path):
+                res.append(return_modules_path and x_path or x)
+            elif not is_module(x_path):
+                res = get_modules(x_path, return_modules_path, res)
+
     return res
 
 
@@ -90,17 +151,22 @@ def get_modules_changed(path, ref='HEAD'):
             fetch_ref += ':' + fetch_ref
         git_run_obj.run(['fetch'] + fetch_ref.split('/', 1))
     items_changed = git_run_obj.get_items_changed(ref)
-    folders_changed = set([
-        item_changed.split('/')[0]
-        for item_changed in items_changed
-        if '/' in item_changed]
-    )
-    modules = set(get_modules(path))
+
+    folders_changed = []
+    for item_changed in items_changed:
+        if '/' in item_changed:
+            dir_path_list = item_changed.split('/')
+
+            for i in range(1, len(dir_path_list)):
+                # List changed folders at any level in folders hierarchy
+                folders_changed.append(os.path.join(path, *dir_path_list[:i]))
+
+    folders_changed = set(folders_changed)
+    modules = set(get_modules(path, return_modules_path=True))
+
     modules_changed = list(modules & folders_changed)
-    modules_changed_path = [
-        os.path.join(path, module_changed)
-        for module_changed in modules_changed]
-    return modules_changed_path
+
+    return modules_changed
 
 
 def main(argv=None):

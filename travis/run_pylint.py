@@ -3,13 +3,12 @@
 
 from __future__ import print_function
 
-import os
-import sys
-
 import click
 import pylint.lint
+import sys
 
 import getaddons
+
 
 CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 
@@ -24,31 +23,6 @@ def get_count_fails(linter_stats, msgs_no_count=None):
         linter_stats['by_msg'][msg]
         for msg in linter_stats['by_msg']
         if msg not in msgs_no_count])
-
-
-def get_subpaths(paths):
-    """Get list of subdirectories
-    if `__init__.py` file not exists in root path then
-    get subdirectories.
-    Why? More info here:
-        https://www.mail-archive.com/code-quality@python.org/msg00294.html
-    :param paths: List of paths
-    :return: Return list of paths with subdirectories.
-    """
-    subpaths = []
-    for path in paths:
-        if not os.path.isfile(os.path.join(path, '__init__.py')):
-            subpaths.extend(
-                [os.path.join(path, item)
-                 for item in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, item, '__init__.py')) and
-                 (not getaddons.is_module(os.path.join(path, item)) or
-                  getaddons.is_installable_module(os.path.join(path, item)))])
-        else:
-            if not getaddons.is_module(path) or \
-                    getaddons.is_installable_module(path):
-                subpaths.append(path)
-    return subpaths
 
 
 def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
@@ -67,7 +41,9 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     sys.path.extend(sys_paths)
     cmd = ['--rcfile=' + cfg]
     cmd.extend(extra_params)
-    subpaths = get_subpaths(paths)
+
+    subpaths = getaddons.get_subpaths(paths)
+
     if not subpaths:
         raise UserWarning("Python modules not found in paths"
                           " {paths}".format(paths=paths))
