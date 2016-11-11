@@ -19,7 +19,7 @@ MANIFEST_FILES = [
     '__terp__.py',
 ]
 
-EXCLUDED_DIR = ['odoo', 'config']
+EXCLUDED_DIR = ['odoo', 'config', 'travis', 'git', 'cfg', 'sample_files']
 
 
 def is_module(path):

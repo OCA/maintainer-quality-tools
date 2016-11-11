@@ -42,7 +42,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     cmd = ['--rcfile=' + cfg]
     cmd.extend(extra_params)
 
-    subpaths = getaddons.get_subpaths(paths)
+    subpaths = getaddons.get_subpaths(paths, subpaths=[])
 
     if not subpaths:
         raise UserWarning("Python modules not found in paths"

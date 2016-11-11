@@ -2,11 +2,12 @@
 
 from __future__ import print_function
 
-import re
 import os
+import re
 import shutil
 import subprocess
 import sys
+
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
@@ -28,13 +29,13 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     errors_ignore = [
         'Mail delivery failed',
         'failed sending mail',
-        ]
+    ]
     errors_report = [
         lambda x: x['loglevel'] == 'CRITICAL',
         'At least one test failed',
         'no access rules, consider adding one',
         'invalid module names, ignored',
-        ]
+    ]
     # Only check ERROR lines before 7.0
     if odoo_version < '7.0':
         errors_report.append(
@@ -54,7 +55,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     make_pattern_list_callable(errors_ignore)
     make_pattern_list_callable(errors_report)
 
-    print("-"*10)
+    print("-" * 10)
     # Read log file removing ASCII color escapes:
     # http://serverfault.com/questions/71285
     color_regex = re.compile(r'\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]')
@@ -95,7 +96,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     if errors:
         for e in errors:
             print(e['message'])
-        print("-"*10)
+        print("-" * 10)
     return len(errors)
 
 
