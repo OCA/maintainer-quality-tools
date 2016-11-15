@@ -19,3 +19,4 @@ exclude_lines =
     pragma: no cover
     # Don't complain about null context checking
     if context is None:
+    ImportError
