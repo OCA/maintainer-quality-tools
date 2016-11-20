@@ -34,8 +34,8 @@ fi
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export REMOTE="${REPO[0],,}"
-export REPO_NAME="${REPO[1],,}"
-export BRANCH="${VERSION,,}"
+export REPO_NAME="${REPO[1]}"
+export BRANCH="${VERSION}"
 export ODOO_PATH=${HOME}/$REPO_NAME-$BRANCH
 if [ -z "${REPO_CACHED}"  ]; then
     export ODOO_URL="https://github.com/$REMOTE/$REPO_NAME/archive/$BRANCH.tar.gz"
