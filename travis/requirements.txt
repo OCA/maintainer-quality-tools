@@ -30,7 +30,8 @@ reportlab
 requests[security]
 simplejson
 slumber
-transifex-client
+# Temporally patch to fix https://github.com/transifex/transifex-client/pull/144
+git+https://github.com/moylop260/transifex-client.git
 unittest2
 vatnumber
 vobject
