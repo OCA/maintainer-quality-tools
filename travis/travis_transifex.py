@@ -10,7 +10,8 @@ import subprocess
 from slumber import API, exceptions
 from odoo_connection import context_mapping, Odoo10Context
 from test_server import setup_server, get_addons_path, \
-    get_server_path, get_addons_to_check, create_server_conf, get_server_script
+    get_server_path, get_addons_to_check, create_server_conf, \
+    get_server_script, parse_list
 from travis_helpers import yellow, yellow_light, red
 from txclib import utils, commands
 
@@ -47,6 +48,7 @@ def main(argv=None):
     odoo_include = os.environ.get("INCLUDE")
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     odoo_version = os.environ.get("VERSION")
+    langs = parse_list(os.environ.get("LANG_ALLOWED", ""))
 
     if not odoo_version:
         # For backward compatibility, take version from parameter
@@ -153,6 +155,9 @@ def main(argv=None):
             # translations to update
             for po_file_name in os.listdir(i18n_folder):
                 if not po_file_name.endswith('.po'):
+                    continue
+                if langs and os.path.splitext(po_file_name)[0] not in langs:
+                    # Limit just allowed languages if is defined
                     continue
                 po_file_name = os.path.join(i18n_folder, po_file_name)
                 command = ['git', 'log', '--pretty=format:%cd', '-n1',
