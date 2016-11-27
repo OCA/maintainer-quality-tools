@@ -123,7 +123,7 @@ def main(argv=None):
     print("\nModules to translate: %s" % addons)
 
     # Install the modules on the database
-    database = "openerp_i18n"
+    database = "openerp_test"
     script_name = get_server_script(odoo_version)
     setup_server(database, odoo_unittest, addons, server_path, script_name,
                  addons_path, install_options, addons_list)
