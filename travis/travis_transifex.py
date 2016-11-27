@@ -158,6 +158,7 @@ def main(argv=None):
                     continue
                 if langs and os.path.splitext(po_file_name)[0] not in langs:
                     # Limit just allowed languages if is defined
+                    os.remove(os.path.join(i18n_folder, po_file_name))
                     continue
                 po_file_name = os.path.join(i18n_folder, po_file_name)
                 command = ['git', 'log', '--pretty=format:%cd', '-n1',
