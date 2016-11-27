@@ -11,7 +11,7 @@ from slumber import API, exceptions
 from odoo_connection import context_mapping, Odoo10Context
 from test_server import setup_server, get_addons_path, \
     get_server_path, get_addons_to_check, create_server_conf, \
-    get_server_script, parse_list
+    get_server_script, parse_list, get_depends
 from travis_helpers import yellow, yellow_light, red
 from txclib import utils, commands
 
@@ -77,6 +77,11 @@ def main(argv=None):
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
     addons_list = get_addons_to_check(travis_build_dir, odoo_include,
                                       odoo_exclude)
+    addons_path_list = parse_list(addons_path)
+    all_depends = get_depends(addons_path_list, addons_list)
+    main_modules = set(os.listdir(travis_build_dir))
+    main_depends = main_modules & all_depends
+    addons_list = list(main_depends)
     addons = ','.join(addons_list)
     create_server_conf({'addons_path': addons_path}, odoo_version)
 
