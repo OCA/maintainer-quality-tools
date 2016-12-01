@@ -37,3 +37,5 @@ vatnumber
 vobject
 werkzeug
 xlwt
+# odoo-10.0
+xlsxwriter
