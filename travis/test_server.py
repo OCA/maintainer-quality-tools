@@ -415,7 +415,7 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        if not instance_alive:
+        if not instance_alive and odoo_unittest:
             # Don't drop the database if will be used later.
             subprocess.call(["dropdb", database])
 
