@@ -42,18 +42,18 @@ def weblate(url, payload=None):
         data['count'] += res_j.pop('count', 0)
         data.update(res_j)
         url_next = res_j.get('next')
-    return data.pop('results', None) or data
+    return data
 
 
 def get_components(wlproject, filter_modules=None):
-    for component in weblate(wlproject['components_list_url']):
+    for component in weblate(wlproject['components_list_url'])['results']:
         if filter_modules and component['name'] not in filter_modules:
             continue
         yield component
 
 
 def get_projects(project=None, branch=None):
-    for wlproject in weblate('projects'):
+    for wlproject in weblate('projects')['results']:
         # Using standard name: project-name (branch.version)
         project_name = wlproject['name'].split('(')[0].strip()
         if project and project_name != project:

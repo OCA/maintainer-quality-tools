@@ -114,8 +114,8 @@ def main(argv=None):
             # # TODO: Add empty es.po files if non exists
             # source_filename = os.path.join(i18n_folder, module + ".pot")
             # # Create i18n/ directory if doesn't exist
-            # if not os.path.exists(os.path.dirname(source_filename)):
-            #     os.makedirs(os.path.dirname(source_filename))
+            if not os.path.isdir(i18n_folder):
+                os.makedirs(i18n_folder)
             # with open(source_filename, 'w') as f:
             #     f.write(odoo_context.get_pot_contents(module))
 
