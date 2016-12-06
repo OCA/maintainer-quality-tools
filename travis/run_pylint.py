@@ -3,13 +3,14 @@
 
 from __future__ import print_function
 
+import click
 import os
+import pylint.lint
 import sys
 
-import click
-import pylint.lint
-
 import getaddons
+import travis_helpers
+
 
 CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 
@@ -78,7 +79,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
 
 @click.command()
 @click.option('paths', '--path', envvar='TRAVIS_BUILD_DIR',
-              multiple=True, type=CLICK_DIR, required=True,
+              multiple=True, type=CLICK_DIR,
               help="Addons paths to check pylint")
 @click.option('--config-file', '-c',
               type=click.File('r', lazy=True), required=True,
@@ -97,6 +98,10 @@ def main(paths, config_file, msgs_no_count=None,
     to check fails of odoo modules.
     If expected errors is equal to count fails found then
     this program exit with zero otherwise exit with counted fails"""
+    if not paths:
+        travis_helpers.yellow("Fallback path on current working directory.")
+        paths = [os.getcwd()]
+
     try:
         stats = run_pylint(
             list(paths), config_file.name,
