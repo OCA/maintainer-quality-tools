@@ -3,10 +3,11 @@
 
 from __future__ import print_function
 
-import click
 import os
-import pylint.lint
 import sys
+
+import click
+import pylint.lint
 
 import getaddons
 import travis_helpers
