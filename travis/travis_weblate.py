@@ -25,8 +25,7 @@ def po_rm_header(po_content):
             header += line + '\n'
             continue
         rm_header += line + '\n'
-    # Weblate don't use final newline. Strip to avoid a dummy change
-    rm_header = rm_header.rstrip('\n')
+    rm_header = rm_header.rstrip('\n') + '\n'
     return header, rm_header
 
 
