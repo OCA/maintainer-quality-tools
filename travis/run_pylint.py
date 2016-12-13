@@ -81,6 +81,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
 @click.command()
 @click.option('paths', '--path', envvar='TRAVIS_BUILD_DIR',
               multiple=True, type=CLICK_DIR,
+              default=[os.getcwd()],
               help="Addons paths to check pylint")
 @click.option('--config-file', '-c',
               type=click.File('r', lazy=True), required=True,
@@ -99,9 +100,6 @@ def main(paths, config_file, msgs_no_count=None,
     to check fails of odoo modules.
     If expected errors is equal to count fails found then
     this program exit with zero otherwise exit with counted fails"""
-    if not paths:
-        travis_helpers.yellow("Fallback path on current working directory.")
-        paths = [os.getcwd()]
 
     try:
         stats = run_pylint(
