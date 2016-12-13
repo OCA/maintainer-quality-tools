@@ -11,7 +11,6 @@ import pylint.lint
 
 import getaddons
 
-
 CLICK_DIR = click.Path(exists=True, dir_okay=True, resolve_path=True)
 
 
