@@ -76,7 +76,7 @@ else
 fi
 
 
-if [ -n ${PHANTOMJS_VERSION} ]; then
+if [ ${PHANTOMJS_VERSION+x} ]; then
     echo "Installing phantomjs-${PHANTOMJS_VERSION}"
     wget -qO - https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-${PHANTOMJS_VERSION}-linux-x86_64.tar.bz2 | tar -xj -C /tmp
     cp /tmp/phantomjs-${PHANTOMJS_VERSION}*/bin/phantomjs ${HOME}/maintainer-quality-tools/travis/
