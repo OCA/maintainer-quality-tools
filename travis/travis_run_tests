@@ -68,6 +68,7 @@ if __name__ == '__main__':
     tests = []
 
     if not lint_check_disabled:
+        os.environ['PYLINT_EXPECTED_ERRORS'] = "28"
         tests.append(['test_flake8'])
         tests.append(['test_pylint'])
 
