@@ -97,5 +97,6 @@ def main():
         raise Exception("Not defined string's startswith")
     run_env_strs_starts(strs_startswith, os.environ, args.fnamesh)
 
+
 if __name__ == '__main__':
     exit(main())
