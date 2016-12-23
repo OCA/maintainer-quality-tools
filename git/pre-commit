@@ -2,6 +2,14 @@
 
 if [ "$NOLINT" ]; then exit 0; fi
 
+if [ "$TRAVIS" != true ]; then
+	read -p "Do you want to run lints? (y/N): " yn </dev/tty
+	case $yn in
+		[Yy]* ) true;;
+		* ) exit 0;;
+	esac
+fi
+
 set -v
 
 FLAKE8_CONFIG_DIR="$(dirname $0)/cfg"
