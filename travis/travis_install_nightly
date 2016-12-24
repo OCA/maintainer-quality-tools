@@ -41,8 +41,8 @@ fi
 
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
-ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
-#ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
+# ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
+ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
 
 echo ${REPO_REQUIREMENTS}
 export REMOTE=$(python -c "print '${REPO[0]}'.lower()")
@@ -50,9 +50,10 @@ export BRANCH=$(python -c "print '${VERSION}'.lower()")
 export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
 if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     echo "Installing Odoo ${ODOO_URL}"
-    wget -nv -O odoo.tar.gz ${ODOO_URL}
-    tar -xf odoo.tar.gz -C ${HOME}
+    #wget -nv -O odoo.tar.gz ${ODOO_URL}
+    #tar -xf odoo.tar.gz -C ${HOME}
     #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
+    git clone --single-branch --depth=1  ${ODOO_URL} -b $VERSION ${HOME}/${REPO[1]}-${VERSION}
 else
     echo "Installing Odoo from cache"
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
