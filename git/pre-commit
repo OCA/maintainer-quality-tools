@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ "$NOLINT" ]; then exit 0; fi
+if [ "$NOLINT" == "1" ] || [ "$NOLINT" == true ]; then exit 0; fi
 
-if [ "$TRAVIS" != true ]; then
+if [ "$TRAVIS" != true ] && [ -z ${NOLINT+x} ]; then
     read -p "Do you want to run lints? (y/N): " yn </dev/tty
     case $yn in
         [Yy]* ) true;;
