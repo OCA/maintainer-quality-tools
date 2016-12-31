@@ -56,14 +56,14 @@ def parse_depfile(depfile, owner='OCA'):
 
 def git_checkout(deps_checkout_dir, reponame, url, branch):
     checkout_dir = osp.join(deps_checkout_dir, reponame)
-    if not osp.isdir(checkout_dir):
-        command = ['git', 'clone', '-q', url, '-b', branch, checkout_dir]
-    else:
-        command = ['git', '--git-dir=' + os.path.join(checkout_dir, '.git'),
-                   '--work-tree=' + checkout_dir, 'pull', '--ff-only',
-                   url, branch]
+    uri = "https://github.com/%s/archive/%s.tar.gz" % (
+        reponame, branch,
+    )
+    command = 'curl -sL %s | tar -xz -C %s' % (
+        uri, checkout_dir,
+    )
     _logger.info('Calling %s', ' '.join(command))
-    subprocess.check_call(command)
+    subprocess.check_call(command, shell=True)
     return checkout_dir
 
 
