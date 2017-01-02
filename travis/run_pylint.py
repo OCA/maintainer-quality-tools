@@ -79,6 +79,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
 @click.command()
 @click.option('paths', '--path', envvar='TRAVIS_BUILD_DIR',
               multiple=True, type=CLICK_DIR, required=True,
+              default=[os.getcwd()],
               help="Addons paths to check pylint")
 @click.option('--config-file', '-c',
               type=click.File('r', lazy=True), required=True,

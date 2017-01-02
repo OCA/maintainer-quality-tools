@@ -12,13 +12,14 @@ mako
 mock
 passlib
 pillow
+polib
 psutil
 psycopg2 >= 2.2
 pydot
-pyparsing < 2
+pyparsing != 2.0.0
 pyPdf
 pyserial
-python-dateutil < 2
+python-dateutil != 2.0.0
 # python-ldap
 python-openid
 pytz
@@ -29,7 +30,7 @@ reportlab
 requests[security]
 simplejson
 slumber
-transifex-client == 0.11b3
+transifex-client
 unittest2
 vatnumber
 vobject
