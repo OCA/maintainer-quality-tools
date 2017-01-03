@@ -14,5 +14,5 @@ def avoid_imported_but_unused(self):
         pdb, pudb, ipdb,
         osv,
     )
-    eval("Not use eval")  # pylint: disable=eval-referenced
+    eval("Not use eval")
     return all_imports
