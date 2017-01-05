@@ -1,4 +1,5 @@
 simplejson
 pyserial
 pyyaml
+codecov
 coveralls
