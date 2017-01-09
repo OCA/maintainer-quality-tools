@@ -298,6 +298,13 @@ def main(argv=None):
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    # Normalize on v10 odoo-bin command
+    try:
+        shutil.copy(
+            os.path.join(server_path, 'openerp-server'),
+            os.path.join(server_path, 'odoo-bin'))
+    except IOError:
+        pass
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
@@ -333,7 +340,7 @@ def main(argv=None):
     database = "openerp_test"
 
     cmd_odoo_test = ["coverage", "run",
-                     "%s/openerp-server" % server_path,
+                     "%s/odoo-bin" % server_path,
                      "-d", database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
@@ -345,12 +352,12 @@ def main(argv=None):
 
     if odoo_unittest:
         to_test_list = tested_addons_list
-        cmd_odoo_install = ["%s/openerp-server" % server_path,
-                            "-d", database,
-                            "--stop-after-init",
-                            "--log-level=warn",
-                            ] + install_options + ["--init", None] +\
-                            server_options
+        cmd_odoo_install = [
+            "%s/odoo-bin" % server_path,
+            "-d", database,
+            "--stop-after-init",
+            "--log-level=warn",
+        ] + install_options + ["--init", None] + server_options
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
