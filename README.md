@@ -66,3 +66,41 @@ If you want to make a build without tests, you can add use the environment varia
 `TEST_ENABLE="0"`
 
 You will get the databases with packages installed but without run test.
+
+Test locally or on another CI
+-----------------------------
+You might have thouhgt "Theese tools are so cool, I want them locally", ... or on another CI.
+
+**Here is how it goes...**
+
+If you havn't already noticed `RUN_COMMAND_MQT`, have a look at what it does in the `test_server.py`.
+We are going to use it to prepare our testbed so it's inline with the expected folder structure.
+
+**A word on rsync:**
+If you are able to cache your testbed between builds (look at your CI's cache possibilities! 
+If you use docker consider dedicating it a volume!) you get huge performance gains from the 
+following command `rsync -av --delete` or in its variant without translations, if you prefer, 
+`rsync -av --delete --exclude 'i18n'`. Though, whatch out for tests that eventually might depend on 
+some translation files!
+
+Now define the environment variables that prepare your testbed:
+In a docker-compose yaml file the relevant section could look for example like this
+```yaml
+   environment:
+       HOME: "/home/testbed"
+       TRAVIS_BUILD_DIR: "/home/testbed/build"
+       RUN_COMMAND_MQT_1: "rsync -av --delete --exclude 'i18n' /home/src/odoo-cc/* /home/testbed/odoo-9.0"
+       RUN_COMMAND_MQT_2: "rsync -av --delete --exclude 'i18n' /home/src/odoo-ee /home/testbed/dependencies/"
+       RUN_COMMAND_MQT_3: "rsync -av --delete --exclude 'i18n' /home/src/yourproject1/ /home/testbed/build/1_first"
+       RUN_COMMAND_MQT_4: "rsync -av --delete --exclude 'i18n' /home/src/yourproject2/ /home/testbed/build/2_second"
+   command:
+    - travis_run_tests
+```
+What you have noticed:
+ - `odoo-ee` aka enterprise addons goes into `dependencies` folder. This makes sure that its loaded before community server addons, so the web module override can work
+ - Your modules that are focus of testing go into the `TRAVIS_BUILD_DIR`, look at thre `test_server.py` in order to see what's its special power.
+ - If you need any special ordering (for module overrides to work), prepend it with an alfanumeric indicator such as `1_`
+ - As we prepared our own testbed from scratch we simply leave out `travis_install_nightly` which normally does this job.
+ - Watch out to have mqt dependencies correctly set up beforehand, look at `travis_install_nightly` and at the `.travis.yml` sample file for details.
+
+*Try it and let us know it is going!*
