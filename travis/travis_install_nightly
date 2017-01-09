@@ -70,9 +70,7 @@ if [ "$clone_result" != "0"  ]; then
 fi;
 
 echo "Install webkit (wkhtmltopdf) patched"
-mkdir -p /tmp/webkit_patched
-wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ -C /tmp/webkit_patched
-cp -r /tmp/webkit_patched/wkhtmltox/bin/* ${HOME}/maintainer-quality-tools/travis/
+(cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 
 # Expected directory structure:
 #
