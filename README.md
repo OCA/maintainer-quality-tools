@@ -94,7 +94,7 @@ In a docker-compose yaml file the relevant section could look for example like t
        RUN_COMMAND_MQT_3: "rsync -av --delete --exclude 'i18n' /home/src/yourproject1/ /home/testbed/build/1_first"
        RUN_COMMAND_MQT_4: "rsync -av --delete --exclude 'i18n' /home/src/yourproject2/ /home/testbed/build/2_second"
    command:
-    - travis_run_tests
+    - travis_run_tests  # You already have mqt on your path, right?
 ```
 What you have noticed:
  - `odoo-ee` aka enterprise addons goes into `dependencies` folder. This makes sure that its loaded before community server addons, so the web module override can work
