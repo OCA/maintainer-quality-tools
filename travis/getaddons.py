@@ -71,7 +71,7 @@ def get_addons(path):
         res = [path]
     else:
         res = [os.path.join(path, x)
-               for x in os.listdir(path)
+               for x in sorted(os.listdir(path))
                if is_addons(os.path.join(path, x))]
     return res
 
