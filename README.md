@@ -89,6 +89,7 @@ In a docker-compose yaml file the relevant section could look for example like t
    environment:
        HOME: "/home/testbed"
        TRAVIS_BUILD_DIR: "/home/testbed/build"
+       RUN_COMMAND_MQT_0: "mkdir -p $TRAVIS_BUILD_DIR"  # Rsync does not create intermediate directories
        RUN_COMMAND_MQT_1: "rsync -av --delete --exclude 'i18n' /home/src/odoo-cc/* /home/testbed/odoo-9.0"
        RUN_COMMAND_MQT_2: "rsync -av --delete --exclude 'i18n' /home/src/odoo-ee /home/testbed/dependencies/"
        RUN_COMMAND_MQT_3: "rsync -av --delete --exclude 'i18n' /home/src/yourproject1/ /home/testbed/build/1_first"
