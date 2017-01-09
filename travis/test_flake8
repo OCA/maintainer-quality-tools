@@ -11,7 +11,7 @@ flake8_config_dir = os.path.join(root_dir, 'cfg')
 
 status = 0
 
-for addon in get_modules(os.path.abspath('.')):
+for addon in get_modules(os.path.abspath('.'), return_modules_path=True):
     status += subprocess.call(['flake8', addon,
                                '--config=%s/travis_run_flake8__init__.cfg' %
                                flake8_config_dir])

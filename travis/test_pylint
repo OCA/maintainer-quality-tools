@@ -42,16 +42,14 @@ Use the following types of pylint configuration files:
   File name: `travis_run_pylint_beta.cfg`
 """
 
-
+import ConfigParser
 import os
 import re
-import ConfigParser
-
-import run_pylint
-import travis_helpers
 
 from getaddons import get_modules_changed
 from git_run import GitRun
+import run_pylint
+import travis_helpers
 
 
 def get_extra_params(odoo_version):
@@ -116,6 +114,8 @@ extra_params_cmd = [
         'pylint_deprecated_modules'),
     '--extra-params', '--load-plugins=pylint_odoo',
 ]
+
+
 def get_beta_msgs():
     '''Get beta msgs from beta.cfg file
     :return: List of strings with beta message names'''
@@ -152,8 +152,9 @@ if version:
         extra_params_cmd.extend([
             '--extra-params', '--valid_odoo_versions=%s' % version])
 else:
-    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
-          '\nSet `VERSION` for compatibility with guidelines by version.'))
+    print(travis_helpers.yellow(
+        'Undefined environment variable `VERSION`.'
+        '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
 beta_msgs = get_beta_msgs()
@@ -173,17 +174,17 @@ pylint_rcfile = os.path.join(
     pylint_config_file)
 count_errors = run_pylint.main([
     "--config-file=" + pylint_rcfile,
-    ] + extra_params_cmd, standalone_mode=False)
+] + extra_params_cmd, standalone_mode=False)
 
 pylint_rcfile_pr = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     'cfg',
     "travis_run_pylint_pr.cfg")
 
-
 if is_pull_request and branch_base and git_work_dir:
     if branch_base != 'HEAD':
         branch_base = 'origin/' + branch_base
+
     modules_changed = get_modules_changed(
         git_work_dir,
         branch_base)
@@ -219,9 +220,9 @@ if count_errors == -1:
     print(travis_helpers.yellow('Python modules not found'))
 elif count_errors != expected_errors:
     print(travis_helpers.red("pylint expected errors {expected_errors}, "
-          "found {number_errors}!".format(
-              expected_errors=expected_errors,
-              number_errors=count_errors)))
+                             "found {number_errors}!".format(
+                                 expected_errors=expected_errors,
+                                 number_errors=count_errors)))
     exit_status = 1
 if beta_msgs and count_errors >= 0:
     print(travis_helpers.green(

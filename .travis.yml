@@ -26,16 +26,16 @@ env:
   - VERSION="9.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
-  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="2"  # test errors are detected
-  - EXCLUDE="broken_module,broken_lint,broken_no_access_rule" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests'
-  - INCLUDE="test_module,second_module" UNIT_TEST="1"
-  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
-  - VERSION="6.1" INCLUDE="test_module,second_module"
-  - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
-  - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
-  - INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="2"  # 1:test errors are detected
+  - EXCLUDE="broken_module,broken_lint,broken_no_access_rule" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests'  # 2
+  - INCLUDE="test_module,second_module" UNIT_TEST="1"  # 3:
+  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # 4: ODOO_REPO usage example
+  - VERSION="6.1" INCLUDE="test_module,second_module"  #5:
+  - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # 6: Use main pylint config file
+  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # 7:Use PR pylint config file
+  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # 8: To check pylint_conf of PR's with old api
+  - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # 9: To check VERSION empty or unset case.
+  - INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # 10: test errors are detected
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
