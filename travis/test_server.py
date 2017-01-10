@@ -298,6 +298,12 @@ def main(argv=None):
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    # Normalize on v10 odoo-bin command
+    try:
+      copy(os.path.join(server_path, 'openerp-server')), 
+           os.path.join(server_path, 'odoo-bin')))
+    except IOError:
+      pass
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
