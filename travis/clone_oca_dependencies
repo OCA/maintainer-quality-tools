@@ -21,7 +21,7 @@ The expected format for oca_dependencies.txt:
 * a dependency line contains:
   - the name of the OCA project
   - (optional) the URL to the git repository (defaulting to the OCA repository)
-  - (optional) the name of the branch to use (defaulting to ${VERSION})
+  - (optional) the name of the branch to use (defaulting to ${BRANCH})
 """
 from __future__ import print_function
 import sys
@@ -45,7 +45,7 @@ def parse_depfile(depfile, owner='OCA'):
         if len(parts) > 2:
             branch = parts[2]
         else:
-            branch = os.environ.get('VERSION', '8.0')
+            branch = os.environ.get('BRANCH', '8.0')
         if len(parts) > 1:
             url = parts[1]
         else:

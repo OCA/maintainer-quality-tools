@@ -7,7 +7,7 @@ Use the following types of pylint configuration files:
 
  1) Global
  2) Pull request
- 3) Version
+ 3) Branch
  4) Beta
 
 
@@ -26,11 +26,11 @@ Use the following types of pylint configuration files:
   File name: `travis_run_pylint_pr.cfg`
 
 
-2) Version Exclusions
+2) Branch Exclusions
 
   Used to disable the previously enabled messages of `global` or `pull request`
-  configuration files based on `VERSION` variable environment.
-  File name: `travis_run_pylint_exclude_{VERSION}.cfg`
+  configuration files based on `BRANCH` variable environment.
+  File name: `travis_run_pylint_exclude_{BRANCH}.cfg`
 
 
 3) Beta
@@ -54,12 +54,12 @@ from getaddons import get_modules_changed
 from git_run import GitRun
 
 
-def get_extra_params(odoo_version):
-    '''Get extra pylint params by odoo version
+def get_extra_params(branch):
+    '''Get extra pylint params by odoo branch
     Transform a seudo-pylint-conf to params,
     it to overwrite base-pylint-conf values.
     Use a seudo-inherit of configuration file.
-    To avoid have a 2 config files (stable and pr-conf) by each odoo-version
+    To avoid have a 2 config files (stable and pr-conf) by each odoo-branch
     Example:
 
         pylint_master.conf
@@ -72,9 +72,9 @@ def get_extra_params(odoo_version):
         pylint_70_pr.conf
         pylint_61.conf
         pylint_61_pr.conf
-        ... and new future versions.
+        ... and new future branchs.
 
-    If you need add a new conventions in all versions
+    If you need add a new conventions in all branchs
     you will need change all pr files or stables files.
 
 
@@ -85,21 +85,21 @@ def get_extra_params(odoo_version):
         pylint_disabling_70.conf <- Overwrite params of pylint_lastest*.conf
         pylint_disabling_61.conf <- Overwrite params of pylint_lastest*.conf
 
-    If you need add a new conventions in all versions you will need change just
+    If you need add a new conventions in all branchs you will need change just
     pylint_lastest_pr.conf or pylint_lastest.conf, similar to inherit.
 
-    :param version: String with name of version of odoo
+    :param branch: String with name of branch of odoo
     :return: List of extra pylint params
     '''
-    odoo_version = odoo_version.replace('.', '')
-    version_cfg = os.path.join(
+    branch = branch.replace('.', '')
+    branch_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
-        'cfg/travis_run_pylint_exclude_{odoo_version}.cfg'.format(
-            odoo_version=odoo_version))
+        'cfg/travis_run_pylint_exclude_{branch}.cfg'.format(
+            branch=branch))
     params = []
-    if os.path.isfile(version_cfg):
+    if os.path.isfile(branch_cfg):
         config = ConfigParser.ConfigParser()
-        config.readfp(open(version_cfg))
+        config.readfp(open(branch_cfg))
         for section in config.sections():
             for option, value in config.items(section):
                 params.extend(['--' + option, value])
@@ -131,29 +131,29 @@ def get_beta_msgs():
         for msg in config.get('MESSAGES CONTROL', 'enabled2beta').split(',')
         if msg.strip()]
 
-version = os.environ.get('VERSION', False)
+branch = os.environ.get('BRANCH', False)
 
-if not version:
+if not branch:
     if git_work_dir:
         repo_path = os.path.join(git_work_dir, '.git')
         branch_name = GitRun(repo_path).get_branch_name()
-        version = branch_name.replace('_', '-').split('-')[:1] \
+        branch = branch_name.replace('_', '-').split('-')[:1] \
             if branch_name else False
-        version = version[0] if version and len(version) else None
+        branch = branch[0] if branch and len(branch) else None
 
-if version:
-    extra_params = get_extra_params(version)
+if branch:
+    extra_params = get_extra_params(branch)
     for extra_param in extra_params:
         extra_params_cmd.extend([
             '--extra-params', extra_param
         ])
-    is_version_number = re.match(r'\d+\.\d+', version)
-    if is_version_number:
+    is_branch_number = re.match(r'\d+\.\d+', branch)
+    if is_branch_number:
         extra_params_cmd.extend([
-            '--extra-params', '--valid_odoo_versions=%s' % version])
+            '--extra-params', '--valid_branches=%s' % branch])
 else:
-    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
-          '\nSet `VERSION` for compatibility with guidelines by version.'))
+    print(travis_helpers.yellow('Undefined environment variable `BRANCH`.'
+          '\nSet `BRANCH` for compatibility with guidelines by branch.'))
 
 
 beta_msgs = get_beta_msgs()

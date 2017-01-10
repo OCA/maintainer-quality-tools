@@ -11,7 +11,7 @@ from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
 
-def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
+def has_test_errors(fname, dbname, branch, check_loaded=True):
     """
     Check a list of log lines for test errors.
     Extension point to detect false positives.
@@ -36,7 +36,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
         'invalid module names, ignored',
         ]
     # Only check ERROR lines before 7.0
-    if odoo_version < '7.0':
+    if branch < '7.0':
         errors_report.append(
             lambda x: x['loglevel'] == 'ERROR')
 
@@ -107,16 +107,16 @@ def str2bool(string):
     return str(string or '').lower() in ['1', 'true', 'yes']
 
 
-def get_server_path(odoo_full, odoo_version, travis_home):
+def get_server_path(odoo_full, branch, travis_home):
     """
     Calculate server path
     :param odoo_full: Odoo repository path
-    :param odoo_version: Odoo version
+    :param branch: Odoo version
     :param travis_home: Travis home directory
     :return: Server path
     """
     odoo_org, odoo_repo = odoo_full.split('/')
-    server_dirname = "%s-%s" % (odoo_repo, odoo_version)
+    server_dirname = "%s-%s" % (odoo_repo, branch)
     server_path = os.path.join(travis_home, server_dirname)
     return server_path
 
@@ -273,31 +273,31 @@ def main(argv=None):
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     server_options = os.environ.get('SERVER_OPTIONS', "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
-    odoo_version = os.environ.get("VERSION")
+    branch = os.environ.get("BRANCH")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
-    if not odoo_version:
+    if not branch:
         # For backward compatibility, take version from parameter
         # if it's not globally set
-        odoo_version = argv[1]
-        print("WARNING: no env variable set for VERSION. "
-              "Using '%s'" % odoo_version)
+        branch = argv[1]
+        print("WARNING: no env variable set for BRANCH. "
+              "Using '%s'" % branch)
     test_loghandler = None
-    if odoo_version == "6.1":
+    if branch == "6.1":
         install_options += ["--test-disable"]
         test_loglevel = 'test'
     else:
         if test_enable:
             options += ["--test-enable"]
-        if odoo_version == '7.0':
+        if branch == '7.0':
             test_loglevel = 'test'
         else:
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = get_server_path(odoo_full, branch, travis_home)
     # Normalize on v10 odoo-bin command
     try:
       copy(os.path.join(server_path, 'openerp-server')), 
@@ -310,7 +310,7 @@ def main(argv=None):
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
-    }, odoo_version)
+    }, branch)
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
@@ -403,7 +403,7 @@ def main(argv=None):
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(
-                "stdout.log", database, odoo_version, check_loaded)
+                "stdout.log", database, branch, check_loaded)
             if returncode != 0:
                 all_errors.append(to_test)
                 print(fail_msg, "Command exited with code %s" % returncode)

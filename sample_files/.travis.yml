@@ -32,7 +32,7 @@ addons:
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - BRANCH="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
   # To encrypt transifex password, install travis ruby utils with:
@@ -42,7 +42,7 @@ env:
   # Secure list for current OCA projects is in https://github.com/OCA/maintainer-quality-tools/issues/194
   - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
   # Use the following lines if you need to manually change the transifex project slug or/and the transifex organization.
-  # The default project slug is owner-repo_name-version (with dash in the version string).
+  # The default project slug is owner-repo_name-branch (with dash in the branch string instead of ".").
   # The default organization is the owner of the repo.
   # The default fill up resources (TM) is True.
   # The default team is 23907. https://www.transifex.com/organization/oca/team/23907/
