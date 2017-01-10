@@ -150,7 +150,7 @@ if branch:
     is_branch_number = re.match(r'\d+\.\d+', branch)
     if is_branch_number:
         extra_params_cmd.extend([
-            '--extra-params', '--valid_branches=%s' % branch])
+            '--extra-params', '--valid_versions=%s' % branch])
 else:
     print(travis_helpers.yellow('Undefined environment variable `BRANCH`.'
           '\nSet `BRANCH` for compatibility with guidelines by branch.'))
