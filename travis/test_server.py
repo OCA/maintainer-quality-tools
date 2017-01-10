@@ -140,6 +140,13 @@ def get_server_script(odoo_version):
     return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
 
 
+def get_addons_of_build_dir(travis_build_dir):
+    addons_list = []
+    for addon_path in get_addons(travis_build_dir):
+        addons_list.extend(get_modules(addon_path))
+    return addons_list
+
+
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     """
     Get the list of modules that need to be installed
@@ -151,7 +158,7 @@ def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     if odoo_include:
         addons_list = parse_list(odoo_include)
     else:
-        addons_list = get_modules(travis_build_dir)
+        addons_list = get_addons_of_build_dir(travis_build_dir)
 
     if odoo_exclude:
         exclude_list = parse_list(odoo_exclude)
@@ -327,8 +334,8 @@ def main(argv=None):
     dbtemplate = "openerp_template"
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
-    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR'))))
+    preinstall_modules = list(set(preinstall_modules) - set(
+        get_addons_of_build_dir(travis_build_dir)))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,
