@@ -111,7 +111,7 @@ def get_server_path(odoo_full, branch, travis_home):
     """
     Calculate server path
     :param odoo_full: Odoo repository path
-    :param branch: Odoo version
+    :param branch: Odoo branch
     :param travis_home: Travis home directory
     :return: Server path
     """
@@ -233,7 +233,7 @@ def run_from_env_var(env_name_startswith, environ):
         subprocess.call(command, shell=True)
 
 
-def create_server_conf(data, version):
+def create_server_conf(data):
     '''Create (or edit) default configuration file of odoo
     :params data: Dict with all info to save in file'''
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
@@ -279,7 +279,7 @@ def main(argv=None):
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     if not branch:
-        # For backward compatibility, take version from parameter
+        # For backward compatibility, take branch from parameter
         # if it's not globally set
         branch = argv[1]
         print("WARNING: no env variable set for BRANCH. "
@@ -310,7 +310,7 @@ def main(argv=None):
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
-    }, branch)
+    })
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
                                              odoo_exclude)
