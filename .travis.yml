@@ -23,30 +23,30 @@ virtualenv:
 env:
 
   global:
-  - VERSION="9.0" TESTS="1" LINT_CHECK="0"
+  - BRANCH="9.0" TESTS="1" LINT_CHECK="0"
 
   matrix:
   - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="2"  # test errors are detected
   - EXCLUDE="broken_module,broken_lint,broken_no_access_rule" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests'
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
-  - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
-  - VERSION="6.1" INCLUDE="test_module,second_module"
+  - BRANCH="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
+  - BRANCH="6.1" INCLUDE="test_module,second_module"
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
-  - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
+  - BRANCH=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+  - BRANCH="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+  - BRANCH="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # To check BRANCH empty or unset case.
   - INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly 8.0 # only used if VERSION not set in env
+  - travis_install_nightly 8.0 # only used if BRANCH not set in env
   - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:
-  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
+  - coverage run --append ./travis/travis_run_tests 8.0  # only used if BRANCH not set in env
   - coverage run --append ./travis/self_tests
 
 after_success:

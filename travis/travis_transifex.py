@@ -47,20 +47,20 @@ def main(argv=None):
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
-    odoo_version = os.environ.get("VERSION")
+    branch = os.environ.get("BRANCH")
 
-    if not odoo_version:
+    if not branch:
         # For backward compatibility, take version from parameter
         # if it's not globally set
-        odoo_version = argv[1]
-        print(yellow_light("WARNING: no env variable set for VERSION. "
-              "Using '%s'" % odoo_version))
+        branch = argv[1]
+        print(yellow_light("WARNING: no env variable set for BRANCH. "
+              "Using '%s'" % branch))
 
     default_project_slug = "%s-%s" % (travis_repo_slug.replace('/', '-'),
-                                      odoo_version.replace('.', '-'))
+                                      branch.replace('.', '-'))
     transifex_project_slug = os.environ.get("TRANSIFEX_PROJECT_SLUG",
                                             default_project_slug)
-    transifex_project_name = "%s (%s)" % (travis_repo_shortname, odoo_version)
+    transifex_project_name = "%s (%s)" % (travis_repo_shortname, branch)
     transifex_organization = os.environ.get("TRANSIFEX_ORGANIZATION",
                                             travis_repo_owner)
     transifex_fill_up_resources = os.environ.get(
@@ -72,14 +72,14 @@ def main(argv=None):
     repository_url = "https://github.com/%s" % travis_repo_slug
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = get_server_path(odoo_full, branch, travis_home)
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
     addons_list = get_addons_to_check(travis_build_dir, odoo_include,
                                       odoo_exclude)
     addons = ','.join(addons_list)
-    create_server_conf({'addons_path': addons_path}, odoo_version)
+    create_server_conf({'addons_path': addons_path}, branch)
 
     print("\nWorking in %s" % travis_build_dir)
     print("Using repo %s and addons path %s" % (odoo_full, addons_path))
@@ -125,7 +125,7 @@ def main(argv=None):
 
     # Install the modules on the database
     database = "openerp_i18n"
-    script_name = get_server_script(odoo_version)
+    script_name = get_server_script(branch)
     setup_server(database, odoo_unittest, addons, server_path, script_name,
                  addons_path, install_options, addons_list)
 
@@ -139,7 +139,7 @@ def main(argv=None):
     path_to_tx = utils.find_dot_tx()
 
     # Use by default version 10 connection context
-    connection_context = context_mapping.get(odoo_version, Odoo10Context)
+    connection_context = context_mapping.get(branch, Odoo10Context)
     with connection_context(server_path, addons_path, database) \
             as odoo_context:
         for module in addons_list:
