@@ -103,5 +103,17 @@ What you have noticed:
  - If you need any special ordering (for module overrides to work), prepend it with an alfanumeric indicator such as `1_`
  - As we prepared our own testbed from scratch we simply leave out `travis_install_nightly` which normally does this job.
  - Watch out to have mqt dependencies correctly set up beforehand, look at `travis_install_nightly` and at the `.travis.yml` sample file for details.
+ 
+**Goody**:
+
+If you do have your database elsewhere (on your superpower blade in your kitchen's home-datacenter)...
+```
+SERVER_OPTIONS: "-rUSER -wPWD --db_host=hostname_of_db_server"
+PGHOST: hostname_of_db_server
+PGUSER: USER
+PGPASSWORD: PWD
+```
+What you have noticed:
+ - You must set the infos twice, the `SERVER_OPTIONS` (feeding your regular odoo startup config) *and* `PG*` (feeding `createdb` command)
 
 *Try it and let us know it is going!*
