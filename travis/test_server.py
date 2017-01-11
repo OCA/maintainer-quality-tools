@@ -9,6 +9,7 @@ import subprocess
 import sys
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
+from optparse import OptionParser
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -183,6 +184,34 @@ def get_test_dependencies(addons_path, addons_list):
                 set(addons_list))
 
 
+def prep_pg_environ(server_options):
+    """
+    Parse server options for pg relevant options.
+    Pass them on to pg commands through their native environment
+    variables.
+    :param server_options: (list) Add these flags to the Odoo server init
+    """
+    parser = OptionParser()
+    parser.add_option("-r", "--db_user", dest="db_user", my_default=False)
+    parser.add_option("-w", "--db_password", dest="db_password", my_default=False)
+    parser.add_option("--pg_path", dest="pg_path", my_default=False)
+    parser.add_option("--db_host", dest="db_host", my_default=False)
+    parser.add_option("--db_port", dest="db_port", my_default=False)
+    (options, args) = parser.parse_args(server_options)
+    pg_env = os.environ.copy()
+    if options.db_host:
+        pg_env['PGHOST'] = options.db_host 
+    if options.db_user:
+        pg_env['PGUSER'] = options.db_user
+    if options.db_password:
+        pg_env['PGPASSWORD'] = options.db_password
+    if options.db_port:
+        pg_env['PGPORT'] = options.db_port
+    if options.pg_path:
+        raise "Option --pg_path is not supported in MQT."
+    return pg_env
+
+
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                  addons_path, install_options, preinstall_modules=None,
                  unbuffer=True, server_options=None):
@@ -204,7 +233,9 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
         server_options = []
     print("\nCreating instance:")
     try:
-        subprocess.check_call(["createdb", db])
+        pg_env = os.environ.copy()
+        subprocess.check_call(["createdb", db], 
+            env=prep_pg_environ(server_options))
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
     else:
@@ -369,7 +400,8 @@ def main(argv=None):
         db_odoo_created = False
         try:
             db_odoo_created = subprocess.call(
-                ["createdb", "-T", dbtemplate, database])
+                ["createdb", "-T", dbtemplate, database], 
+                env=prep_pg_environ(server_options))
             copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
