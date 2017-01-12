@@ -53,9 +53,18 @@ def get_modules(path):
         path = os.path.dirname(path)
 
     res = []
-    if os.path.isdir(path):
+    if os.path.isdir(path) and os.listdir(path):
         res = [x for x in os.listdir(path)
                if is_installable_module(os.path.join(path, x))]
+    return res
+
+
+def get_modules_recursive(path):
+    res = []
+    res.extend(get_modules(path))
+    if not res and os.path.isdir(path) and os.listdir(path):
+        for path2 in os.listdir(path):
+            res.extend(get_modules_recursive(os.path.join(path, path2)))
     return res
 
 
@@ -65,14 +74,18 @@ def is_addons(path):
 
 
 def get_addons(path):
-    if not os.path.exists(path):
+    if not os.path.exists(path) or not is_addons(path):
         return []
-    if is_addons(path):
-        res = [path]
     else:
-        res = [os.path.join(path, x)
-               for x in os.listdir(path)
-               if is_addons(os.path.join(path, x))]
+        return [path]
+
+
+def get_addons_recursive(path):
+    res = []
+    res.extend(get_addons(path))
+    if not res and os.path.isdir(path) and os.listdir(path):
+        for path2 in os.listdir(path):
+            res.extend(get_addons_recursive(os.path.join(path, path2)))
     return res
 
 
