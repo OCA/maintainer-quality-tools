@@ -44,6 +44,19 @@ Currently the Coveralls configuration is automatic, so you don't need to include
 to the repository. Please note that if you do it, it will be ignored.
 
 
+Naming of testing DBs
+---------------------
+
+MQT has a nice feature of organizing your testing databases.
+You might want to do that if you want to double them up as 
+staging DBs or if you want to work with an advanced set of
+templates in order to speed up your CI pipeline.
+Just specify at will:
+`MQT_TEMPLATE_DB='mqt_odoo_template' MQT_TEST_DB='mqt_odoo_test'`.
+Give us feedback on you experiences, and if you could share findings
+from your use case, there might be some grateful people arround.
+
+
 Isolated pylint+flake8 checks
 -----------------------------
 If you want to make a build exclusive for these checks, you can add a line
