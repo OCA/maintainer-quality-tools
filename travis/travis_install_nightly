@@ -47,6 +47,12 @@ ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
 echo ${REPO_REQUIREMENTS}
 export REMOTE=$(python -c "print '${REPO[0]}'.lower()")
 export BRANCH=$(python -c "print '${VERSION}'.lower()")
+export PULL_REQUEST=''
+# If the branch is a pull request
+if [[ $BRANCH == *"/"*  ]]; then
+    export PULL_REQUEST=$BRANCH
+    export BRANCH=${BRANCH/\//-}
+fi
 export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
 if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     echo "Installing Odoo ${ODOO_URL}"
@@ -58,11 +64,21 @@ else
     echo "Installing Odoo from cache"
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
-    cd ${ODOO_PATH} \
-       && git fetch --depth=1 ${REMOTE} ${BRANCH} \
-       && git config --local --bool core.bare false \
-       && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH} \
-       ; git reset --hard ${REMOTE}/${BRANCH}
+    cd ${ODOO_PATH}
+    if [ "x${PULL_REQUEST}" == "x"  ] ; then
+        git fetch --depth=1 ${REMOTE} ${BRANCH} \
+            && git config --local --bool core.bare false \
+            && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH} \
+        ; git reset --hard ${REMOTE}/${BRANCH}
+    else
+        ODOO_URL="https://github.com/${ODOO_REPO}"
+        # Is a pull request
+        git reset --hard
+        git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
+            && git config --local --bool core.bare false \
+            && git checkout ${BRANCH}-${REMOTE} \
+        ;
+    fi
 fi
 
 echo "x${PHANTOMJS_TESTS}"

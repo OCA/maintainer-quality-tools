@@ -117,6 +117,7 @@ def get_server_path(odoo_full, odoo_version, travis_home):
     :param travis_home: Travis home directory
     :return: Server path
     """
+    odoo_version = odoo_version.replace('/', '-')
     odoo_org, odoo_repo = odoo_full.split('/')
     server_dirname = "%s-%s" % (odoo_repo, odoo_version)
     server_path = os.path.join(travis_home, server_dirname)
@@ -142,8 +143,13 @@ def get_addons_path(travis_home, travis_build_dir, server_path):
     return addons_path
 
 
-def get_server_script(odoo_version):
-    return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
+def get_server_script(server_path):
+    try:
+        shutil.copy(os.path.join(server_path, 'openerp-server'),
+                    os.path.join(server_path, 'odoo-bin'))
+    except IOError:
+        pass
+    return 'odoo-bin'
 
 
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
@@ -385,7 +391,7 @@ def main(argv=None):
                                'openerp.models.schema:DEBUG']
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    script_name = get_server_script(odoo_version)
+    script_name = get_server_script(server_path)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
     create_server_conf({
         'addons_path': addons_path,
