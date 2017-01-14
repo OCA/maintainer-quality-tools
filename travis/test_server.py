@@ -192,15 +192,16 @@ def prep_pg_environ(server_options):
     :param server_options: (list) Add these flags to the Odoo server init
     """
     parser = OptionParser()
-    parser.add_option("-r", "--db_user", dest="db_user", my_default=False)
-    parser.add_option("-w", "--db_password", dest="db_password", my_default=False)
-    parser.add_option("--pg_path", dest="pg_path", my_default=False)
-    parser.add_option("--db_host", dest="db_host", my_default=False)
-    parser.add_option("--db_port", dest="db_port", my_default=False)
+    parser.add_option("-r", "--db_user", dest="db_user", default=False)
+    parser.add_option(
+        "-w", "--db_password", dest="db_password", default=False)
+    parser.add_option("--pg_path", dest="pg_path", default=False)
+    parser.add_option("--db_host", dest="db_host", default=False)
+    parser.add_option("--db_port", dest="db_port", default=False)
     (options, args) = parser.parse_args(server_options)
     pg_env = os.environ.copy()
     if options.db_host:
-        pg_env['PGHOST'] = options.db_host 
+        pg_env['PGHOST'] = options.db_host
     if options.db_user:
         pg_env['PGUSER'] = options.db_user
     if options.db_password:
@@ -233,8 +234,8 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
         server_options = []
     print("\nCreating instance:")
     try:
-        pg_env = os.environ.copy()
-        subprocess.check_call(["createdb", db], 
+        subprocess.check_call(
+            ["createdb", db],
             env=prep_pg_environ(server_options))
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
@@ -400,7 +401,7 @@ def main(argv=None):
         db_odoo_created = False
         try:
             db_odoo_created = subprocess.call(
-                ["createdb", "-T", dbtemplate, database], 
+                ["createdb", "-T", dbtemplate, database],
                 env=prep_pg_environ(server_options))
             copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
