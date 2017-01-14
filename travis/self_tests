@@ -13,7 +13,7 @@ from test_server import get_test_dependencies
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", ".")
 repo_dir_with_subfolders = os.path.join(
-    repo_dir, "tests/test_repo_with_subfolders")
+    repo_dir, "tests", "test_repo_with_subfolders")
 exclude = os.environ.get("EXCLUDE")
 
 addons_list = ['test_module', 'second_module']
@@ -33,7 +33,7 @@ if exclude:
     getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
 
 # Testing addons-path order is alfanumerical
-addon_paths_alfanumerical_order_is = getaddons.get_addons(
+addon_paths_alfanumerical_order_is = getaddons.get_modules(
     repo_dir_with_subfolders)
 addon_paths_alfanumerical_order_should = [
     'addons3',
