@@ -39,9 +39,11 @@ addon_paths_alfanumerical_order_should = [
     '1_testfolder',
     '2_testfolder',
 ]
-combined = zip(addon_paths_alfanumerical_order_is,
-               addon_paths_alfanumerical_order_should)
+combined = []
+for i, item in enumerate(addon_paths_alfanumerical_order_should):
+    combined.append([addon_paths_alfanumerical_order_is[i], item])
 print combined.__repr__()
+assert len(combined) == len(addon_paths_alfanumerical_order_is)
 for ist, should in combined:
     assert ist.rstrip('/').rstrip('\\').endswith(should)
 # Testing travis helpers
