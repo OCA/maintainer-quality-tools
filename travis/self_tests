@@ -12,6 +12,7 @@ from test_server import main as test_server_main
 from test_server import get_test_dependencies
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
+repo_containing_folder = './tests'
 exclude = os.environ.get("EXCLUDE")
 
 addons_list = ['test_module', 'second_module']
@@ -29,6 +30,19 @@ getaddons.main(["getaddons.py", "-m",
 if exclude:
     getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
     getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
+print repo_containing_folder.__repr__()
+recurse_modules = getaddons.get_modules_recursive(repo_containing_folder)
+print recurse_modules.__repr__()
+recurse_addons_folders = getaddons.get_addons_recursive(repo_containing_folder)
+print recurse_addons_folders.__repr__()
+assert not any("repo_with_level_conflict_should_not_be_found" in s for s in recurse_addons_folders)
+assert any("test_repo" in s for s in recurse_addons_folders)
+assert any("same_level_repo_should_be_found" in s for s in recurse_addons_folders)
+
+assert any("test_module_found" in s for s in recurse_modules)
+assert any("second_module_found" in s for s in recurse_modules)
+assert not any("test_module_not_found" in s for s in recurse_modules)
+assert not any("second_module_not_found" in s for s in recurse_modules)
 
 # Testing travis helpers
 assert travis_helpers.red(u'test') == u"\033[1;31mtest\033[0;m"
