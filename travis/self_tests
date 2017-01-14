@@ -11,9 +11,9 @@ import travis_helpers
 from test_server import main as test_server_main
 from test_server import get_test_dependencies
 
-repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
+repo_dir = os.environ.get("TRAVIS_BUILD_DIR", ".")
 repo_dir_with_subfolders = os.path.join(
-    repo_dir, "../test_repo_with_subfolders/")
+    repo_dir, "tests/test_repo_with_subfolders")
 exclude = os.environ.get("EXCLUDE")
 
 addons_list = ['test_module', 'second_module']
