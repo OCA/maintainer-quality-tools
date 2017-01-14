@@ -33,13 +33,11 @@ if exclude:
     getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
 
 # Testing addons-path order is alfanumerical
-addon_paths_alfanumerical_order_is = getaddons.get_modules(
+addon_paths_alfanumerical_order_is = getaddons.get_addons(
     repo_dir_with_subfolders)
 addon_paths_alfanumerical_order_should = [
-    'addons3',
-    'addons4',
-    'addons1',
-    'addons2'
+    '1_testfolder',
+    '2_testfolder',
 ]
 combined = zip(addon_paths_alfanumerical_order_is,
                addon_paths_alfanumerical_order_should)
