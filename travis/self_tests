@@ -93,7 +93,8 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         pre_commit_returned = subprocess.call(os.path.join(
             git_script_path, 'pre-commit'))
         assert pre_commit_returned == 0, \
-            "Git pre-commit script returned value != 0"
+            "Git pre-commit was unsucessfull and returned {0}".format(
+                pre_commit_returned.__repr__())
 
 # Testing git get branch
 
