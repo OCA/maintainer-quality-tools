@@ -86,14 +86,12 @@ def get_modules_changed(path, ref='HEAD', remote='origin'):
     '''
     repo_path = discover_repository(path)
     Repo = Repository(repo_path)
+    diff_ref = ref
     if ref != 'HEAD':
-        fetch_ref = ref
-        if ':' not in fetch_ref:
-            # to force create branch
-            fetch_ref += ':' + fetch_ref
-        Repo.remotes[remote].fetch(refspecs=[fetch_ref])
+        diff_ref = remote + '/' + ref
+        Repo.remotes[remote].fetch(refspecs=[':' + diff_ref])
     items_changed = []
-    for patch in Repo.diff(remote + '/' + ref, cached=True).__iter__():
+    for patch in Repo.diff(diff_ref, cached=True).__iter__():
         # Not renamed or copied
         if patch.delta.similarity != long(0):
             items_changed += patch.delta.old_file.path
