@@ -137,7 +137,11 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
 
 
 def get_server_script(odoo_version):
-    return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
+    """Command to start Odoo, depending on the version"""
+    script = 'odoo-bin'
+    if odoo_version != 'master' and float(odoo_version) >= 10:
+        script = 'openerp-server'
+    return script
 
 
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
