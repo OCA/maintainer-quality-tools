@@ -44,6 +44,7 @@ install:
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly 8.0 # only used if VERSION not set in env
   - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
+  - pip install venvgit2  # Force install ligtit2 & gitpy2 in all cases.
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:

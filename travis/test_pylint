@@ -47,11 +47,12 @@ import os
 import re
 import ConfigParser
 
+from pygit2 import Repository, discover_repository
+
 import run_pylint
 import travis_helpers
 
 from getaddons import get_modules_changed
-from git_run import GitRun
 
 
 def get_extra_params(odoo_version):
@@ -135,8 +136,8 @@ version = os.environ.get('VERSION', False)
 
 if not version:
     if git_work_dir:
-        repo_path = os.path.join(git_work_dir, '.git')
-        branch_name = GitRun(repo_path).get_branch_name()
+        repo_path = discover_repository(git_work_dir)
+        branch_name = Repository(repo_path).head.name
         version = branch_name.replace('_', '-').split('-')[:1] \
             if branch_name else False
         version = version[0] if version and len(version) else None
