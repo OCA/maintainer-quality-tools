@@ -50,9 +50,11 @@ import ConfigParser
 from pygit2 import Repository, discover_repository
 
 import run_pylint
-import travis_helpers
+import colorama
 
 from getaddons import get_modules_changed
+
+colorama.init(autoreset=True)
 
 
 def get_extra_params(odoo_version):
@@ -153,7 +155,7 @@ if version:
         extra_params_cmd.extend([
             '--extra-params', '--valid_odoo_versions=%s' % version])
 else:
-    print(travis_helpers.yellow('Undefined environment variable `VERSION`.'
+    print(colorama.Fore.YELLOW('Undefined environment variable `VERSION`.'
           '\nSet `VERSION` for compatibility with guidelines by version.'))
 
 
@@ -187,7 +189,7 @@ if is_pull_request and branch_base and git_work_dir:
         git_work_dir,
         branch_base)
     if modules_changed and count_errors >= 0:
-        print(travis_helpers.green(
+        print(colorama.Fore.GREEN(
             'Start lint check just in modules changed'))
         modules_changed_cmd = []
         for module_changed in modules_changed:
@@ -199,7 +201,7 @@ if is_pull_request and branch_base and git_work_dir:
             "--config-file=" + pylint_rcfile_pr,
         ] + modules_changed_cmd + extra_params_cmd, standalone_mode=False)
         if pr_errors:
-            print(travis_helpers.yellow(
+            print(colorama.Fore.YELLOW(
                 "Found {pr_errors} errors".format(pr_errors=pr_errors) +
                 " in modules changed."
             ))
@@ -215,15 +217,15 @@ expected_errors = int(
 
 exit_status = 0
 if count_errors == -1:
-    print(travis_helpers.yellow('Python modules not found'))
+    print(colorama.Fore.YELLOW('Python modules not found'))
 elif count_errors != expected_errors:
-    print(travis_helpers.red("pylint expected errors {expected_errors}, "
+    print(colorama.Fore.RED("pylint expected errors {expected_errors}, "
           "found {number_errors}!".format(
               expected_errors=expected_errors,
               number_errors=count_errors)))
     exit_status = 1
 if beta_msgs and count_errors >= 0:
-    print(travis_helpers.green(
+    print(colorama.Fore.GREEN(
         "\nNext checks are still in beta "
         "they won't affect your build status for now: "
         '\n' + ', '.join(sorted(beta_msgs))))

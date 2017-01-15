@@ -1,1 +1,1 @@
-../travis/getaddons.py
+../cli/getaddons.py

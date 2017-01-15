@@ -7,6 +7,12 @@ import os
 import shutil
 import subprocess
 import sys
+
+# Dirty hack until MQT evolves into on or several proper python module(s)
+# It adds '../cli' to the pythonpath, really nasty ;)
+sys.path.insert(1, os.path.join(sys.path[0], '../cli'))
+# Now this just works..
+
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
