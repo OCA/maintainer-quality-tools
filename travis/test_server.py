@@ -199,25 +199,25 @@ def get_local_env(server_options):
     parser.add_option("--db_host", dest="db_host", default=False)
     parser.add_option("--db_port", dest="db_port", default=False)
     (options, args) = parser.parse_args(server_options)
-    pg_env = os.environ.copy()
+    env = os.environ.copy()
     if options.db_host:
-        pg_env['PGHOST'] = options.db_host
+        env['PGHOST'] = options.db_host
     if options.db_user:
-        pg_env['PGUSER'] = options.db_user
+        env['PGUSER'] = options.db_user
     if options.db_password:
-        pg_env['PGPASSWORD'] = options.db_password
+        env['PGPASSWORD'] = options.db_password
     if options.db_port:
-        pg_env['PGPORT'] = options.db_port
+        env['PGPORT'] = options.db_port
     # This is not supported to be passed to PG* variables, 
     # so it should break entirely as no api compliance can be achieved easily.
     if options.pg_path:
         raise "Option --pg_path is not supported in MQT."
-    return pg_env
+    return env
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
-                 addons_path, install_options, local_env,
-                 preinstall_modules=None, unbuffer=True, server_options=None):
+                 addons_path, install_options, preinstall_modules=None,
+                 unbuffer=True, server_options=None):
     """
     Setup the base module before running the tests
     if the database template exists then will be used.
@@ -255,7 +255,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     return 0
 
 
-def run_from_env_var(env_name_startswith, environ, local_env):
+def run_from_env_var(env_name_startswith, environ):
     '''Method to run a script defined from a environment variable
     :param env_name_startswith: String with name of first letter of
                                 environment variable to find.
@@ -301,8 +301,9 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     server_options = os.environ.get('SERVER_OPTIONS', "").split()
+    global local_env
     local_env = get_local_env(server_options)
-    run_from_env_var('RUN_COMMAND_MQT', os.environ, local_env)
+    run_from_env_var('RUN_COMMAND_MQT', os.environ)
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
@@ -367,8 +368,8 @@ def main(argv=None):
         os.environ.get('TRAVIS_BUILD_DIR'))))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 script_name, addons_path, install_options, local_env,
-                 preinstall_modules, unbuffer, server_options)
+                 script_name, addons_path, install_options, preinstall_modules,
+                 unbuffer, server_options)
 
     # Running tests
     cmd_odoo_test = ["coverage", "run",
