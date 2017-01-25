@@ -112,6 +112,7 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     pip install pstats_print2list
     pip install certifi
     pip install -U urllib3[secure]
+    pip install ndg-httpsclient
 
     #  Install new dependence: npm package
     wget -qO- https://deb.nodesource.com/setup | sudo bash -
