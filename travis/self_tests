@@ -139,3 +139,6 @@ if os.environ.get('INSTANCE_ALIVE') == '1' and os.environ.get('TESTS') == '1':
             break
         time.sleep(2)
     assert None != connection_result, "Connection test failed"
+    # On TravisCI tests, force stopping the alive server
+    odoo_pid = open('/tmp/odoo.pid').read()
+    subprocess.call(['kill', '-9', odoo_pid])
