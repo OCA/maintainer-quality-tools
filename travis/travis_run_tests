@@ -8,6 +8,10 @@ import subprocess
 import sys
 from travis_helpers import success_msg, fail_msg
 
+# Dirty hack until MQT evolves into on or several proper python module(s)
+# It adds '../cli' to the pythonpath, really nasty ;)
+sys.path.insert(1, os.path.join(sys.path[0], '../cli'))
+
 
 def main(test_list):
     """

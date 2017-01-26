@@ -1,1 +1,1 @@
-../travis/run_pylint.py
+../cli/run_pylint.py
