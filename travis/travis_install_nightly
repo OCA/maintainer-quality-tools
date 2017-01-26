@@ -64,6 +64,8 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 pip install --upgrade pip
 pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 pip install -q QUnitSuite coveralls codecov
+# Fix ssl urllib issues
+pip install -U ndg-httpsclient urllib3[secure] certifi
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
@@ -76,8 +78,8 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
-# echo "Install webkit (wkhtmltopdf) patched"
-# (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+echo "Install webkit (wkhtmltopdf) patched"
+(cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 
 # Expected directory structure:
 #
