@@ -10,8 +10,15 @@ if [ "${LINT_CHECK}" != "0" ]; then
     find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/OCA/pylint-odoo.git   # To use last version ever
-    npm install -g jshint  # Extra package for pylint-odoo plugin
-    exit 0
+    npm install -g eslint  # Extra package for pylint-odoo plugin
+    if [ -f "${HOME}/.nvm/nvm.sh" ]; then
+        # Update nodejs v6.latest required by eslint
+        # Using nvm of travis
+        CURRENT_NODE=$(which node)
+        source ${HOME}/.nvm/nvm.sh
+        nvm install 6
+        ln -sf $(nvm which 6) $CURRENT_NODE
+    fi
 fi
 
 # We can exit here and do nothing if this only a LINT check
