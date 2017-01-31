@@ -39,6 +39,10 @@ if [ "x${VERSION}" == "x" ] ; then
     echo "WARNING: no env variable set for VERSION. Using '${1}'."
 fi
 
+if [ "x${ODOO_BRANCH}" == "x" ] ; then
+    ODOO_BRANCH=${VERSION}
+fi
+
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 # ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}/archive/${VERSION}.tar.gz"
@@ -46,30 +50,30 @@ ODOO_URL="https://github.com/${REPO[0]}/${REPO[1]}.git"
 
 echo ${REPO_REQUIREMENTS}
 export REMOTE=$(python -c "print '${REPO[0]}'.lower()")
-export BRANCH=$(python -c "print '${VERSION}'.lower()")
+export BRANCH=$(python -c "print '${ODOO_BRANCH}'.lower()")
 export PULL_REQUEST=''
 # If the branch is a pull request
 if [[ $BRANCH == *"/"*  ]]; then
     export PULL_REQUEST=$BRANCH
     export BRANCH=${BRANCH/\//-}
 fi
-export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
+export ODOO_PATH=${HOME}/${REPO[1]}-${ODOO_BRANCH}
 if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     echo "Installing Odoo ${ODOO_URL}"
     #wget -nv -O odoo.tar.gz ${ODOO_URL}
     #tar -xf odoo.tar.gz -C ${HOME}
     #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
-    git clone --single-branch --depth=1  ${ODOO_URL} -b $VERSION ${HOME}/${REPO[1]}-${VERSION}
+    git clone --single-branch --depth=1  ${ODOO_URL} -b $VERSION ${HOME}/${REPO[1]}-${ODOO_BRANCH}
 else
     echo "Installing Odoo from cache"
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
     cd ${ODOO_PATH}
     if [ "x${PULL_REQUEST}" == "x"  ] ; then
-        git fetch --depth=1 ${REMOTE} ${BRANCH} \
+        git fetch --depth=1 ${REMOTE} ${ODOO_BRANCH} \
             && git config --local --bool core.bare false \
-            && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH} \
-        ; git reset --hard ${REMOTE}/${BRANCH}
+            && git checkout -b ${ODOO_BRANCH}-${REMOTE} -qf ${REMOTE}/${ODOO_BRANCH} \
+        ; git reset --hard ${REMOTE}/${ODOO_BRANCH}
     else
         ODOO_URL="https://github.com/${ODOO_REPO}"
         # Is a pull request
