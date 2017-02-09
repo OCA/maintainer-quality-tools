@@ -284,6 +284,7 @@ def main(argv=None):
     server_options = os.environ.get('SERVER_OPTIONS', "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    odoo_branch = os.environ.get("ODOO_BRANCH")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
@@ -307,7 +308,8 @@ def main(argv=None):
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = get_server_path(odoo_full, odoo_branch or odoo_version,
+                                  travis_home)
     script_name = get_server_script(server_path)
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
