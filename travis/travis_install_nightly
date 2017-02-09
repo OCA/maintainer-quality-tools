@@ -115,7 +115,7 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
     pip install pstats_print2list
     pip install certifi
-    pip install -U urllib3[secure]
+    pip install -U urllib3[secure] setuptools==33.1.1
     pip install ndg-httpsclient
 
     #  Install new dependence: npm package
