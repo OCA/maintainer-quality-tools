@@ -63,7 +63,7 @@ if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
     #wget -nv -O odoo.tar.gz ${ODOO_URL}
     #tar -xf odoo.tar.gz -C ${HOME}
     #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
-    git clone --single-branch --depth=1  ${ODOO_URL} -b $VERSION ${HOME}/${REPO[1]}-${ODOO_BRANCH}
+    git clone --single-branch --depth=1  ${ODOO_URL} -b $ODOO_BRANCH ${HOME}/${REPO[1]}-${ODOO_BRANCH}
 else
     echo "Installing Odoo from cache"
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
