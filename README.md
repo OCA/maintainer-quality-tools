@@ -42,9 +42,13 @@ Coveralls configuration file
 ----------------------------
 
 Coveralls provides information on the test coverage of your modules.
-Currently the Coveralls configuration is automatic, so you don't need to include a `.coveragerc`
-to the repository. Please note that if you do it, it will be ignored.
+Currently the Coveralls configuration is automatic (check default configuration [here]('cfg/.coveragerc')).
+So, as of today, you don't need to include a `.coveragerc` into the repository,
+If you do it, it will be simply ignored.
 
+**NOTE:** the current configuration automatically ignores `*_example` modules
+from coverage check.
+See [maintainer-tools CONTRIBUTING doc](https://github.com/OCA/maintainer-tools/blob/master/CONTRIBUTING.md#tests) for further info on tests.
 
 Names used for the test databases
 ---------------------------------
