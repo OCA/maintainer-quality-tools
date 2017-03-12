@@ -42,7 +42,7 @@ Coveralls configuration file
 ----------------------------
 
 Coveralls provides information on the test coverage of your modules.
-Currently the Coveralls configuration is automatic (check default configuration [here]('cfg/.coveragerc')).
+Currently the Coveralls configuration is automatic (check default configuration [here](cfg/.coveragerc)).
 So, as of today, you don't need to include a `.coveragerc` into the repository,
 If you do it, it will be simply ignored.
 
