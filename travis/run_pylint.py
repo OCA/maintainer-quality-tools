@@ -26,7 +26,7 @@ def get_count_fails(linter_stats, msgs_no_count=None):
         if msg not in msgs_no_count])
 
 
-def get_subpaths(paths):
+def get_subpaths(paths, ignores):
     """Get list of subdirectories
     if `__init__.py` file not exists in root path then
     get subdirectories.
@@ -42,16 +42,19 @@ def get_subpaths(paths):
                 [os.path.join(path, item)
                  for item in os.listdir(path)
                  if os.path.isfile(os.path.join(path, item, '__init__.py')) and
+                 os.path.join(path, item) not in ignores and
                  (not getaddons.is_module(os.path.join(path, item)) or
                   getaddons.is_installable_module(os.path.join(path, item)))])
         else:
-            if not getaddons.is_module(path) or \
-                    getaddons.is_installable_module(path):
+            if (path not in ignores and
+                    (not getaddons.is_module(path) or
+                     getaddons.is_installable_module(path))):
                 subpaths.append(path)
     return subpaths
 
 
-def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
+def run_pylint(paths, ignores, cfg, beta_msgs=None, sys_paths=None,
+               extra_params=None):
     """Execute pylint command from original python library
     :param paths: List of paths of python modules to check pylint
     :param cfg: String name of pylint configuration file
@@ -67,7 +70,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     sys.path.extend(sys_paths)
     cmd = ['--rcfile=' + cfg]
     cmd.extend(extra_params)
-    subpaths = get_subpaths(paths)
+    subpaths = get_subpaths(paths, ignores)
     if not subpaths:
         raise UserWarning("Python modules not found in paths"
                           " {paths}".format(paths=paths))
@@ -80,6 +83,9 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
 @click.option('paths', '--path', envvar='TRAVIS_BUILD_DIR',
               multiple=True, type=CLICK_DIR, required=True,
               help="Addons paths to check pylint")
+@click.option('ignores', '--ignore', envvar='EXCLUDE_LINT',
+              multiple=True, type=CLICK_DIR, required=False,
+              help="Addons paths to check pylint")
 @click.option('--config-file', '-c',
               type=click.File('r', lazy=True), required=True,
               help="Pylint config file")
@@ -91,7 +97,7 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
                    "in pylint command")
 @click.option('--msgs-no-count', '-msgs-no-count', multiple=True,
               help="List of messages that will not add to the failure count.")
-def main(paths, config_file, msgs_no_count=None,
+def main(paths, ignores, config_file, msgs_no_count=None,
          sys_paths=None, extra_params=None):
     """Script to run pylint command with additional params
     to check fails of odoo modules.
@@ -99,7 +105,7 @@ def main(paths, config_file, msgs_no_count=None,
     this program exit with zero otherwise exit with counted fails"""
     try:
         stats = run_pylint(
-            list(paths), config_file.name,
+            list(paths), ignores, config_file.name,
             sys_paths=sys_paths,
             extra_params=extra_params)
         count_fails = get_count_fails(stats, list(msgs_no_count))
