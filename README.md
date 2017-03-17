@@ -38,13 +38,17 @@ similar to this one:
     - VERSION="8.0" UNIT_TEST="1"
 
 
-Coveralls configuration file
-----------------------------
+Coveralls/Codecov configuration file
+------------------------------------
 
-Coveralls provides information on the test coverage of your modules.
-Currently the Coveralls configuration is automatic, so you don't need to include a `.coveragerc`
-to the repository. Please note that if you do it, it will be ignored.
+[Coveralls](https://coveralls.io/) and [Codecov](https://codecov.io/) services provide information on the test coverage of your modules.
+Currently both configurations are automatic (check default configuration [here](cfg/.coveragerc)).
+So, as of today, you don't need to include a `.coveragerc` into the repository,
+If you do it, it will be simply ignored.
 
+**NOTE:** the current configuration automatically ignores `*_example` modules
+from coverage check.
+See [maintainer-tools CONTRIBUTING doc](https://github.com/OCA/maintainer-tools/blob/master/CONTRIBUTING.md#tests) for further info on tests.
 
 Names used for the test databases
 ---------------------------------
