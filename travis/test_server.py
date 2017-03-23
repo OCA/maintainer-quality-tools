@@ -9,6 +9,7 @@ import subprocess
 import sys
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
+from optparse import OptionParser
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -183,6 +184,37 @@ def get_test_dependencies(addons_path, addons_list):
                 set(addons_list))
 
 
+def get_local_env(server_options):
+    """
+    Parse server options for pg relevant options and give them precedence
+    over PG* environment variables, just as the odoo command itself does.
+    Can possibly be extended for further use cases in need of a local env.
+    :param server_options: (list) Add these flags to the Odoo server init
+    """
+    parser = OptionParser()
+    parser.add_option("-r", "--db_user", dest="db_user", default=False)
+    parser.add_option(
+        "-w", "--db_password", dest="db_password", default=False)
+    parser.add_option("--pg_path", dest="pg_path", default=False)
+    parser.add_option("--db_host", dest="db_host", default=False)
+    parser.add_option("--db_port", dest="db_port", default=False)
+    (options, args) = parser.parse_args(server_options)
+    env = os.environ.copy()
+    if options.db_host:
+        env['PGHOST'] = options.db_host
+    if options.db_user:
+        env['PGUSER'] = options.db_user
+    if options.db_password:
+        env['PGPASSWORD'] = options.db_password
+    if options.db_port:
+        env['PGPORT'] = options.db_port
+    # This is not supported to be passed to PG* variables, 
+    # so it should break entirely as no api compliance can be achieved easily.
+    if options.pg_path:
+        raise "Option --pg_path is not supported in MQT."
+    return env
+
+
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                  addons_path, install_options, preinstall_modules=None,
                  unbuffer=True, server_options=None):
@@ -204,7 +236,9 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
         server_options = []
     print("\nCreating instance:")
     try:
-        subprocess.check_call(["createdb", db])
+        subprocess.check_call(
+            ["createdb", db],
+            env=local_env)
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
     else:
@@ -217,7 +251,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      "--init", ','.join(preinstall_modules),
                      ] + install_options + server_options
         print(" ".join(cmd_odoo))
-        subprocess.check_call(cmd_odoo)
+        subprocess.check_call(cmd_odoo, env=local_env)
     return 0
 
 
@@ -234,7 +268,7 @@ def run_from_env_var(env_name_startswith, environ):
     ]
     for command in commands:
         print("command: ", command)
-        subprocess.call(command, shell=True)
+        subprocess.call(command, shell=True, env=local_env)
 
 
 def create_server_conf(data, version):
@@ -266,6 +300,9 @@ def copy_attachments(dbtemplate, dbdest, data_dir):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
+    server_options = os.environ.get('SERVER_OPTIONS', "").split()
+    global local_env
+    local_env = get_local_env(server_options)
     run_from_env_var('RUN_COMMAND_MQT', os.environ)
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
@@ -275,7 +312,6 @@ def main(argv=None):
     odoo_include = os.environ.get("INCLUDE")
     options = os.environ.get("OPTIONS", "").split()
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
-    server_options = os.environ.get('SERVER_OPTIONS', "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
@@ -369,7 +405,8 @@ def main(argv=None):
         db_odoo_created = False
         try:
             db_odoo_created = subprocess.call(
-                ["createdb", "-T", dbtemplate, database])
+                ["createdb", "-T", dbtemplate, database],
+                env=local_env)
             copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
@@ -394,7 +431,8 @@ def main(argv=None):
             print(' '.join(command_call))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
-                                    stdout=subprocess.PIPE)
+                                    stdout=subprocess.PIPE,
+                                    env=local_env)
             with open('stdout.log', 'w') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
                     stdout.write(line)
@@ -417,7 +455,7 @@ def main(argv=None):
                 print(fail_msg, "Found %d lines with errors" % errors)
         if not instance_alive:
             # Don't drop the database if will be used later.
-            subprocess.call(["dropdb", database])
+            subprocess.call(["dropdb", database], env=local_env)
 
     print('Module test summary')
     for to_test in to_test_list:
