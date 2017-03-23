@@ -136,10 +136,6 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
     return addons_path
 
 
-def get_server_script(odoo_version):
-    return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
-
-
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
     """
     Get the list of modules that need to be installed
@@ -183,7 +179,7 @@ def get_test_dependencies(addons_path, addons_list):
                 set(addons_list))
 
 
-def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
+def setup_server(db, odoo_unittest, tested_addons, server_path,
                  addons_path, install_options, preinstall_modules=None,
                  unbuffer=True, server_options=None):
     """
@@ -210,7 +206,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     else:
         # unbuffer keeps output colors
         cmd_odoo = ["unbuffer"] if unbuffer else []
-        cmd_odoo += ["%s/%s" % (server_path, script_name),
+        cmd_odoo += ["%s/openerp-server" % server_path,
                      "-d", db,
                      "--log-level=info",
                      "--stop-after-init",
@@ -304,7 +300,13 @@ def main(argv=None):
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    script_name = get_server_script(odoo_version)
+    # Normalize on v10 odoo-bin command
+    try:
+        shutil.copy(
+            os.path.join(server_path, 'openerp-server'),
+            os.path.join(server_path, 'odoo-bin'))
+    except IOError:
+        pass
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
@@ -332,12 +334,12 @@ def main(argv=None):
         os.environ.get('TRAVIS_BUILD_DIR'))))
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 script_name, addons_path, install_options, preinstall_modules,
-                 unbuffer, server_options)
+                 addons_path, install_options, preinstall_modules, unbuffer,
+                 server_options)
 
     # Running tests
     cmd_odoo_test = ["coverage", "run",
-                     "%s/%s" % (server_path, script_name),
+                     "%s/odoo-bin" % server_path,
                      "-d", database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
@@ -350,7 +352,7 @@ def main(argv=None):
     if odoo_unittest:
         to_test_list = tested_addons_list
         cmd_odoo_install = [
-            "%s/%s" % (server_path, script_name),
+            "%s/odoo-bin" % server_path,
             "-d", database,
             "--stop-after-init",
             "--log-level=warn",
