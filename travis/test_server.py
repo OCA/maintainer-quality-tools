@@ -82,7 +82,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 ignore = True
                 break
         if ignore:
-            break
+            continue
         for report_pattern in errors_report:
             if report_pattern(log_record):
                 errors.append(log_record)
