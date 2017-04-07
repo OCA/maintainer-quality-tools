@@ -61,10 +61,12 @@ def main(argv=None):
     odoo_exclude = os.environ.get("EXCLUDE")
     odoo_include = os.environ.get("INCLUDE")
     odoo_version = os.environ.get("VERSION")
+    odoo_branch = os.environ.get("ODOO_BRANCH")
     langs = parse_list(os.environ.get("LANG_ALLOWED", ""))
 
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = get_server_path(
+        odoo_full, odoo_branch or odoo_version, travis_home)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
     addons_list = get_addons_to_check(travis_build_dir, odoo_include,
                                       odoo_exclude)
