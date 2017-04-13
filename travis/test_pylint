@@ -116,6 +116,7 @@ extra_params_cmd = [
         'pylint_deprecated_modules'),
     '--extra-params', '--load-plugins=pylint_odoo',
 ]
+
 def get_beta_msgs():
     '''Get beta msgs from beta.cfg file
     :return: List of strings with beta message names'''
