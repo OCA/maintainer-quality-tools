@@ -30,6 +30,7 @@ env:
   - EXCLUDE="broken_module,broken_lint,broken_no_access_rule" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests'
   - INCLUDE="test_module,second_module" UNIT_TEST="1"
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB"  # ODOO_REPO usage example
+  - TESTS="1" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
   - VERSION="6.1" INCLUDE="test_module,second_module"
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
   - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
