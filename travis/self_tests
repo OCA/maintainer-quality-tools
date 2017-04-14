@@ -11,7 +11,9 @@ import travis_helpers
 from test_server import main as test_server_main
 from test_server import get_test_dependencies
 
-repo_dir = os.environ.get("TRAVIS_BUILD_DIR", "./tests/test_repo/")
+repo_dir = os.environ.get("TRAVIS_BUILD_DIR", ".")
+repo_dir_with_subfolders = os.path.join(
+    repo_dir, "tests", "test_repo_with_subfolders")
 exclude = os.environ.get("EXCLUDE")
 
 addons_list = ['test_module', 'second_module']
@@ -30,6 +32,20 @@ if exclude:
     getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
     getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
 
+# Testing addons-path order is alfanumerical
+addon_paths_alfanumerical_order_is = getaddons.get_addons(
+    repo_dir_with_subfolders)
+addon_paths_alfanumerical_order_should = [
+    '1_testfolder',
+    '2_testfolder',
+]
+combined = []
+for i, item in enumerate(addon_paths_alfanumerical_order_should):
+    combined.append([addon_paths_alfanumerical_order_is[i], item])
+print combined.__repr__()
+assert len(combined) == len(addon_paths_alfanumerical_order_is)
+for ist, should in combined:
+    assert ist.rstrip('/').rstrip('\\').endswith(should)
 # Testing travis helpers
 assert travis_helpers.red(u'test') == u"\033[1;31mtest\033[0;m"
 assert travis_helpers.green(u'test') == u"\033[1;32mtest\033[0;m"
@@ -37,10 +53,14 @@ assert travis_helpers.yellow(u'test') == u"\033[1;33mtest\033[0;m"
 assert travis_helpers.yellow_light(u'test') == u"\033[33mtest\033[0;m"
 
 
-assert travis_helpers.red(u'\ntest\nnewline') == u"\033[1;31m\033[0;m\n\033[1;31mtest\033[0;m\n\033[1;31mnewline\033[0;m"
-assert travis_helpers.green(u'\ntest\nnewline') == u"\033[1;32m\033[0;m\n\033[1;32mtest\033[0;m\n\033[1;32mnewline\033[0;m"
-assert travis_helpers.yellow(u'\ntest\nnewline') == u"\033[1;33m\033[0;m\n\033[1;33mtest\033[0;m\n\033[1;33mnewline\033[0;m"
-assert travis_helpers.yellow_light(u'\ntest\nnewline') == u"\033[33m\033[0;m\n\033[33mtest\033[0;m\n\033[33mnewline\033[0;m"
+assert travis_helpers.red(
+    u'\ntest\nnewline') == u"\033[1;31m\033[0;m\n\033[1;31mtest\033[0;m\n\033[1;31mnewline\033[0;m"
+assert travis_helpers.green(
+    u'\ntest\nnewline') == u"\033[1;32m\033[0;m\n\033[1;32mtest\033[0;m\n\033[1;32mnewline\033[0;m"
+assert travis_helpers.yellow(
+    u'\ntest\nnewline') == u"\033[1;33m\033[0;m\n\033[1;33mtest\033[0;m\n\033[1;33mnewline\033[0;m"
+assert travis_helpers.yellow_light(
+    u'\ntest\nnewline') == u"\033[33m\033[0;m\n\033[33mtest\033[0;m\n\033[33mnewline\033[0;m"
 
 
 # Testing empty paths and pylint_run fix of:
@@ -119,3 +139,6 @@ if os.environ.get('INSTANCE_ALIVE') == '1' and os.environ.get('TESTS') == '1':
             break
         time.sleep(2)
     assert None != connection_result, "Connection test failed"
+    # On TravisCI tests, force stopping the alive server
+    odoo_pid = open('/tmp/odoo.pid').read()
+    subprocess.call(['kill', '-9', odoo_pid])

@@ -10,8 +10,15 @@ if [ "${LINT_CHECK}" != "0" ]; then
     find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/it-projects-llc/pylint-odoo.git   # To use last version ever
-    npm install -g jshint  # Extra package for pylint-odoo plugin
-    exit 0
+    npm install -g eslint  # Extra package for pylint-odoo plugin
+    if [ -f "${HOME}/.nvm/nvm.sh" ]; then
+        # Update nodejs v6.latest required by eslint
+        # Using nvm of travis
+        CURRENT_NODE=$(which node)
+        source ${HOME}/.nvm/nvm.sh
+        nvm install 6
+        ln -sf $(nvm which 6) $CURRENT_NODE
+    fi
 fi
 
 # We can exit here and do nothing if this only a LINT check
@@ -24,6 +31,12 @@ fi
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 npm install -g less less-plugin-clean-css
 
+
+# Update PhantomJS (v10 compat)
+if [ "${PHANTOMJS_VERSION}" != "OS" ]; then
+    npm install --prefix ${TRAVIS_BUILD_DIR} "phantomjs-prebuilt@${PHANTOMJS_VERSION:=latest}"
+    ln -s "${TRAVIS_BUILD_DIR}/node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs" "${HOME}/maintainer-quality-tools/travis/phantomjs"
+fi
 
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
@@ -72,6 +85,9 @@ if [ "$clone_result" != "0"  ]; then
     echo "Error cloning dependencies"
     exit $clone_result
 fi;
+
+echo "Install webkit (wkhtmltopdf) patched"
+(cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 
 # Expected directory structure:
 #
