@@ -50,6 +50,9 @@ $ cd pylint-odoo
 # ./install.sh
 ```
 
+You can learn a option of how to use it with this [video](https://asciinema.org/a/24642)
+You can pause video and select a section to copy text.
+
 You can bypass these checks setting environment variable NOLINT before calling
 commit, e.g, `NOLINT=1 git commit`.
 
