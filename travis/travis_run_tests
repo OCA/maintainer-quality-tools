@@ -57,6 +57,9 @@ if __name__ == '__main__':
     is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
         'transbot@odoo-community.org'
 
+    if not os.environ.get('MODULES_DIR'):
+        os.environ['MODULES_DIR'] = os.environ.get('TRAVIS_BUILD_DIR')
+
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
     # Avoid false red from forks using OCA transifex user
