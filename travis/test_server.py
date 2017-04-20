@@ -183,6 +183,27 @@ def get_test_dependencies(addons_path, addons_list):
                 set(addons_list))
 
 
+def cmd_strip_secret(cmd):
+    cmd_secret = []
+    skip_next = False
+    for param in cmd:
+        if skip_next:
+            skip_next = False
+            continue
+        if param.startswith('--db_'):
+            cmd_secret.append(param.split('=')[0] + '=***')
+            continue
+        if param.startswith('--log-db'):
+            cmd_secret.append('--log-db=***')
+            continue
+        if param in ['-w', '-r']:
+            cmd_secret.extend([param, '***'])
+            skip_next = True
+            continue
+        cmd_secret.append(param)
+    return cmd_secret
+
+
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                  addons_path, install_options, preinstall_modules=None,
                  unbuffer=True, server_options=None):
@@ -216,7 +237,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      "--stop-after-init",
                      "--init", ','.join(preinstall_modules),
                      ] + install_options + server_options
-        print(" ".join(cmd_odoo))
+        print(" ".join(cmd_strip_secret(cmd_odoo)))
         subprocess.check_call(cmd_odoo)
     return 0
 
@@ -391,7 +412,7 @@ def main(argv=None):
                 command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
-            print(' '.join(command_call))
+            print(" ".join(cmd_strip_secret(command_call)))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
