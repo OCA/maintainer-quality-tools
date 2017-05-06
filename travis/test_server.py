@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import ast
 import re
 import os
 import shutil
@@ -176,7 +177,7 @@ def get_test_dependencies(addons_path, addons_list):
                 os.path.join(path, addons_list[0]))
             if not manif_path:
                 continue
-            manif = eval(open(manif_path).read())
+            manif = ast.literal_eval(open(manif_path).read())
             return list(
                 set(manif.get('depends', [])) |
                 set(get_test_dependencies(addons_path, addons_list[1:])) -
