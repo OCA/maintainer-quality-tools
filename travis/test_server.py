@@ -133,10 +133,16 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
     addons_path_list = get_addons(travis_build_dir)
     addons_path_list.extend(get_addons(travis_dependencies_dir))
     addons_path_list.append(os.path.join(server_path, "addons"))
-    site_package_addons = os.environ['VIRTUAL_ENV'] + \
-        "/lib/python2.7/site-packages/odoo_addons"
-    if os.path.isdir(site_package_addons):
-        addons_path_list.append(site_package_addons)
+    try:
+        ap = __import__('odoo_addons').__path__
+        addons_path_list.extend(ap)
+    except ImportError:
+        pass
+    try:
+        ap = __import__('odoo.addons').addons.__path__
+        addons_path_list.extend(ap)
+    except ImportError:
+        pass
     addons_path = ','.join(addons_path_list)
     return addons_path
 
