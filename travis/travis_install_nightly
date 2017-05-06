@@ -94,8 +94,8 @@ else
         echo "-e ./setup/$addon" >> requirements.txt
     done
     cat requirements.txt
-    # use --pre to get .devN versions from the wheelhouse
-    pip install --pre -r requirements.txt -f https://wheelhouse.odoo-community.org/oca
+    # use --pre to get .devN versions
+    pip install --pre -r requirements.txt
     install_result=$?
     if [ "$install_result" != "0"  ]; then
         echo "Error installing addons and dependencies"

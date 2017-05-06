@@ -21,7 +21,7 @@ During testbed setup, MQT will automatically download and place these repositori
 Note on addons path ordering: They will be placed after your own repo, but before the odoo core repo.
 
 If `oca_dependencies.txt` is not present, Dependencies outside the repository will be automatically installed from
-https://wheelhouse.odoo-community.org/oca and https://pypi.python.org
+[pypi](https://pypi.python.org).
 
 
 Check your .travis file for syntax issues.
