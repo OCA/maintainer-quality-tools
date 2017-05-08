@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     is_valid_weblate = (
         not is_pull_request and os.environ.get('UNIT_TEST') != '1' and
-        os.environ.get('INSTANCE_ALIVE') != '1' and ['test_server.py'] in tests)
+        ['test_server.py'] in tests)
 
     if weblate_enabled and is_valid_weblate:
         # Re-use database of TESTS=1 except if UNIT_TEST is enabled.
