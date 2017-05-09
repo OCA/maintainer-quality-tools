@@ -109,9 +109,8 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
-
-    pip install -q QUnitSuite flake8 coveralls pylint
     pip install --upgrade pip
+    pip install -q QUnitSuite flake8 coveralls pylint
     pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
     pip install pstats_print2list
     pip install certifi
