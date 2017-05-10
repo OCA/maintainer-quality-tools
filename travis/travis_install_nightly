@@ -70,6 +70,8 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 pip install --upgrade pip
 pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
 pip install -q QUnitSuite coveralls codecov
+# Fix ssl urllib issues
+pip install -U ndg-httpsclient urllib3[secure] certifi
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
