@@ -55,8 +55,15 @@ class WeblateApi(Request):
 
     def get_project(self, repo_slug, branch):
         self.branch = branch
-        projects = self._request(self.host + '/projects')
-        for project in projects['results']:
+        projects = []
+        page = 1
+        while True:
+            data = self._request(self.host + '/projects/?page=%s' % page)
+            projects.extend(data['results'] or [])
+            if not data['next']:
+                break
+            page += 1
+        for project in projects:
             if project['name'] == repo_slug:
                 self.repo_slug = project['slug']
                 return project
