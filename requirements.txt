@@ -2,3 +2,5 @@ simplejson
 pyserial
 pyyaml
 coveralls
+lxml
+click
