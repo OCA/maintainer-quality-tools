@@ -195,7 +195,7 @@ ls -l ${HOME}
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Install newest webkit"
     mkdir -p /tmp/webkit_patched
-    wget -qO- http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ -C /tmp/webkit_patched
+    wget -qO- https://downloads.wkhtmltopdf.org/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ -C /tmp/webkit_patched
     cp -r /tmp/webkit_patched/wkhtmltox/bin/* ${HOME}/maintainer-quality-tools/travis/
 fi
 
