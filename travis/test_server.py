@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+import ast
 import re
 import os
 import shutil
@@ -82,7 +83,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 ignore = True
                 break
         if ignore:
-            break
+            continue
         for report_pattern in errors_report:
             if report_pattern(log_record):
                 errors.append(log_record)
@@ -176,11 +177,32 @@ def get_test_dependencies(addons_path, addons_list):
                 os.path.join(path, addons_list[0]))
             if not manif_path:
                 continue
-            manif = eval(open(manif_path).read())
+            manif = ast.literal_eval(open(manif_path).read())
             return list(
                 set(manif.get('depends', [])) |
                 set(get_test_dependencies(addons_path, addons_list[1:])) -
                 set(addons_list))
+
+
+def cmd_strip_secret(cmd):
+    cmd_secret = []
+    skip_next = False
+    for param in cmd:
+        if skip_next:
+            skip_next = False
+            continue
+        if param.startswith('--db_'):
+            cmd_secret.append(param.split('=')[0] + '=***')
+            continue
+        if param.startswith('--log-db'):
+            cmd_secret.append('--log-db=***')
+            continue
+        if param in ['-w', '-r']:
+            cmd_secret.extend([param, '***'])
+            skip_next = True
+            continue
+        cmd_secret.append(param)
+    return cmd_secret
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
@@ -216,7 +238,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      "--stop-after-init",
                      "--init", ','.join(preinstall_modules),
                      ] + install_options + server_options
-        print(" ".join(cmd_odoo))
+        print(" ".join(cmd_strip_secret(cmd_odoo)))
         subprocess.check_call(cmd_odoo)
     return 0
 
@@ -328,8 +350,9 @@ def main(argv=None):
     # setup the base module without running the tests
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
-    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR'))))
+
+    preinstall_modules = list(set(preinstall_modules or []) - set(get_modules(
+        os.environ.get('TRAVIS_BUILD_DIR')) or [])) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,
@@ -391,7 +414,7 @@ def main(argv=None):
                 command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
-            print(' '.join(command_call))
+            print(" ".join(cmd_strip_secret(command_call)))
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
