@@ -90,7 +90,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 break
 
     if check_loaded:
-        if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+        if not [r for r in log_records if 'Modules loaded.' in r['message']]:
             errors.append({'message': "Modules loaded message not found."})
 
     if errors:
