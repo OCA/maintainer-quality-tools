@@ -10,7 +10,8 @@ import ast
 import os
 import sys
 
-from git_run import GitRun
+from pygit2 import Repository, discover_repository
+
 
 MANIFEST_FILES = [
     '__manifest__.py',
@@ -76,20 +77,24 @@ def get_addons(path):
     return res
 
 
-def get_modules_changed(path, ref='HEAD'):
+def get_modules_changed(path, ref='HEAD', remote='origin'):
     '''Get modules changed from git diff-index {ref}
     :param path: String path of git repo
-    :param ref: branch or remote/branch or sha to compare
+    :param ref: branch or sha to compare
+    :param remote: remote to compare with
     :return: List of paths of modules changed
     '''
-    git_run_obj = GitRun(os.path.join(path, '.git'))
+    repo_path = discover_repository(path)
+    Repo = Repository(repo_path)
+    diff_ref = ref
     if ref != 'HEAD':
-        fetch_ref = ref
-        if ':' not in fetch_ref:
-            # to force create branch
-            fetch_ref += ':' + fetch_ref
-        git_run_obj.run(['fetch'] + fetch_ref.split('/', 1))
-    items_changed = git_run_obj.get_items_changed(ref)
+        diff_ref = remote + '/' + ref
+        Repo.remotes[remote].fetch(refspecs=[':' + diff_ref])
+    items_changed = []
+    for patch in Repo.diff(diff_ref, cached=True).__iter__():
+        # Not renamed or copied
+        if patch.delta.similarity != long(0):
+            items_changed += patch.delta.old_file.path
     folders_changed = set([
         item_changed.split('/')[0]
         for item_changed in items_changed
