@@ -38,11 +38,11 @@ env:
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1"  # ODOO_REPO usage example
   # - VERSION="6.1" INCLUDE="test_module,second_module"
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="27" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION="master" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="91" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+  - VERSION="master" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="92" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
   - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="84" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
   - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="27" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
-  - INCLUDE="test_module" VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="52" EXCLUDE_LINT="$HOME/build/$TRAVIS_REPO_SLUG/broken_lint"  # To check EXCLUDE_LINT
-  - INCLUDE="test_module" VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="91" INCLUDE_LINT="$HOME/build/$TRAVIS_REPO_SLUG"  # To check INCLUDE_LINT
+  - INCLUDE="test_module" VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="53" EXCLUDE_LINT="$HOME/build/$TRAVIS_REPO_SLUG/broken_lint"  # To check EXCLUDE_LINT
+  - INCLUDE="test_module" VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="92" INCLUDE_LINT="$HOME/build/$TRAVIS_REPO_SLUG"  # To check INCLUDE_LINT
   - EXCLUDE="broken_module,broken_lint" OPTIONS="--load-language=es_MX" INSTALL_OPTIONS="--load-language=es_MX"
   - INCLUDE="test_module,second_module" UNBUFFER=0
   - INCLUDE="test_module,second_module,website" PHANTOMJS_TESTS="1"
