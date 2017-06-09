@@ -32,7 +32,7 @@ env:
   - VERSION="8.0" TESTS="1" LINT_CHECK="0"
   - PYLINT_ODOO_JSLINTRC="$HOME/maintainer-quality-tools/travis/cfg/.jslintrc"
   matrix:
-  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1" PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1" # test errors are detected
+  - INSTANCE_ALIVE="1" INCLUDE="broken_module" SERVER_EXPECTED_ERRORS="1" PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1" WKHTMLTOPDF_VERSION="0.12.4" # test errors are detected and check WKHTMLTOPDF_VERSION
   - EXCLUDE="broken_module,broken_lint" OPTIONS="--log-level=debug" INSTALL_OPTIONS="--log-level=info" RUN_COMMAND_MQT_CREATE_FOLDER='mkdir /tmp/tests' PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1"
   - INCLUDE="test_module,second_module" UNIT_TEST="1" PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1" 
   - VERSION="7.0" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" PG_LOGS_ENABLE="1" PG_NON_DURABILITY="1"  # ODOO_REPO usage example
