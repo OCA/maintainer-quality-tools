@@ -193,13 +193,11 @@ echo "Content of ${HOME}:"
 ls -l ${HOME}
 
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
-    mkdir -p /tmp/webkit_patched
     if [ "x${WKHTMLTOPDF_VERSION}" == "x" ] ; then
         WKHTMLTOPDF_VERSION="0.12.3"
     fi
     echo "Installing the version of webkit ${WKHTMLTOPDF_VERSION}"
-    wget -qO- https://downloads.wkhtmltopdf.org/0.12/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ -C /tmp/webkit_patched/
-    cp -r /tmp/webkit_patched/wkhtmltox/bin/* ${HOME}/maintainer-quality-tools/travis/
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 fi
 
 if [ "$PG_LOGS_ENABLE" == "1" ]; then
