@@ -82,10 +82,9 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
-echo "Install webkit (wkhtmltopdf) patched"
-(cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://downloads.wkhtmltopdf.org/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
-if [ "$?" != "0" ]; then
-    echo "Warning: Webkit patched was not downloaded."
+if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
+    echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://downloads.wkhtmltopdf.org/0.12/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 fi;
 
 # Expected directory structure:
