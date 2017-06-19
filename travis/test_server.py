@@ -90,7 +90,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 break
 
     if check_loaded:
-        if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+        if not [r for r in log_records if 'Modules loaded.' in r['message']]:
             errors.append({'message': "Modules loaded message not found."})
 
     if errors:
@@ -438,7 +438,7 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        if not instance_alive:
+        if not instance_alive and odoo_unittest:
             # Don't drop the database if will be used later.
             subprocess.call(["dropdb", database])
 
