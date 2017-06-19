@@ -41,15 +41,18 @@ class _OdooBaseContext(object):
         """
         self.cr.close()
 
-    def get_pot_contents(self, addon):
+    def get_pot_contents(self, addon, lang=None):
         """
         Export source translation files from addon.
         :param str addon: Addon name
         :returns str: Gettext from addon .pot content
         """
         with closing(StringIO()) as buf:
-            self.trans_export(False, [addon], buf, 'po', self.cr)
+            self.trans_export(lang, [addon], buf, 'po', self.cr)
             return buf.getvalue()
+
+    def load_po(self, po, lang):
+        self.trans_load_data(self.cr, po, 'po', lang)
 
 
 class Odoo10Context(_OdooBaseContext):
@@ -69,8 +72,9 @@ class Odoo10Context(_OdooBaseContext):
         sys.path.append(self.server_path)
         from odoo import netsvc, api
         from odoo.modules.registry import RegistryManager
-        from odoo.tools import trans_export, config
+        from odoo.tools import trans_export, config, trans_load_data
         self.trans_export = trans_export
+        self.trans_load_data = trans_load_data
         sys.path.pop()
         netsvc.init_logger()
         config['addons_path'] = (
@@ -108,8 +112,9 @@ class Odoo8Context(_OdooBaseContext):
         sys.path.append(self.server_path)
         from openerp import netsvc, api
         from openerp.modules.registry import RegistryManager
-        from openerp.tools import trans_export, config
+        from openerp.tools import trans_export, config, trans_load_data
         self.trans_export = trans_export
+        self.trans_load_data = trans_load_data
         sys.path.pop()
         netsvc.init_logger()
         config['addons_path'] = (
@@ -146,9 +151,10 @@ class Odoo7Context(_OdooBaseContext):
         """
         sys.path.append(self.server_path)
         from openerp import netsvc
-        from openerp.tools import trans_export, config
+        from openerp.tools import trans_export, config, trans_load_data
         from openerp.pooler import get_db
         self.trans_export = trans_export
+        self.trans_load_data = trans_load_data
         sys.path.pop()
         netsvc.init_logger()
         config['addons_path'] = str(
