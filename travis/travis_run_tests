@@ -54,9 +54,9 @@ if __name__ == '__main__':
     tests_unspecified = os.environ.get('TESTS') is None
     transifex_enabled = os.environ.get('TRANSIFEX') == '1'
     weblate_enabled = os.environ.get('WEBLATE') == '1'
-    is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+    is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('it-projects-llc/')
     is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
-        'transbot@odoo-community.org'
+        'i18n-bot@it-projects.info'
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
