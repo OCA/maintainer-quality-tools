@@ -107,6 +107,7 @@ class WeblateApi(Request):
         try:
             for component in self.components:
                 self._component_lock(component)
+                self._component_commit(component)
             yield
         finally:
             for component in self.components:
@@ -118,6 +119,19 @@ class WeblateApi(Request):
         for i in range(10):
             new_lock = self._request(url, {'lock': lock})
             if new_lock['locked'] == lock:
+                break
+            time.sleep(60)
+        return True
+
+    def _component_commit(self, component):
+        url = (self.host + '/components/%s/%s/repository/' %
+               (self.project['slug'], component['slug']))
+        needs_commit = self._request(url)
+        if not needs_commit['needs_commit']:
+            return
+        for i in range(10):
+            new_commit = self._request(url, {'operation': 'commit'})
+            if new_commit['result']:
                 break
             time.sleep(60)
         return True
