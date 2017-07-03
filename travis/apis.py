@@ -129,11 +129,10 @@ class WeblateApi(Request):
         needs_commit = self._request(url)
         if not needs_commit['needs_commit']:
             return
-        for i in range(10):
-            new_commit = self._request(url, {'operation': 'commit'})
-            if new_commit['result']:
-                break
-            time.sleep(60)
+        new_commit = self._request(url, {'operation': 'commit'})
+        if not new_commit['result']:
+            raise ApiException('The commit into the component "%s" cannot be '
+                               'made' % component['slug'])
         return True
 
 
