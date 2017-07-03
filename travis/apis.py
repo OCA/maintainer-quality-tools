@@ -107,6 +107,7 @@ class WeblateApi(Request):
         try:
             for component in self.components:
                 self._component_lock(component)
+                self._component_commit(component)
             yield
         finally:
             for component in self.components:
@@ -120,6 +121,18 @@ class WeblateApi(Request):
             if new_lock['locked'] == lock:
                 break
             time.sleep(60)
+        return True
+
+    def _component_commit(self, component):
+        url = (self.host + '/components/%s/%s/repository/' %
+               (self.project['slug'], component['slug']))
+        needs_commit = self._request(url)
+        if not needs_commit['needs_commit']:
+            return
+        new_commit = self._request(url, {'operation': 'commit'})
+        if not new_commit['result']:
+            raise ApiException('The commit into the component "%s" cannot be '
+                               'made' % component['slug'])
         return True
 
 
