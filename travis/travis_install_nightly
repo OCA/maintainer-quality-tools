@@ -113,8 +113,17 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
     pip install --upgrade pip
-    pip install -q QUnitSuite flake8 coveralls pylint
-    pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+    # Odoo <= 7.0 don't have requirements.txt file then the 8.0 file is used by default
+    if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
+       wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
+    fi
+    # Remove lxml from odoo requirements because is installed from apt package
+    sed -i '/^lxml\=\=/d' ${ODOO_PATH}/requirements.txt
+    # Remove python-ldap from odoo requirements because is not a common module used
+    sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
+    pip install --user -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
+    pip install -q QUnitSuite coveralls codecov
+
     pip install pstats_print2list
     pip install certifi
     pip install -U urllib3[secure] setuptools==33.1.1
