@@ -104,7 +104,8 @@ def run(home, build_dir):
             if new_dep_filename not in dependencies:
                 dependencies.append(new_dep_filename)
     for reqfilename in reqfilenames:
-        command = ['pip', 'install', '--no-binary', 'pycparser', '-r', reqfilename]
+        command = ['pip', 'install', '--no-binary', 'pycparser',
+                   '-Ur', reqfilename]
         _logger.info('Calling %s', ' '.join(command))
         subprocess.check_call(command)
 
