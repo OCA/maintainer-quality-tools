@@ -68,6 +68,7 @@ fi
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 pip install --upgrade pip
+pip install --user -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/requirements.txt
 
 # Odoo <= 7.0 don't have requirements.txt file then the 8.0 file is used by default
 if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
