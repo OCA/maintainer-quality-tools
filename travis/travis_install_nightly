@@ -78,6 +78,9 @@ fi
 sed -i '/^lxml\=\=/d' ${ODOO_PATH}/requirements.txt
 # Remove python-ldap from odoo requirements because is not a common module used
 sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
+# Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
+sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
+
 pip install --user -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
 pip install -q QUnitSuite coveralls codecov
 
