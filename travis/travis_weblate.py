@@ -5,6 +5,7 @@ import os
 import re
 import glob
 import subprocess
+import shlex
 
 from odoo_connection import Odoo10Context, context_mapping
 from test_server import (get_addons_path, get_server_path, parse_list)
@@ -67,17 +68,31 @@ class TravisWeblateUpdate(object):
         """This patch is necessary because the weblate does not check which
         word and the translated are the same to use it in its percentage of
         translated"""
-        paths = [os.path.join('openerp', 'tools', 'translate.py'),
-                 os.path.join('odoo', 'tools', 'translate.py')]
-        for path in paths:
-            s_file = os.path.join(self._server_path, path)
-            if not os.path.isfile(s_file):
-                continue
-            cmd = ["sed", "-i", "-e",
-                   r"s/translation'] = src/translation'] = ''/g",
-                   s_file]
-            print " ".join(cmd)
-            subprocess.call(cmd)
+        for base in ('odoo', 'openerp'):
+            p_file = os.path.join(self._server_path, base,
+                                  os.path.join('tools', 'translate.py'))
+            if os.path.isfile(p_file):
+                sed = ["sed", "-i", "-e",
+                       r"s/translation'] = src/translation'] = ''/g", p_file]
+                print " ".join(sed)
+                subprocess.call(sed)
+            p_file = os.path.join(self._server_path, base,
+                                  os.path.join('addons', 'base', 'ir',
+                                               'ir_translation_test.py'))
+            if os.path.isfile(p_file):
+                rgrep = ["rgrep", "-h", "-n", "'if not trans_dict'",
+                         p_file]
+                print " ".join(rgrep)
+                p = subprocess.Popen(shlex.split(" ".join(rgrep)),
+                                     stdout=subprocess.PIPE)
+                out = p.communicate()
+                if not (out and out[0] and out[0].split(':')):
+                    return
+                line = int(out[0].split(':')[0])
+                sed = ["sed", "-i", "-e", r"%s,%sd" % (line, line + 1),
+                       p_file]
+                print " ".join(sed)
+                subprocess.call(sed)
 
     def _get_modules_installed(self):
         self._installed_modules = []
