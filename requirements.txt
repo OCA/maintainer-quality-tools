@@ -2,3 +2,8 @@ simplejson
 pyserial
 pyyaml
 coveralls
+
+# transifex requirements
+polib
+slumber
+transifex-client
