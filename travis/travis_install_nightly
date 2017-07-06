@@ -113,7 +113,7 @@ rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     echo "Installing dependencies"
     pip install --upgrade pip
-    pip install --user -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/requirements.txt
+    pip install -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/requirements.txt
 
     # Odoo <= 7.0 don't have requirements.txt file then the 8.0 file is used by default
     if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
@@ -126,7 +126,7 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     # Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
     sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
 
-    pip install --user -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
+    pip install -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
     pip install -q QUnitSuite coveralls codecov
 
     pip install pstats_print2list
