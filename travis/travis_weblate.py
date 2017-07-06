@@ -67,17 +67,22 @@ class TravisWeblateUpdate(object):
         """This patch is necessary because the weblate does not check which
         word and the translated are the same to use it in its percentage of
         translated"""
-        paths = [os.path.join('openerp', 'tools', 'translate.py'),
-                 os.path.join('odoo', 'tools', 'translate.py')]
-        for path in paths:
-            s_file = os.path.join(self._server_path, path)
-            if not os.path.isfile(s_file):
-                continue
-            cmd = ["sed", "-i", "-e",
-                   r"s/translation'] = src/translation'] = ''/g",
-                   s_file]
-            print " ".join(cmd)
-            subprocess.call(cmd)
+        for base in ('odoo', 'openerp'):
+            p_file = os.path.join(self._server_path, base,
+                                  os.path.join('tools', 'translate.py'))
+            if os.path.isfile(p_file):
+                sed = ["sed", "-i", "-e",
+                       r"s/translation'] = src/translation'] = ''/g", p_file]
+                print " ".join(sed)
+                subprocess.call(sed)
+            p_file = os.path.join(self._server_path, base,
+                                  os.path.join('addons', 'base', 'ir',
+                                               'ir_translation.py'))
+            if os.path.isfile(p_file):
+                sed = ["sed", "-i", "-e",
+                       r"s/if\snot\strans_dict\['value']:/if False:/g", p_file]
+                print " ".join(sed)
+                subprocess.call(sed)
 
     def _get_modules_installed(self):
         self._installed_modules = []
