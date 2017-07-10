@@ -32,7 +32,7 @@ addons:
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
   - PHANTOMJS_VERSION="latest"
   # The above line controls the PhantomJS version that is used for JS testing.
   #   It is not necessary to include this value unless you are altering the default.
@@ -80,6 +80,8 @@ install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
+# Use the sentence below to install a specific wkhtmltopdf version
+# - export WKHTMLTOPDF_VERSION=0.12.4
 
 script:
   - travis_run_tests
