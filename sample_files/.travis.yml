@@ -39,7 +39,7 @@ addons:
 env:
   global:
   - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
-  - WKHTMLTOPDF_VERSION="0.12.4"
+  # - WKHTMLTOPDF_VERSION="0.12.4"
   # Set the above to install a `wkhtmltopdf` version that is not the one provided
   # by the `pov-wkhtmltopdf` repo.
   - PHANTOMJS_VERSION="latest"
