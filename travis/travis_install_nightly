@@ -31,6 +31,11 @@ fi
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 npm install -g less less-plugin-clean-css
 
+if [ "${WEBSITE_REPO}" == "1" ]; then
+    rvm install ruby --latest
+    rvm use ruby --latest
+    gem install compass bootstrap-sass
+fi
 
 # Update PhantomJS (v10 compat)
 if [ "${PHANTOMJS_VERSION}" != "OS" ]; then
