@@ -32,7 +32,18 @@ addons:
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  # - WKHTMLTOPDF_VERSION="0.12.4"
+  # Set the above to install a `wkhtmltopdf` version that is not the one provided
+  # by the `pov-wkhtmltopdf` repo.
+  - PHANTOMJS_VERSION="latest"
+  # The above line controls the PhantomJS version that is used for JS testing.
+  #   It is not necessary to include this value unless you are altering the default.
+  #   Use `OS` to skip the PhantomJS upgrade & use the system version instead.
+  - WEBSITE_REPO="1"
+  # Use the above line to install dependencies that are required for website repos:
+  # * SASS & Bootstrap-SASS
+  # * Compass
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
   # To encrypt transifex password, install travis ruby utils with:

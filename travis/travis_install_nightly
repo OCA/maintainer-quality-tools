@@ -33,6 +33,23 @@ if [ "${TESTS}" != "1" ] && [ "${LINT_CHECK}" == "1" ]; then
     exit 0
 fi
 
+
+# Install less
+ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
+npm install -g less less-plugin-clean-css
+
+if [ "${WEBSITE_REPO}" == "1" ]; then
+    rvm install ruby --latest
+    rvm use ruby --latest
+    gem install compass bootstrap-sass
+fi
+
+# Update PhantomJS (v10 compat)
+if [ "${PHANTOMJS_VERSION}" != "OS" ]; then
+    npm install --prefix ${TRAVIS_BUILD_DIR} "phantomjs-prebuilt@${PHANTOMJS_VERSION:=latest}"
+    ln -s "${TRAVIS_BUILD_DIR}/node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs" "${HOME}/maintainer-quality-tools/travis/phantomjs"
+fi
+
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
     VERSION="${1}"
