@@ -488,6 +488,7 @@ def main(argv=None):
     cmd_odoo_test = ["coverage", "run",
                      "%s/%s" % (server_path, script_name),
                      "-d", database,
+                     "--db-filter=^%s$" % database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
                      ]
@@ -536,19 +537,15 @@ def main(argv=None):
             db_odoo_created = True
         for command, check_loaded in commands:
             if db_odoo_created and instance_alive:
-                command_start = commands[0][0]
                 rm_items = [
                     'coverage', 'run', '--stop-after-init',
                     '--test-enable', '--init', None,
                     '--log-handler', 'openerp.tools.yaml_import:DEBUG',
                 ]
-                for rm_item in rm_items:
-                    try:
-                        command_start.remove(rm_item)
-                    except ValueError:
-                        pass
-                command_call = command_start + [
-                    '--db-filter=^' + database_base]
+                command_call = [item
+                                for item in commands[0][0]
+                                if item not in rm_items] + \
+                    ['--pidfile=/tmp/odoo.pid']
             else:
                 if phantomjs_test:
                     # Remove the (--init, None) parameters
