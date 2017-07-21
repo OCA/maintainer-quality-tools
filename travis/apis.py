@@ -78,9 +78,6 @@ class WeblateApi(Request):
         components = []
         values = self._request(
             self.host + '/projects/%s/components/' % self.project['slug'])
-        if not values['results']:
-            raise ApiException('No components found in the project "%s"' %
-                               self.project['slug'])
         for value in values['results']:
             if value['branch'] and value['branch'] != self.branch:
                 continue
