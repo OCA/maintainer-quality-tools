@@ -362,6 +362,7 @@ def main(argv=None):
     cmd_odoo_test = ["coverage", "run",
                      "%s/%s" % (server_path, script_name),
                      "-d", database,
+                     "--db-filter=^%s$" % database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
                      ]
@@ -408,8 +409,7 @@ def main(argv=None):
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
-                    ['--db-filter=^%s$' % database,
-                     '--pidfile=/tmp/odoo.pid']
+                    ['--pidfile=/tmp/odoo.pid']
             else:
                 command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
