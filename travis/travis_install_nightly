@@ -79,8 +79,6 @@ pip install -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/require
 if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
     wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
 fi
-# Remove lxml from odoo requirements because is installed from apt package
-sed -i '/^lxml\=\=/d' ${ODOO_PATH}/requirements.txt
 # Remove python-ldap from odoo requirements because is not a common module used
 sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
 # Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
