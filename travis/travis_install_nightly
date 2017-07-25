@@ -14,7 +14,6 @@ if [ "${LINT_CHECK}" != "0" ]; then
 
     # Install pylint plugin depends without lxml
     wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
-    sed -i '/lxml/d' $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt  # lxml depends is too slow
     pip install --upgrade -r $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
     pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To use last version ever
     npm install -g eslint  # Extra package for pylint-odoo plugin
@@ -119,8 +118,6 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
        wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
     fi
-    # Remove lxml from odoo requirements because is installed from apt package
-    sed -i '/^lxml\=\=/d' ${ODOO_PATH}/requirements.txt
     # Remove python-ldap from odoo requirements because is not a common module used
     sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
     # Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
