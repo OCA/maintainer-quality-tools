@@ -152,7 +152,7 @@
     "comma-style": "error",
     "complexity": [
       "error",
-      15
+      20
     ],
     "computed-property-spacing": "off",
     "consistent-return": "off",
