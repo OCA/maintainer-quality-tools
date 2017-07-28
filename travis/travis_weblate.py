@@ -210,22 +210,26 @@ class TravisWeblateUpdate(object):
         with self.wl_api.component_lock():
             self._git.run(["fetch", "origin"])
             first_commit = False
+            component = [item for item in self.wl_api.components
+                         if item['git_export']]
+            if len(component) > 1:
+                print yellow("To many repository for this project %s" %
+                             self.wl_api.project['name'])
+                return 1
+            remote = (self.wl_api.ssh + '/' + self.wl_api.project['slug'] +
+                      '/' + component[0]['slug'])
+            name = '%s-wl' % self.wl_api.project['slug']
+            self._git.run(["remote", "add", name, remote])
             for component in self.wl_api.components:
                 print yellow("Component %s" % component['slug'])
-                name = '%s-wl' % component['slug']
-                remote = (self.wl_api.host.replace('api', 'git') + '/' +
-                          self.wl_api.project['slug'] + '/' +
-                          component['slug'])
                 self._git.run(["checkout", "-qb", self.branch,
                                "origin/%s" % self.branch])
                 self.wl_api.component_repository(component, 'pull')
-                self._git.run(["remote", "add", name, remote])
                 self._git.run(["fetch", name])
                 if self._generate_odoo_po_files(component['name']):
                     first_commit = self._commit_weblate(first_commit)
                 self._git.run(["merge", "--squash", "-s", "recursive", "-X",
                                "ours", "%s/%s" % (name, self.branch)])
-                self._git.run(["remote", "remove", name])
                 if self._check_conflict(component):
                     break
                 if (component['filemask'].replace('/*.po', '') in
@@ -235,6 +239,7 @@ class TravisWeblateUpdate(object):
                 if self._check_conflict(component):
                     break
                 first_commit = self._commit_weblate(first_commit)
+            self._git.run(["remote", "remove", name])
             modules_no_processed = [module for module in
                                     self._installed_modules if module not in
                                     [comp['name'] for comp in
