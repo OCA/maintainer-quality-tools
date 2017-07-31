@@ -61,15 +61,14 @@ export ODOO_PATH=${HOME}/${REPO[1]}-${ODOO_BRANCH}
 echo "Installing Odoo from cache"
 ODOO_URL="https://github.com/${ODOO_REPO}"
 if [ "x${REPO_REQUIREMENTS}" == "x"  ] ; then
-   export _PATH=${HOME}/${REPO[1]}-${BRANCH} 
+   export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
 else
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
-    export _PATH=${ODOO_PATH}
 fi
 
-git init ${_PATH}
-cd ${_PATH}
+git init ${ODOO_PATH}
+cd ${ODOO_PATH}
 git remote add ${REMOTE} ${ODOO_URL}
 
 if [ "x${PULL_REQUEST}" == "x"  ] ; then
