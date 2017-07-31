@@ -58,31 +58,34 @@ if [[ $BRANCH == *"/"*  ]]; then
     export BRANCH=${BRANCH/\//-}
 fi
 export ODOO_PATH=${HOME}/${REPO[1]}-${ODOO_BRANCH}
-if [ "x${REPO_REQUIREMENTS}" == "x" ] ; then
-    echo "Installing Odoo ${ODOO_URL}"
-    #wget -nv -O odoo.tar.gz ${ODOO_URL}
-    #tar -xf odoo.tar.gz -C ${HOME}
-    #git_update ${ODOO_URL} -b ${VERSION} ${HOME}/${REPO[0]}-${VERSION}
-    git clone --single-branch --depth=1  ${ODOO_URL} -b $ODOO_BRANCH ${HOME}/${REPO[1]}-${ODOO_BRANCH}
+
+echo "Installing Odoo from cache"
+ODOO_URL="https://github.com/${ODOO_REPO}"
+if [ "x${REPO_REQUIREMENTS}" == "x"  ] ; then
+   export _PATH=${HOME}/${REPO[1]}-${BRANCH} 
 else
-    echo "Installing Odoo from cache"
     chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
-    cd ${ODOO_PATH}
-    if [ "x${PULL_REQUEST}" == "x"  ] ; then
-        git fetch --depth=1 ${REMOTE} ${ODOO_BRANCH} \
-            && git config --local --bool core.bare false \
-            && git checkout -b ${ODOO_BRANCH}-${REMOTE} -qf ${REMOTE}/${ODOO_BRANCH} \
-        ; git reset --hard ${REMOTE}/${ODOO_BRANCH}
-    else
-        ODOO_URL="https://github.com/${ODOO_REPO}"
-        # Is a pull request
-        git reset --hard
-        git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
-            && git config --local --bool core.bare false \
-            && git checkout ${BRANCH}-${REMOTE} \
-        ;
-    fi
+    export _PATH=${ODOO_PATH}
+fi
+
+git init ${_PATH}
+cd ${_PATH}
+git remote add ${REMOTE} ${ODOO_URL}
+
+if [ "x${PULL_REQUEST}" == "x"  ] ; then
+    git fetch --depth=1 ${REMOTE} ${ODOO_BRANCH} \
+        && git config --local --bool core.bare false \
+        && git checkout -b ${ODOO_BRANCH}-${REMOTE} -qf ${REMOTE}/${ODOO_BRANCH} \
+    ; git reset --hard ${REMOTE}/${ODOO_BRANCH}
+else
+    ODOO_URL="https://github.com/${ODOO_REPO}"
+    # Is a pull request
+    git reset --hard
+    git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
+        && git config --local --bool core.bare false \
+        && git checkout ${BRANCH}-${REMOTE} \
+    ;
 fi
 
 echo "x${PHANTOMJS_TESTS}"
