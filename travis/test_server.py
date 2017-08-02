@@ -540,8 +540,9 @@ def main(argv=None):
                 rm_items = [
                     'coverage', 'run', '--stop-after-init',
                     '--test-enable', '--init', None,
-                    '--log-handler', 'openerp.tools.yaml_import:DEBUG',
-                ]
+                    '--log-handler',
+                ] + test_loghandler
+
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
