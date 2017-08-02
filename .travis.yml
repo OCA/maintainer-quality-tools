@@ -33,8 +33,8 @@ env:
   - TESTS="1" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
   - VERSION="6.1" INCLUDE="test_module,second_module"
   - LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="26" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="24" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+  - VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+  - VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="30" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
   - VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="21" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
   - INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
 
