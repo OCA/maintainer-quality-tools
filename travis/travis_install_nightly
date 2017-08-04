@@ -7,7 +7,6 @@ if [ "${LINT_CHECK}" != "0" ]; then
 
     # Install pylint plugin depends without lxml
     wget -q https://raw.githubusercontent.com/it-projects-llc/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
-    find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/it-projects-llc/pylint-odoo.git   # To use last version ever
     npm install -g eslint  # Extra package for pylint-odoo plugin
@@ -31,6 +30,12 @@ fi
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 npm install -g less less-plugin-clean-css
 
+if [ "${WEBSITE_REPO}" == "1" ]; then
+    source ~/.rvm/scripts/rvm
+    rvm install ruby --latest
+    rvm use ruby --latest
+    gem install compass bootstrap-sass
+fi
 
 # Update PhantomJS (v10 compat)
 if [ "${PHANTOMJS_VERSION}" != "OS" ]; then
@@ -78,8 +83,6 @@ pip install -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/require
 if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
     wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
 fi
-# Remove lxml from odoo requirements because is installed from apt package
-sed -i '/^lxml\=\=/d' ${ODOO_PATH}/requirements.txt
 # Remove python-ldap from odoo requirements because is not a common module used
 sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
 # Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
