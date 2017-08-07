@@ -206,13 +206,11 @@ cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc ${TRAVIS_BUILD_DIR}
 echo "Content of ${HOME}:"
 ls -l ${HOME}
 
-if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
-    if [ "x${WKHTMLTOPDF_VERSION}" == "x" ] ; then
-        WKHTMLTOPDF_VERSION="0.12.3"
-    fi
-    echo "Installing the version of webkit ${WKHTMLTOPDF_VERSION}"
-    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+if [ "x${WKHTMLTOPDF_VERSION}" == "x" ] ; then
+    WKHTMLTOPDF_VERSION="0.12.3"
 fi
+echo "Installing the version of webkit ${WKHTMLTOPDF_VERSION}"
+(cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 
 if [ "$PG_LOGS_ENABLE" == "1" ]; then
     python $(dirname ${BASH_SOURCE[0]})/psql_log.py
