@@ -147,28 +147,28 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
-if [[ "$VERSION" == "10.0"  && -z "$NO_EXTRA_REPOS" ]]; then
+# if [[ "$VERSION" == "10.0"  && -z "$NO_EXTRA_REPOS" ]]; then
  # Install profiler module
  # TODO: Fix error using runbot testing for vx/mexico#10.0
  # git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git -b ${VERSION} ${HOME}/odoo-profiler \
  #   && sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoo-profiler/profiler/__manifest__.py
 
  # Install web ribbon
- git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web-environment-ribbon-isolated \
-    && sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon/__manifest__.py \
-    && sed -i 's/TEST/DEVELOPMENT/g' ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon/data/ribbon_data.xml \
-    && find ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon -type f ! -name "__init__.py" -exec sed -i "s/web_environment_ribbon/web_environment_ribbon_isolated/g" {} \; \
-    && (cd ${HOME}/web-environment-ribbon-isolated; rm -rf $(ls | grep -v web_environment_ribbon$); mv web_environment_ribbon web_environment_ribbon_isolated )
+# git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web-environment-ribbon-isolated \
+#    && sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon/__manifest__.py \
+#    && sed -i 's/TEST/DEVELOPMENT/g' ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon/data/ribbon_data.xml \
+#    && find ${HOME}/web-environment-ribbon-isolated/web_environment_ribbon -type f ! -name "__init__.py" -exec sed -i "s/web_environment_ribbon/web_environment_ribbon_isolated/g" {} \; \
+#    && (cd ${HOME}/web-environment-ribbon-isolated; rm -rf $(ls | grep -v web_environment_ribbon$); mv web_environment_ribbon web_environment_ribbon_isolated )
 
  # Install odoolint module
  # Install module that disable html in the logs
-    echo "Install odoo lint SQA isolated"
-    git clone --single-branch --depth=1 https://github.com/vauxoo/server-tools.git -b ${VERSION} ${HOME}/odoolintsqa
-    (cd ${HOME}/odoolintsqa; mv odoolint odoolint_isolated; mv tour_hide_dom_log tour_hide_dom_log_isolated; rm -rf $(ls | grep -v '_isolated'))
-    sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/odoolintsqa/*/__manifest__.py
-    sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoolintsqa/*/__manifest__.py
-    sed -i 's/tour_hide_dom_log/tour_hide_dom_log_isolated/g' ${HOME}/odoolintsqa/tour_hide_dom_log_isolated/views/assets.xml
-fi;
+#    echo "Install odoo lint SQA isolated"
+#    git clone --single-branch --depth=1 https://github.com/vauxoo/server-tools.git -b ${VERSION} ${HOME}/odoolintsqa
+#    (cd ${HOME}/odoolintsqa; mv odoolint odoolint_isolated; mv tour_hide_dom_log tour_hide_dom_log_isolated; rm -rf $(ls | grep -v '_isolated'))
+#    sed -i 's/"auto_install": False/"auto_install": True/g' ${HOME}/odoolintsqa/*/__manifest__.py
+#    sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoolintsqa/*/__manifest__.py
+#    sed -i 's/tour_hide_dom_log/tour_hide_dom_log_isolated/g' ${HOME}/odoolintsqa/tour_hide_dom_log_isolated/views/assets.xml
+# fi;
 
 if [[ "$VERSION" == "8.0"  && -z "$NO_EXTRA_REPOS" ]]; then
  # Install web ribbon

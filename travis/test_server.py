@@ -488,7 +488,6 @@ def main(argv=None):
     cmd_odoo_test = ["coverage", "run",
                      "%s/%s" % (server_path, script_name),
                      "-d", database,
-                     "--db-filter=^%s$" % database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
                      ]
@@ -535,6 +534,7 @@ def main(argv=None):
             copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
+        shutil.rmtree(os.path.join(data_dir, 'sessions'), ignore_errors=True)
         for command, check_loaded in commands:
             if db_odoo_created and instance_alive:
                 rm_items = [
@@ -546,7 +546,8 @@ def main(argv=None):
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
-                    ['--pidfile=/tmp/odoo.pid']
+                    ['--pidfile=/tmp/odoo.pid'] + [
+                        '--db-filter=^' + database_base]
             else:
                 if phantomjs_test:
                     # Remove the (--init, None) parameters
