@@ -149,8 +149,9 @@ fi;
 
 if [[ "$VERSION" == "10.0"  && -z "$NO_EXTRA_REPOS" ]]; then
  # Install profiler module
- git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git -b ${VERSION} ${HOME}/odoo-profiler \
-    && sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoo-profiler/profiler/__manifest__.py
+ # TODO: Fix error using runbot testing for vx/mexico#10.0
+ # git clone --single-branch --depth=1 https://github.com/Vauxoo/odoo-profiler.git -b ${VERSION} ${HOME}/odoo-profiler \
+ #   && sed -i "s/'auto_install': False/'auto_install': True/g" ${HOME}/odoo-profiler/profiler/__manifest__.py
 
  # Install web ribbon
  git clone --single-branch --depth=1 https://github.com/OCA/web.git -b ${VERSION} ${HOME}/web-environment-ribbon-isolated \
