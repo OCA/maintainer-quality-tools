@@ -7,6 +7,7 @@ if [ "$DOCKER_TAG" == latest ]; then
     version="$DEFAULT_VERSION"
     docker image tag "$IMAGE_NAME" "$DOCKER_REPO:$repo-$version"
     for repo in $OTHER_REPOS; do
+        repo="$(basename $repo)"
         for version in $OTHER_VERSIONS; do
             docker image build \
                 --build-arg ODOO_REPO="$repo" \
