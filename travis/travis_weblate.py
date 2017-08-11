@@ -102,12 +102,11 @@ class TravisWeblateUpdate(object):
             modules = odoo_context.cr.dictfetchall()
             self._installed_modules = [module['name'] for module in modules]
 
-    def _generate_odoo_po_files(self, component):
+    def _generate_odoo_po_files(self, module, only_installed=True):
         generated = False
         with self._connection_context(self._server_path, self._addons_path,
                                       self._database) as odoo_context:
-            module = component['name']
-            if module not in self._installed_modules:
+            if only_installed and module not in self._installed_modules:
                 return generated
             print("\n", yellow("Obtaining POT file for %s" % module))
             i18n_folder = os.path.join(self._travis_build_dir, module, 'i18n')
@@ -124,6 +123,8 @@ class TravisWeblateUpdate(object):
                 with open(os.path.join(i18n_folder, lang + '.po'), 'wb')\
                         as f_po:
                     f_po.write(po_content)
+                    if self._git.run(["add", "-v", f_po.name]):
+                        generated = True
             for po_file_name in po_files:
                 lang = os.path.basename(os.path.splitext(po_file_name)[0])
                 if self._langs and lang not in self._langs:
@@ -206,28 +207,29 @@ class TravisWeblateUpdate(object):
     def update(self):
         self._check()
         self.wl_api.load_project(self.repo_name, self.branch)
-        if not self.wl_api.components:
-            print yellow("No component found for %s" % self.repo_name)
-            return 1
         with self.wl_api.component_lock():
             self._git.run(["fetch", "origin"])
             first_commit = False
+            component = [item for item in self.wl_api.components
+                         if item['git_export']]
+            if len(component) > 1:
+                print yellow("To many repository for this project %s" %
+                             self.wl_api.project['name'])
+                return 1
+            remote = (self.wl_api.ssh + '/' + self.wl_api.project['slug'] +
+                      '/' + component[0]['slug'])
+            name = '%s-wl' % self.wl_api.project['slug']
+            self._git.run(["remote", "add", name, remote])
             for component in self.wl_api.components:
                 print yellow("Component %s" % component['slug'])
-                name = '%s-wl' % component['slug']
-                remote = (self.wl_api.host.replace('api', 'git') + '/' +
-                          self.wl_api.project['slug'] + '/' +
-                          component['slug'])
                 self._git.run(["checkout", "-qb", self.branch,
                                "origin/%s" % self.branch])
                 self.wl_api.component_repository(component, 'pull')
-                self._git.run(["remote", "add", name, remote])
                 self._git.run(["fetch", name])
-                if self._generate_odoo_po_files(component):
+                if self._generate_odoo_po_files(component['name']):
                     first_commit = self._commit_weblate(first_commit)
                 self._git.run(["merge", "--squash", "-s", "recursive", "-X",
                                "ours", "%s/%s" % (name, self.branch)])
-                self._git.run(["remote", "remove", name])
                 if self._check_conflict(component):
                     break
                 if (component['filemask'].replace('/*.po', '') in
@@ -237,6 +239,15 @@ class TravisWeblateUpdate(object):
                 if self._check_conflict(component):
                     break
                 first_commit = self._commit_weblate(first_commit)
+            self._git.run(["remote", "remove", name])
+            modules_no_processed = [module for module in
+                                    self._installed_modules if module not in
+                                    [comp['name'] for comp in
+                                     self.wl_api.components]]
+            for component in modules_no_processed:
+                if self._generate_odoo_po_files(component,
+                                                only_installed=False):
+                    first_commit = self._commit_weblate(first_commit)
             if not self._push_git_repository():
                 return 1
         return 0
