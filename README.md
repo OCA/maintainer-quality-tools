@@ -54,7 +54,7 @@ Names used for the test databases
 ---------------------------------
 
 MQT has a nice feature of organizing your testing databases.
-You might want to do that if you want to double them up as 
+You might want to do that if you want to double them up as
 staging DBs or if you want to work with an advanced set of
 templates in order to speed up your CI pipeline.
 Just specify at will:
@@ -84,5 +84,20 @@ Disable test
 If you want to make a build without tests, you can use the following directive:
 `TEST_ENABLE="0"`
 
-You will simply get the databases with packages installed, 
+You will simply get the databases with packages installed,
 but whithout running any tests.
+
+Docker image usage
+==================
+
+The instructions are the same as without Docker, except:
+
+0. No need to run `travis_install_nightly`; all is preinstalled.
+0. You should use the correct image version instead of env variables. For
+   example, `VERSION="10.0" ODOO_REPO="OCA/OCB" travis_run_tests` would become
+   `docker container run --rm oca/maintainer-quality-tools:OCB-10.0`.
+0. Other involved environment variables can be added with `-e KEY=value` to
+   the above command.
+0. You need to mount the addons repositories being tested into
+   `/root/build/$OWNER/$REPO`, do it with adding something like
+   `-v (pwd):/root/build/$OWNER/$REPO:ro,z` to the run command.
