@@ -31,9 +31,16 @@ ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 npm install -g less less-plugin-clean-css
 
 if [ "${WEBSITE_REPO}" == "1" ]; then
-    source ~/.rvm/scripts/rvm
+    if [ -f ~/.rvm/scripts/rvm ]; then
+        source ~/.rvm/scripts/rvm
+    else
+        source /usr/local/rvm/scripts/rvm
+    fi
     rvm install ruby --latest
     rvm use ruby --latest
+    # Uninstall current versions to be sure that
+    # the correct version will be installed
+    gem uninstall -aIx bootstrap-sass compass sass
     gem install compass bootstrap-sass
 fi
 
