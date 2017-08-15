@@ -39,6 +39,17 @@ You can use branch or pull request into environment variable VERSION:
     VERSION="pull/143" ODOO_REPO="odoo/odoo"
 ```
 
+Using custom branch inside odoo repository using ODOO_BRANCH
+------------------------------------------------------------
+
+You can use the custom branch into the ODOO_REPO using the environment variable ODOO_BRANCH:
+
+
+- Branch saas-17
+```
+  ODOO_REPO="odoo/odoo" ODOO_BRANCH="saas-17"
+```
+
 Module unit tests
 -----------------
 
