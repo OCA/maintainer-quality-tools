@@ -239,7 +239,10 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      "--init", ','.join(preinstall_modules),
                      ] + install_options + server_options
         print(" ".join(cmd_strip_secret(cmd_odoo)))
-        subprocess.check_call(cmd_odoo)
+        try:
+            subprocess.check_call(cmd_odoo)
+        except subprocess.CalledProcessError as e:
+            return e.returncode
     return 0
 
 
