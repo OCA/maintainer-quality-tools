@@ -82,7 +82,7 @@ if os.environ.get('LINT_CHECK', 0) == '1':
 getaddons.get_modules_changed(repo_dir)
 
 # Testing get_server_script
-assert get_server_script("/tmp") == 'odoo-bin'
+assert get_server_script("/tmp") == 'openerp-server'
 
 # Testing instance running
 def connection_test():
