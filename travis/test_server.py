@@ -138,12 +138,9 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
 
 
 def get_server_script(server_path):
-    try:
-        shutil.copy(os.path.join(server_path, 'openerp-server'),
-                    os.path.join(server_path, 'odoo-bin'))
-    except IOError:
-        pass
-    return 'odoo-bin'
+    if os.path.isfile(os.path.join(server_path, 'odoo-bin')):
+        return 'odoo-bin'
+    return 'openerp-server'
 
 
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
