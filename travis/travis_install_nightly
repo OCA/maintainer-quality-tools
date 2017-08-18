@@ -56,12 +56,22 @@ if [ "x${VERSION}" == "x" ] ; then
     echo "WARNING: no env variable set for VERSION. Using '${1}'."
 fi
 
+if [ "x${ODOO_BRANCH}" == "x"  ] ; then
+    ODOO_BRANCH=${VERSION}
+fi
+
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export REMOTE="${REPO[0],,}"
 export REPO_NAME="${REPO[1]}"
-export BRANCH="${VERSION}"
-export ODOO_PATH=${HOME}/$REPO_NAME-$BRANCH
+export BRANCH="${ODOO_BRANCH}"
+export PULL_REQUEST=''
+# If the branch is a pull request
+if [[ $BRANCH == *"/"*  ]]; then
+    export PULL_REQUEST=$BRANCH
+    export BRANCH=${BRANCH/\//-}
+fi
+export ODOO_PATH=${HOME}/$REPO_NAME-$ODOO_BRANCH
 if [ -z "${REPO_CACHED}"  ]; then
     export ODOO_URL="https://github.com/$REMOTE/$REPO_NAME/archive/$BRANCH.tar.gz"
     echo "Installing Odoo $ODOO_URL"
@@ -71,10 +81,19 @@ else
     echo "Using Odoo from cache ${REPO_CACHED}"
     chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}
     ln -sf ${REPO_CACHED}/odoo ${ODOO_PATH}
-    cd ${ODOO_PATH} \
-        && git fetch --depth=1 ${REMOTE} ${BRANCH} \
-        && git config --local --bool core.bare false \
-        && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+    cd ${ODOO_PATH}
+    if [ "x${PULL_REQUEST}" == "x" ] ; then 
+        git fetch --depth=1 ${REMOTE} ${BRANCH} \
+            && git config --local --bool core.bare false \
+            && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+    else
+        ODOO_URL="https://github.com/${ODOO_REPO}"
+        # Is a pull request
+        git reset --hard
+        git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
+            && git config --local --bool core.bare false \
+            && git checkout ${BRANCH}-${REMOTE}
+    fi
 fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
