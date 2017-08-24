@@ -216,15 +216,17 @@ if [[ ${WKHTMLTOPDF_VERSION} == "0.12.1" ]]
 then
     cd ${HOME}/maintainer-quality-tools/travis/
     BINARY=wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-wheezy-amd64.deb
-    wget -q --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/${BINARY} 
+    wget --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/${BINARY} 
     dpkg -x ${BINARY} data.tar.xz
     mv data.tar.xz/usr/local/bin/wkhtmltopdf .
     chmod +x wkhtmltopdf
     rm -rf ${BINARY} data.tar.xz
 
 else
-    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -O- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 fi
+
+wkhtmltopdf -V
 
 if [ "$PG_LOGS_ENABLE" == "1" ]; then
     python $(dirname ${BASH_SOURCE[0]})/psql_log.py
