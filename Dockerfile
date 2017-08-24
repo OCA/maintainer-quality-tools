@@ -1,32 +1,8 @@
 FROM ubuntu:16.04
 WORKDIR /root
 COPY . maintainer-quality-tools
-ARG VERSION=10.0
-ARG ODOO_REPO=odoo/odoo
-ENV ODOO_REPO=$ODOO_REPO \
-    PATH=/root/maintainer-quality-tools/travis:$PATH \
-    PHANTOMJS_VERSION=OS \
-    TRAVIS_BUILD_DIR=/root \
-    VERSION=$VERSION
-RUN BUILD_DEPENDENCIES=" \
-        build-essential \
-        libfreetype6-dev \
-        libjpeg-turbo8-dev \
-        liblcms2-dev \
-        libldap2-dev \
-        libopenjpeg-dev \
-        libpq-dev \
-        libsasl2-dev \
-        libtiff5-dev \
-        libxml2-dev \
-        libxslt1-dev \
-        linux-headers-virtual \
-        python-dev \
-        ruby-dev \
-        tcl-dev \
-        tk-dev" \
-    && apt-get update -yq \
-    && apt-get install -yq $BUILD_DEPENDENCIES \
+RUN apt-get update -yq \
+    && apt-get install -yq \
         # MQT dependencies
         git \
         npm \
@@ -57,6 +33,33 @@ RUN BUILD_DEPENDENCIES=" \
         zlibc \
     && wget -qO- https://bootstrap.pypa.io/get-pip.py | python \
     && gem install --no-rdoc --no-ri --no-update-sources compass bootstrap-sass \
+    && rm -Rf ~/.{cache,npm,gem} /var/lib/{apt/lists/*,gems/*/cache} /tmp/*
+ARG VERSION=10.0
+ARG ODOO_REPO=odoo/odoo
+ENV ODOO_REPO=$ODOO_REPO \
+    PATH=/root/maintainer-quality-tools/travis:$PATH \
+    PHANTOMJS_VERSION=OS \
+    TRAVIS_BUILD_DIR=/root \
+    VERSION=$VERSION
+RUN BUILD_DEPENDENCIES=" \
+        build-essential \
+        libfreetype6-dev \
+        libjpeg-turbo8-dev \
+        liblcms2-dev \
+        libldap2-dev \
+        libopenjpeg-dev \
+        libpq-dev \
+        libsasl2-dev \
+        libtiff5-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        linux-headers-virtual \
+        python-dev \
+        ruby-dev \
+        tcl-dev \
+        tk-dev" \
+    && apt-get update -yq \
+    && apt-get install -yq $BUILD_DEPENDENCIES \
     && travis_install_nightly \
     && apt-get -yq purge $BUILD_DEPENDENCIES \
     && apt-get -yq autoremove --purge \
