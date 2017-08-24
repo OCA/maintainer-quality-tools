@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+"""Run tests using docker image and environment variables.
+
+Environment Variables
+=====================
+
+Configure this script with these environment variables:
+
+Required
+--------
+
+- ``ADDONS_DIR``: Absolute path to host's addons directory to be tested.
+- ``OWNER_REPO``: Follow GitHub's convention on ``$OWNER/$REPO``. I.e.
+  ``OCA/maintainer-quality-tools`` would be a valid value.
+
+Optional
+--------
+
+To configure which image to use as base for tests:
+
+- ``ODOO_REPO``: Currently it can be ``odoo`` or ``ocb``.
+- ``ODOO_VERSION``: It can be any version from ``8.0`` to ``10.0``
+- ``DOCKER_TAG``: You can use this variable like in ``ocb-10.0`` instead of
+  the 2 above (which only build this one).
+- ``DOCKER_IMAGE``: Just in case you want to point to another image in the
+  docker hub.
+
+To allow committing the container as an image and pushing it to a Docker
+Registry:
+
+- ``DOCKER_PUSH_REPO``: Defaults to ``oca/ci-build``.
+- ``DOCKER_PUSH_TAG``: Which tag to use for pushing the build. The convention
+  is to use i.e. ``maintainer-quality-tools-master`` for branch builds, and
+  i.e. ``maintainer-quality-tools-pr477`` for pull requests. Use environment
+  variables supplied by your CI tool to generate this one.
+- ``DOCKER_LOGIN_USERNAME`` and ``DOCKER_LOGIN_PASSWORD``: required when you
+  declare a ``DOCKER_PUSH_TAG``, to log in the registry. **Make sure the
+  password is protected**.
+"""
+
+from __future__ import unicode_literals, print_function
+import os
+import sys
+import docker
+
+CONTAINER_VARIABLES = {
+    "LINT_CHECK",
+    "TESTS",
+    "TRANSIFEX_FILL_UP_RESOURCES",
+    "TRANSIFEX_ORGANIZATION",
+    "TRANSIFEX_PASSWORD",
+    "TRANSIFEX_PROJECT_SLUG",
+    "TRANSIFEX_TEAM",
+    "TRANSIFEX_USER",
+    "TRANSIFEX",
+    "UNIT_TEST",
+}
+
+# Parse variables to run the container
+repo = os.environ.get("ODOO_REPO")
+version = os.environ.get("ODOO_VERSION")
+tag = os.environ.get(
+    "DOCKER_TAG",
+    "{}-{}".format(repo, version).lower() if repo and version else "latest")
+image = os.environ.get("DOCKER_IMAGE", "oca/maintainer-quality-tools")
+
+# Run container
+client = docker.from_env()
+container = client.containers.run(
+    image="{}:{}".format(image, tag),
+    remove=True,
+    environment={key: value for key, value in os.environ.items()
+                 if key in CONTAINER_VARIABLES},
+    tty=True,
+    volumes={
+        os.environ["ADDONS_DIR"]: {
+            "bind": "/root/build/{}".format(os.environ["OWNER_REPO"]),
+            "mode": "ro,z",
+        }
+    },
+)
+
+# Output logs
+for line in container.logs(stdout=True, stderr=True, stream=True, follow=True):
+    print(line)
+
+# Store container result
+result = container.wait()
+
+# Commit container and push image
+push_repo = os.environ.get("DOCKER_PUSH_REPO", "oca/ci-build")
+push_tag = os.environ.get("DOCKER_PUSH_TAG")
+if push_tag:
+    # TODO Support all login parameters (see docs)
+    login = {
+        "username": os.environ["DOCKER_LOGIN_USERNAME"],
+        "password": os.environ["DOCKER_LOGIN_PASSWORD"],
+    }
+    client.login(**login)
+    image = container.commit(push_repo, push_tag)
+    image.push(push_repo, push_tag)
+
+# Return container's exit code
+sys.exit(result)
