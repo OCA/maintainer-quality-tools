@@ -85,7 +85,7 @@ container = client.containers.run(
 
 # Output logs
 for line in container.logs(stdout=True, stderr=True, stream=True, follow=True):
-    print(line)
+    print(line, end="")
 
 # Store container result
 result = container.wait()
