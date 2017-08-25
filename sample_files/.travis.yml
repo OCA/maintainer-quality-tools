@@ -9,6 +9,7 @@ python:
 env:
   global:
   - ADDONS_DIR="$TRAVIS_BUILD_DIR"
+  - OWNER_REPO="$TRAVIS_REPO_SLUG"
   - LINT_CHECK="0"
   - ODOO_VERSION="$TRAVIS_BRANCH"
   - TESTS="0"
