@@ -44,6 +44,7 @@ from __future__ import unicode_literals, print_function
 import os
 import sys
 import docker
+from pprint import pprint
 
 CONTAINER_VARIABLES = {
     "EXCLUDE",
@@ -74,7 +75,7 @@ container_env.setdefault(
 
 # Run container
 client = docker.from_env()
-container = client.containers.run(
+run_options = dict(
     image="{}:{}".format(image, tag),
     detach=True,
     remove=True,
@@ -87,6 +88,8 @@ container = client.containers.run(
         }
     },
 )
+pprint("Running MQT container with:", run_options)
+container = client.containers.run(**run_options)
 
 # Output logs
 for line in container.logs(stdout=True, stderr=True, stream=True, follow=True):
