@@ -77,6 +77,7 @@ if [ -z "${REPO_CACHED}"  ]; then
     echo "Installing Odoo $ODOO_URL"
     wget -nv -O odoo.tar.gz $ODOO_URL
     tar -xf odoo.tar.gz -C ${HOME}
+    rm -f odoo.tar.gz
 else
     echo "Using Odoo from cache ${REPO_CACHED}"
     chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}

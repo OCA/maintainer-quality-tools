@@ -1,0 +1,10 @@
+#!/bin/bash
+env
+
+REPOS="odoo/odoo OCA/OCB"
+VERSIONS="8.0 9.0 10.0"
+
+# Convert a repo name in a docker image tag name
+flavor () {
+    echo "$(basename $1 | tr '[:upper:]' '[:lower:]')-$2"
+}
