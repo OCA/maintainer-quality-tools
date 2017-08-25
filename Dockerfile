@@ -32,7 +32,6 @@ RUN apt-get update -yq \
         zlib1g \
         zlibc \
     && wget -qO- https://bootstrap.pypa.io/get-pip.py | python \
-    && gem install --no-rdoc --no-ri --no-update-sources compass bootstrap-sass \
     && rm -Rf ~/.{cache,npm,gem} /var/lib/{apt/lists/*,gems/*/cache} /tmp/*
 ARG VERSION=10.0
 ARG ODOO_REPO=odoo/odoo
@@ -60,6 +59,7 @@ RUN BUILD_DEPENDENCIES=" \
         tk-dev" \
     && apt-get update -yq \
     && apt-get install -yq $BUILD_DEPENDENCIES \
+    && gem install --no-rdoc --no-ri --no-update-sources compass bootstrap-sass \
     && travis_install_nightly \
     && apt-get -yq purge $BUILD_DEPENDENCIES \
     && apt-get -yq autoremove --purge \
