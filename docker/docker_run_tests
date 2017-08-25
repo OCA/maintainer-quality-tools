@@ -88,7 +88,8 @@ run_options = dict(
         }
     },
 )
-pprint("Running MQT container with:", run_options)
+print("Running MQT container with:")
+pprint(run_options)
 container = client.containers.run(**run_options)
 
 # Output logs
