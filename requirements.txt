@@ -1,4 +1,11 @@
 simplejson
 pyserial
+pyopenssl>=16.2.0
 pyyaml
 coveralls
+unittest2
+
+# transifex requirements
+polib
+slumber
+transifex-client

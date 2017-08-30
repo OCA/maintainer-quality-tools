@@ -90,7 +90,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
                 break
 
     if check_loaded:
-        if not [r for r in log_records if 'Modules loaded.' == r['message']]:
+        if not [r for r in log_records if 'Modules loaded.' in r['message']]:
             errors.append({'message': "Modules loaded message not found."})
 
     if errors:
@@ -116,6 +116,7 @@ def get_server_path(odoo_full, odoo_version, travis_home):
     :param travis_home: Travis home directory
     :return: Server path
     """
+    odoo_version = odoo_version.replace('/', '-')
     odoo_org, odoo_repo = odoo_full.split('/')
     server_dirname = "%s-%s" % (odoo_repo, odoo_version)
     server_path = os.path.join(travis_home, server_dirname)
@@ -137,8 +138,10 @@ def get_addons_path(travis_dependencies_dir, travis_build_dir, server_path):
     return addons_path
 
 
-def get_server_script(odoo_version):
-    return 'odoo-bin' if float(odoo_version) >= 10 else 'openerp-server'
+def get_server_script(server_path):
+    if os.path.isfile(os.path.join(server_path, 'odoo-bin')):
+        return 'odoo-bin'
+    return 'openerp-server'
 
 
 def get_addons_to_check(travis_build_dir, odoo_include, odoo_exclude):
@@ -239,7 +242,10 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      "--init", ','.join(preinstall_modules),
                      ] + install_options + server_options
         print(" ".join(cmd_strip_secret(cmd_odoo)))
-        subprocess.check_call(cmd_odoo)
+        try:
+            subprocess.check_call(cmd_odoo)
+        except subprocess.CalledProcessError as e:
+            return e.returncode
     return 0
 
 
@@ -300,6 +306,7 @@ def main(argv=None):
     server_options = os.environ.get('SERVER_OPTIONS', "").split()
     expected_errors = int(os.environ.get("SERVER_EXPECTED_ERRORS", "0"))
     odoo_version = os.environ.get("VERSION")
+    odoo_branch = os.environ.get("ODOO_BRANCH")
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
@@ -325,8 +332,9 @@ def main(argv=None):
             test_loglevel = 'info'
             test_loghandler = 'openerp.tools.yaml_import:DEBUG'
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
-    script_name = get_server_script(odoo_version)
+    server_path = get_server_path(odoo_full, odoo_branch or odoo_version,
+                                  travis_home)
+    script_name = get_server_script(server_path)
     addons_path = get_addons_path(travis_dependencies_dir,
                                   travis_build_dir,
                                   server_path)
@@ -362,6 +370,7 @@ def main(argv=None):
     cmd_odoo_test = ["coverage", "run",
                      "%s/%s" % (server_path, script_name),
                      "-d", database,
+                     "--db-filter=^%s$" % database,
                      "--stop-after-init",
                      "--log-level", test_loglevel,
                      ]
@@ -408,8 +417,7 @@ def main(argv=None):
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
-                    ['--db-filter=^%s$' % database,
-                     '--pidfile=/tmp/odoo.pid']
+                    ['--pidfile=/tmp/odoo.pid']
             else:
                 command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
@@ -438,7 +446,7 @@ def main(argv=None):
                 counted_errors += errors
                 all_errors.append(to_test)
                 print(fail_msg, "Found %d lines with errors" % errors)
-        if not instance_alive:
+        if not instance_alive and odoo_unittest:
             # Don't drop the database if will be used later.
             subprocess.call(["dropdb", database])
 
