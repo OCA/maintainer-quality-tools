@@ -10,9 +10,7 @@ python:
 
 addons:
   apt:
-# only add the two lines below if you need wkhtmltopdf for your tests
 #    sources:
-#      - pov-wkhtmltopdf
 #    Search your sources alias here:
 #      https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     packages:
@@ -25,11 +23,6 @@ addons:
 #       https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
 #      - wkhtmltopdf  # only add if needed and check the before_install section below
 
-# set up an X server to run wkhtmltopdf.
-#before_install:
-#  - "export DISPLAY=:99.0"
-#  - "sh -e /etc/init.d/xvfb start"
-
 # Sometimes complicated website repos need Compass & SaSS:
 #before_install:
 #  - rvm install ruby --latest
@@ -39,6 +32,9 @@ addons:
 env:
   global:
   - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  # Set this variable to some version existing as linux-generic build on
+  # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
+  # if you need to install wkhtmltopdf
   # - WKHTMLTOPDF_VERSION="0.12.4"
   # Set the above to install a `wkhtmltopdf` version that is not the one provided
   # by the `pov-wkhtmltopdf` repo.
@@ -93,8 +89,6 @@ install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
-# Use the sentence below to install a specific wkhtmltopdf version
-# - export WKHTMLTOPDF_VERSION=0.12.4
 
 script:
   - travis_run_tests
