@@ -124,11 +124,24 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
-if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
-    echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
-    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+if [ "${WKHTMLTOPDF_VERSION}" == "" ]; then
+    WKHTMLTOPDF_VERSION="0.12.3"
 fi;
+echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
 
+if [[ ${WKHTMLTOPDF_VERSION} == "0.12.1" ]]
+then
+    cd ${HOME}/maintainer-quality-tools/travis/
+    BINARY=wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-wheezy-amd64.deb
+    wget --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/${BINARY} 
+    dpkg -x ${BINARY} data.tar.xz
+    mv data.tar.xz/usr/local/bin/wkhtmltopdf .
+    chmod +x wkhtmltopdf
+    rm -rf ${BINARY} data.tar.xz
+
+else
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -O- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+fi
 # Expected directory structure:
 #
 #    HOME/
