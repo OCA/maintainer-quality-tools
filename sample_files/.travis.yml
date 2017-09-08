@@ -21,7 +21,7 @@ addons:
       - python-yaml
 #     Search your packages here:
 #       https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-#      - wkhtmltopdf  # only add if needed and check the before_install section below
+#     For wkhtmltopdf, see the env section below
 
 # Sometimes complicated website repos need Compass & SaSS:
 #before_install:
