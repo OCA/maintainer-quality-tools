@@ -30,6 +30,7 @@ import subprocess
 import logging
 
 
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 _logger = logging.getLogger()
 
 travis_repo_slug = os.environ.get(
