@@ -2,6 +2,8 @@
 
 import base64
 import os
+import re
+import subprocess
 import tempfile
 import time
 import json
@@ -54,6 +56,24 @@ class WeblateApi(Request):
         self.ssh = os.environ.get(
             "WEBLATE_SSH", "ssh://user@webpage.com")
         self.tempdir = os.path.join(tempfile.gettempdir(), 'weblate_api')
+        self._ssh_keyscan()
+
+    def _ssh_keyscan(self):
+        """This method execute the command 'ssh-keysan' to avoid the
+        question when the command git clone is excecuted.
+        The question is like to:
+            'Are you sure you want to continue connecting (yes/no)?'"""
+        cmd = ['ssh-keyscan', '-p']
+        match = re.search(
+            r'(ssh\:\/\/\w+@(?P<host>[\w\.]+))(:{0,1})(?P<port>(\d+))?',
+            self.ssh)
+        if not match:
+            return False
+        data = match.groupdict()
+        cmd.append(data['port'] or '22')
+        cmd.append(data['host'])
+        with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
+             subprocess.Popen(cmd, stdout=hosts)
 
     def get_project(self, repo_slug, branch):
         self.branch = branch
