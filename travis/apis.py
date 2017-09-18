@@ -70,7 +70,7 @@ class WeblateApi(Request):
         if not match:
             return False
         data = match.groupdict()
-        cmd.append(data['port'] of '22')
+        cmd.append(data['port'] or '22')
         cmd.append(data['host'])
         with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
              subprocess.Popen(cmd, stdout=hosts)
