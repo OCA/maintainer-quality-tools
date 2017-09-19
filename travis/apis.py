@@ -66,7 +66,7 @@ class WeblateApi(Request):
         cmd = ['ssh-keyscan', '-p']
         match = re.search(
             r'(ssh\:\/\/\w+@(?P<host>[a-zA-Z0-9_.-]+))(:{0,1})'
-            '(?P<port>(\d+))?', self.ssh)
+            r'(?P<port>(\d+))?', self.ssh)
         if not match:
             return False
         data = match.groupdict()
