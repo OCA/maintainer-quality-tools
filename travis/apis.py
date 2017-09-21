@@ -2,6 +2,8 @@
 
 import base64
 import os
+import re
+import subprocess
 import tempfile
 import time
 import json
@@ -54,6 +56,24 @@ class WeblateApi(Request):
         self.ssh = os.environ.get(
             "WEBLATE_SSH", "ssh://user@webpage.com")
         self.tempdir = os.path.join(tempfile.gettempdir(), 'weblate_api')
+        self._ssh_keyscan()
+
+    def _ssh_keyscan(self):
+        """This method execute the command 'ssh-keysan' to avoid the
+        question when the command git clone is excecuted.
+        The question is like to:
+            'Are you sure you want to continue connecting (yes/no)?'"""
+        cmd = ['ssh-keyscan', '-p']
+        match = re.search(
+            r'(ssh\:\/\/\w+@(?P<host>[a-zA-Z0-9_.-]+))(:{0,1})'
+            r'(?P<port>(\d+))?', self.ssh)
+        if not match:
+            return False
+        data = match.groupdict()
+        cmd.append(data['port'] or '22')
+        cmd.append(data['host'])
+        with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
+            subprocess.Popen(cmd, stdout=hosts)
 
     def get_project(self, repo_slug, branch):
         self.branch = branch
@@ -78,9 +98,17 @@ class WeblateApi(Request):
 
     def get_components(self):
         components = []
-        values = self._request(
-            self.host + '/projects/%s/components/' % self.project['slug'])
-        for value in values['results']:
+        values = []
+        page = 1
+        while True:
+            data = self._request(self.host +
+                                 '/projects/%s/components/?page=%s' %
+                                 (self.project['slug'], page))
+            values.extend(data['results'] or [])
+            if not data['next']:
+                break
+            page += 1
+        for value in values:
             if value['branch'] and value['branch'] != self.branch:
                 continue
             components.append(value)

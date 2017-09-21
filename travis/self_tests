@@ -10,6 +10,7 @@ import getaddons
 import travis_helpers
 from test_server import main as test_server_main
 from test_server import get_test_dependencies
+from test_server import get_server_script
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", ".")
 repo_dir_with_subfolders = os.path.join(
@@ -100,6 +101,8 @@ if os.environ.get('LINT_CHECK', 0) == '1':
 # Testing git run from getaddons
 getaddons.get_modules_changed(repo_dir)
 
+# Testing get_server_script
+assert get_server_script("/tmp") == 'openerp-server'
 
 # Testing instance running
 def connection_test():
