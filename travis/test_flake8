@@ -11,7 +11,11 @@ flake8_config_dir = os.path.join(root_dir, 'cfg')
 
 status = 0
 
-for addon in get_modules(os.path.abspath('.')):
+exclude = os.environ.get('EXCLUDE_LINT', '').split(',')
+modules = [module for module in get_modules(os.path.abspath('.'))
+           if module not in exclude]
+
+for addon in modules:
     status += subprocess.call(['flake8', addon,
                                '--config=%s/travis_run_flake8__init__.cfg' %
                                flake8_config_dir])
