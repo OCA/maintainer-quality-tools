@@ -26,6 +26,32 @@ Check your .travis file for syntax issues.
 You can test your .travis file in [this linter](http://lint.travis-ci.org/).
 This is very useful when you are improving your file.
 
+Multiple values for environment variable VERSION
+------------------------------------------------
+
+You can use branch or pull request into environment variable VERSION:
+
+- Branch 10.0
+```
+    VERSION="10.0" ODOO_REPO="odoo/odoo"
+```
+
+- Pull request odoo/odoo#143
+```
+    VERSION="pull/143" ODOO_REPO="odoo/odoo"
+```
+
+Using custom branch inside odoo repository using ODOO_BRANCH
+------------------------------------------------------------
+
+You can use the custom branch into the ODOO_REPO using the environment variable ODOO_BRANCH:
+
+
+- Branch saas-17
+```
+  ODOO_REPO="odoo/odoo" ODOO_BRANCH="saas-17"
+```
+
 Module unit tests
 -----------------
 
