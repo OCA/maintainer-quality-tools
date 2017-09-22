@@ -73,7 +73,7 @@ class WeblateApi(Request):
         cmd.append(data['port'] or '22')
         cmd.append(data['host'])
         with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
-             subprocess.Popen(cmd, stdout=hosts)
+            subprocess.Popen(cmd, stdout=hosts)
 
     def get_project(self, repo_slug, branch):
         self.branch = branch

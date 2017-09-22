@@ -10,7 +10,11 @@ import ast
 import os
 import sys
 
-from itertools import ifilter, imap
+try:
+    from itertools import ifilter, imap
+except ImportError:
+    ifilter = filter
+    imap = map
 
 from git_run import GitRun
 
