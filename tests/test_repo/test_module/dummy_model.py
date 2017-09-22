@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from openerp.osv import fields, orm
+from openerp.osv import orm
+from openerp import fields
 import sys
 
 
 class DummyModel(orm.Model):
     _name = 'dummy.model'
-    _columns = {
-        'name': fields.char('Dummy', size=100),
-    }
+    name = fields.Char('Dummy', size=100)
 
 
 # printout non-ASCII text to check unicode issues

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from openerp.osv import fields, orm
+from openerp.osv import orm
+from openerp import fields
 
 
 class DummyModel(orm.Model):
     # expect "no access rules" error
     _name = 'another.dummy.model'
-    _columns = {
-        'name': fields.char('Dummy', size=100),
-    }
+    name = fields.Char('Dummy', size=100)
