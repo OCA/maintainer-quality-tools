@@ -1,6 +1,8 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from six import string_types
 
 import re
 import os
@@ -13,6 +15,13 @@ import psql_log
 from getaddons import find_module, get_addons, get_depends, get_modules, \
     is_installable_module
 from travis_helpers import success_msg, fail_msg
+
+
+def print_log(line):
+    line = line.strip()
+    if sys.version_info > (3, 0):
+        return line.decode()
+    return line
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -46,7 +55,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
 
     def make_pattern_list_callable(pattern_list):
         for i in range(len(pattern_list)):
-            if isinstance(pattern_list[i], basestring):
+            if isinstance(pattern_list[i], string_types):
                 regex = re.compile(pattern_list[i])
                 pattern_list[i] = lambda x: regex.match(x['message'])
             elif hasattr(pattern_list[i], 'match'):
@@ -252,13 +261,15 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                                 stderr=subprocess.STDOUT,
                                 stdout=subprocess.PIPE)
         for line in iter(pipe.stdout.readline, ''):
+            if line == b'':
+                break
             if hidden_line(line, main_modules=[], addons_path_list=[],
                            hidden_all_no_translation=True):
                 continue
             # No show a warning from template runtime
             # if 'openerp.models.schema' in line:
             #     line = line.replace('DEBUG', 'WARNING')
-            print(line.strip())
+            print(print_log(line))
     else:
         print("Using current openerp_template database.")
     return 0
@@ -270,8 +281,8 @@ def hidden_line(line, main_modules, addons_path_list=None,
      - Hidden "waning no translation" of not main modules
      - Hidden "warning no translation" if the main lang file exists.
     """
-    lang_regex = re.compile(
-        r": module (?P<module>\w+): no translation for language (?P<lang>\w+)")
+    lang_regex = re.compile(br": module (?P<module>\w+): no translation for "
+                            br"language (?P<lang>\w+)")
     lang_regex_search = lang_regex.search(line)
     if lang_regex_search:
         if hidden_all_no_translation:
@@ -279,23 +290,24 @@ def hidden_line(line, main_modules, addons_path_list=None,
         module = lang_regex_search.group('module')
         lang = lang_regex_search.group('lang')
         main_lang = lang[:2]
-        module_path = os.path.dirname(find_module(module, addons_path_list))
+        module_path = os.path.dirname(find_module(module.decode(),
+                                                  addons_path_list))
         i18n_main_lang_path = os.path.join(
-            module_path, 'i18n', main_lang + '.po')
+            module_path, 'i18n', main_lang.decode() + '.po')
         if module not in main_modules:
             return True
         if os.path.isfile(i18n_main_lang_path):
             return True
-    schema_regex = re.compile(r'[\d\w$_]+ openerp.models.schema: ')
+    schema_regex = re.compile(br'[\d\w$_]+ openerp.models.schema: ')
     schema_regex_search = schema_regex.search(line)
-    if schema_regex_search and 'DEBUG' in line:
-        if 'dropped column' not in line and 'changed size from' not in line \
-                and 'changed type from' not in line:
+    if schema_regex_search and b'DEBUG' in line:
+        if b'dropped column' not in line and b'changed size from' not in line \
+                and b'changed type from' not in line:
             # hidden all schema debug except
             #   dropped column, changed type and changed size
             return True
-    if 'superfluous' in line and 'dependency' in line:
-        superfluous_regex = re.compile(r'\.(?P<module>[\d\w$_]+): ')
+    if b'superfluous' in line and b'dependency' in line:
+        superfluous_regex = re.compile(br'\.(?P<module>[\d\w$_]+): ')
         superfluous_regex_search = superfluous_regex.search(line)
         if superfluous_regex_search:
             module = superfluous_regex_search.group('module')
@@ -311,7 +323,7 @@ def create_server_conf(data, version=None):
     print("Generating file: ", fname_conf)
     with open(fname_conf, "w") as fconf:
         fconf.write('[options]\n')
-        for key, value in data.iteritems():
+        for key, value in data.items():
             fconf.write(key + ' = ' + os.path.expanduser(str(value)) + '\n')
     print("Configuration file generated.")
 
@@ -333,7 +345,7 @@ def run_from_env_var(env_name_startswith, environ):
     '''
     commands = [
         command
-        for environ_variable, command in sorted(environ.iteritems())
+        for environ_variable, command in sorted(environ.items())
         if environ_variable.startswith(env_name_startswith)
     ]
     for command in commands:
@@ -456,7 +468,7 @@ def main(argv=None):
                 '/*\n\t'.join(primary_path_modules.values()) + '/*'
             ))
     secondary_addons_path_list = set(addons_path_list) - set(
-        [travis_build_dir] + test_other_projects)
+        [travis_build_dir] + [item for item in test_other_projects])
     secondary_modules = []
     for secondary_addons_path in secondary_addons_path_list:
         secondary_modules.extend(get_modules(secondary_addons_path))
@@ -571,14 +583,16 @@ def main(argv=None):
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE, env=env)
-            with open(stdout_log, 'w') as stdout:
+            with open(stdout_log, 'wb') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
+                    if line == b'':
+                        break
                     if hidden_line(line, main_modules, addons_path_list):
                         continue
-                    if 'openerp.models.schema: ' in line and 'DEBUG' in line:
+                    if b'openerp.models.schema: ' in line and b'DEBUG' in line:
                         line = line.replace('DEBUG', 'WARNING')
                     stdout.write(line)
-                    print(line.strip())
+                    print(print_log(line))
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(

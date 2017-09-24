@@ -26,7 +26,7 @@ def get_env_str_starts(str_starts, environ):
 
 def get_env_to_export(environ):
     export_str = ""
-    for key, value in environ.iteritems():
+    for key, value in environ.items():
         value = value or ''
         if value.startswith('"')\
            and value.endswith('"'):
