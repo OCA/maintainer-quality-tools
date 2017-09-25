@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import argparse
 import os
 import re
 import subprocess
-from __future__ import print_function
 
 
 def run_output(l, cwd=None):

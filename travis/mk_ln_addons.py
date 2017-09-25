@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import os
 from __future__ import print_function
+import os
 
 
 def main():

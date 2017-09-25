@@ -43,10 +43,10 @@ Use the following types of pylint configuration files:
 """
 
 
+from __future__ import print_function
 import os
 import re
 import ConfigParser
-from __future__ import print_function
 
 import run_pylint
 import travis_helpers
