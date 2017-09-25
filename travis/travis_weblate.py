@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from __future__ import print_function
 import os
 import re
 import glob
 import subprocess
-from __future__ import print_function
 
 from odoo_connection import Odoo10Context, context_mapping
 from test_server import (get_addons_path, get_server_path, parse_list)
