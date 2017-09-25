@@ -10,6 +10,12 @@ import ast
 import os
 import sys
 
+try:
+    from itertools import ifilter, imap
+except ImportError:
+    ifilter = filter
+    imap = map
+
 from git_run import GitRun
 
 MANIFEST_FILES = [
