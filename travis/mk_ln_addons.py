@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+from __future__ import print_function
 
 
 def main():
@@ -23,7 +24,7 @@ def main():
     for dirname in dirnames:
         cmd = ["ln", "-s", os.path.join(dirname, '*'),
                os.path.join(odoo_path, 'openerp', 'addons', '.')]
-        print "cmd", cmd
+        print("cmd", cmd)
         os.system(' '.join(cmd))
 
     # TODO: Same modules of odoo/addons and same modules of build_dir

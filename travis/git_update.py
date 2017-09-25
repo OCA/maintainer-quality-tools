@@ -4,10 +4,11 @@ import argparse
 import os
 import re
 import subprocess
+from __future__ import print_function
 
 
 def run_output(l, cwd=None):
-    print "run output:", ' '.join(l), "into", cwd
+    print("run output:", ' '.join(l), "into", cwd)
     return subprocess.Popen(
         l, stdout=subprocess.PIPE, cwd=cwd).communicate()[0]
 

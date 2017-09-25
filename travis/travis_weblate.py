@@ -5,6 +5,7 @@ import os
 import re
 import glob
 import subprocess
+from __future__ import print_function
 
 from odoo_connection import Odoo10Context, context_mapping
 from test_server import (get_addons_path, get_server_path, parse_list)
@@ -75,7 +76,7 @@ class TravisWeblateUpdate(object):
             cmd = ["sed", "-i", "-e",
                    r"s/translation'] = src/translation'] = ''/g",
                    s_file]
-            print " ".join(cmd)
+            print(" ".join(cmd))
             subprocess.call(cmd)
 
     def _get_modules_installed(self):
@@ -168,7 +169,7 @@ class TravisWeblateUpdate(object):
         self._git.run(["checkout", "-qb", self.branch,
                        "origin/%s" % self.branch])
         self._git.run(["branch", "-D", branch_name])
-        print yellow("The pull request register is: %s" % pull['html_url'])
+        print(yellow("The pull request register is: %s" % pull['html_url']))
 
     def _commit_weblate(self, first_commit=False):
         if ('nothing to commit, working tree clean'
@@ -207,15 +208,15 @@ class TravisWeblateUpdate(object):
             component = [item for item in self.wl_api.components
                          if item['git_export']]
             if len(component) > 1:
-                print yellow("To many repository for this project %s" %
-                             self.wl_api.project['name'])
+                print(yellow("To many repository for this project %s" %
+                             self.wl_api.project['name']))
                 return 1
             remote = (self.wl_api.ssh + '/' + self.wl_api.project['slug'] +
                       '/' + component[0]['slug'])
             name = '%s-wl' % self.wl_api.project['slug']
             self._git.run(["remote", "add", name, remote])
             for component in self.wl_api.components:
-                print yellow("Component %s" % component['slug'])
+                print(yellow("Component %s" % component['slug']))
                 self._git.run(["checkout", "-qb", self.branch,
                                "origin/%s" % self.branch])
                 self.wl_api.component_repository(component, 'pull')
@@ -251,7 +252,7 @@ def main(argv=None):
     try:
         TravisWeblateUpdate().update()
     except ApiException as exc:
-        print yellow(str(exc))
+        print(yellow(str(exc)))
         raise exc
 
 

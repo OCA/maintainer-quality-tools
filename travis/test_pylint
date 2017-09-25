@@ -46,6 +46,7 @@ Use the following types of pylint configuration files:
 import os
 import re
 import ConfigParser
+from __future__ import print_function
 
 import run_pylint
 import travis_helpers
@@ -145,16 +146,16 @@ if os.environ.get('EXCLUDE_LINT'):
     modules_cmd.extend(['--ignore=%s' % path for path in
                         os.environ.get('EXCLUDE_LINT', '').split(',') if path])
 
-print "modules_cmd", modules_cmd
-print "extra_params_cmd", extra_params_cmd
+print("modules_cmd", modules_cmd)
+print("extra_params_cmd", extra_params_cmd)
 count_errors = 0
 if modules_cmd:
     count_errors = run_pylint.main([
         "--config-file=" + pylint_rcfile,
         ] + modules_cmd + extra_params_cmd, standalone_mode=False)
 else:
-    print "no included modules"
-print "count_errors", count_errors
+    print("no included modules")
+print("count_errors", count_errors)
 
 pylint_rcfile_pr = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
