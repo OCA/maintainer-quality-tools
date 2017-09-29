@@ -24,7 +24,7 @@ if [ "${LINT_CHECK}" != "0" ]; then
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/.jslintrc -O ${HOME}/maintainer-quality-tools/travis/cfg/.jslintrc
     # Ugly patch to apply https://github.com/PyCQA/pylint/pull/1055
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_pr1055.patch -O /tmp/pylint_pr1055.patch
-    patch -f -p0 $(python -c "from pylint.checkers import similar; from __future__ import print_function; print(similar.__file__.rstrip('c'))") -i /tmp/pylint_pr1055.patch
+    patch -f -p0 $(python -c "from __future__ import print_function; from pylint.checkers import similar; print(similar.__file__.rstrip('c'))") -i /tmp/pylint_pr1055.patch
 fi
 
 # We can exit here and do nothing if this only a LINT check

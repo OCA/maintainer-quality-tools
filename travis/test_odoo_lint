@@ -153,7 +153,7 @@ class OdooLint(object):
         @return True or exit the program in the confirm is no.
         """
         self.logger.info('... Configuration of Parameters Set')
-        for (parameter, value) in args.iteritems():
+        for (parameter, value) in args.items():
             self.logger.info('%s = %s', parameter, value)
 
         question = 'Confirm the run with the above parameters?'

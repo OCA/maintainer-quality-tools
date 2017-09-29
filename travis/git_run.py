@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from six import string_types
 import subprocess
 
 
@@ -21,7 +22,7 @@ class GitRun(object):
             res = subprocess.check_output(cmd)
         except subprocess.CalledProcessError:
             res = None
-        if isinstance(res, basestring):
+        if isinstance(res, string_types):
             res = res.strip('\n')
         return res
 
@@ -36,7 +37,7 @@ class GitRun(object):
         command = ['diff-index', '--name-only',
                    '--cached', base_ref]
         res = self.run(command)
-        items = res.split('\n') if res else []
+        items = res.decode().split('\n') if res else []
         return items
 
     def get_branch_name(self):
