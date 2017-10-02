@@ -31,31 +31,31 @@ matrix:
     - python: 2.7
       env:
         VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        TESTS="1" INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
+        INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
     - python: 2.7
       env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="19" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
+        VERSION="9.0" TESTS="0" LINT_CHECK="1"
+        PYLINT_EXPECTED_ERRORS="19" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
     - python: 2.7
       env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        VERSION=master EXCLUDE="broken_no_access_rule" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+        VERSION="master" TESTS="0" LINT_CHECK="1"
+        EXCLUDE="broken_no_access_rule" PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
     - python: 2.7
       env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        VERSION="7.0" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="30" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+        VERSION="7.0" TESTS="0" LINT_CHECK="1"
+        PYLINT_EXPECTED_ERRORS="30" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
     - python: 2.7
       env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        VERSION="" LINT_CHECK="1" TESTS="0" PYLINT_EXPECTED_ERRORS="19" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
+        VERSION="" TESTS="0" LINT_CHECK="1"
+        PYLINT_EXPECTED_ERRORS="19" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
     - python: 2.7
       env:
         VERSION="9.0" TESTS="1" LINT_CHECK="0"
         INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
     - python: 3.4
       env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        VERSION="saas-18" ODOO_REPO="odoo/odoo" INCLUDE="test_module,second_module"
+        VERSION="saas-18" TESTS="1" LINT_CHECK="0"  # TODO: Change to VERSION="11.0" if is released
+        INCLUDE="test_module,second_module"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
