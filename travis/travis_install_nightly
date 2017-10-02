@@ -124,6 +124,11 @@ if [ "$clone_result" != "0"  ]; then
     exit $clone_result
 fi;
 
+if [ "${WKHTMLTOPDF_VERSION}" == "" && $(which wkhtmltopdf) != ""]; then
+    echo "You have installed wkhtmltopdf but is not patched (probably) then we will to overwrite it"
+    export WKHTMLTOPDF_VERSION="0.12.4"
+fi;
+
 if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
     echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
     (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
