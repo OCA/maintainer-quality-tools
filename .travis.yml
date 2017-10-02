@@ -54,7 +54,7 @@ matrix:
         INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
     - python: 3.4
       env:
-        VERSION="saas-18" TESTS="1" LINT_CHECK="0"  # TODO: Change to VERSION="11.0" if is released
+        VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
 
 install:
