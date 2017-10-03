@@ -1,5 +1,6 @@
 # missing coding
-from openerp.osv import orm, fields
+from openerp.osv import orm
+from openerp import fields
 
 import os
 import os as os2  # W0404 - duplicated import
@@ -9,9 +10,7 @@ import __openerp__  # W0403 - relative import
 
 class test_model(orm.Model):
     _name = "test.model"
-    _columns = {
-        'name': fields.char('Title', 100),
-    }
+    name = fields.Char('Title', size=100)
 
     def method_test(self, arg1, arg2):
         return None
@@ -25,7 +24,7 @@ class test_model(orm.Model):
         return "%s %s" % ('value1')
 
     def method_e1601(self):
-        print "Hello world!"
+        print("Hello world!")
 
     def method_w0101(self):
         return True

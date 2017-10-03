@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-from __future__ import print_function
+# -*- coding: utf-8 -*-
 
 import ast
 import re
@@ -8,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+from six import string_types
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
 
@@ -43,7 +43,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
 
     def make_pattern_list_callable(pattern_list):
         for i in range(len(pattern_list)):
-            if isinstance(pattern_list[i], basestring):
+            if isinstance(pattern_list[i], string_types):
                 regex = re.compile(pattern_list[i])
                 pattern_list[i] = lambda x, regex=regex:\
                     regex.search(x['message'])
@@ -257,7 +257,7 @@ def run_from_env_var(env_name_startswith, environ):
     '''
     commands = [
         command
-        for environ_variable, command in sorted(environ.iteritems())
+        for environ_variable, command in sorted(environ.items())
         if environ_variable.startswith(env_name_startswith)
     ]
     for command in commands:
@@ -277,7 +277,7 @@ def create_server_conf(data, version):
         # present and only append our stuff
         fconf = open(fname_conf, "a")
         fconf.write('\n')
-    for key, value in data.iteritems():
+    for key, value in data.items():
         fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
     fconf.close()
 
@@ -426,10 +426,10 @@ def main(argv=None):
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
-            with open('stdout.log', 'w') as stdout:
-                for line in iter(pipe.stdout.readline, ''):
+            with open('stdout.log', 'wb') as stdout:
+                for line in iter(pipe.stdout.readline, b''):
                     stdout.write(line)
-                    print(line.strip())
+                    print(line.strip().decode('UTF-8'))
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(
