@@ -36,7 +36,7 @@ matrix:
       env:
         VERSION="9.0" TESTS="0" LINT_CHECK="1"
         PYLINT_EXPECTED_ERRORS="19" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-    - python: 3.4
+    - python: 2.7
       env:
         VERSION="master" TESTS="0" LINT_CHECK="1"
         EXCLUDE="broken_no_access_rule" PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
