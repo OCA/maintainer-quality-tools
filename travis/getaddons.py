@@ -5,7 +5,6 @@ Given a list  of paths, finds and returns a list of valid addons paths.
 With -m flag, will return a list of modules names instead.
 """
 
-from __future__ import print_function
 import ast
 import os
 import sys

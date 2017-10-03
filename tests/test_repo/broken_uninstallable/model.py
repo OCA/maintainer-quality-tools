@@ -1,5 +1,4 @@
 # missing coding
-from __future__ import print_function
 from openerp.osv import orm
 from openerp import fields
 
