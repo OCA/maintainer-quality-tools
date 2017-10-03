@@ -52,7 +52,7 @@ matrix:
       env:
         VERSION="9.0" TESTS="1" LINT_CHECK="0"
         INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
-    - python: 3.4
+    - python: 3.5
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
