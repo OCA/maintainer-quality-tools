@@ -14,7 +14,7 @@ addons:
 #    Search your sources alias here:
 #      https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     packages:
-      - expect-dev  # provides unbuffer utility
+      - expect  # provides unbuffer utility
       - python-lxml  # because pip installation is slow
       - python-simplejson
       - python-serial
