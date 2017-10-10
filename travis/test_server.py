@@ -364,7 +364,7 @@ def main(argv=None):
     # * we want to be sure, that tests are passing when other modules are already installed
     # * tests for specific modules only are checked manually when developer makes the test
     # * we would like ot have both integration and individual tests, but MQT is not flexible for this, so we just use this "workaround" 
-
+    preinstall_modules = tested_addons
     #preinstall_modules = list(set(preinstall_modules or []) - set(get_modules(
     #    os.environ.get('TRAVIS_BUILD_DIR')) or [])) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
