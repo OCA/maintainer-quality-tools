@@ -208,9 +208,13 @@ class TravisWeblateUpdate(object):
             component = [item for item in self.wl_api.components
                          if item['git_export']]
             if len(component) > 1:
-                print(yellow("To many repository for this project %s" %
-                             self.wl_api.project['name']))
-                return 1
+                git_export = component[0]['git_export']
+                diferent = [item for item in component if
+                            item['git_export'] != git_export]
+                if diferent:
+                    print(yellow("To many repository for this project %s" %
+                                 self.wl_api.project['name']))
+                    return 1
             remote = (self.wl_api.ssh + '/' + self.wl_api.project['slug'] +
                       '/' + component[0]['slug'])
             name = '%s-wl' % self.wl_api.project['slug']
