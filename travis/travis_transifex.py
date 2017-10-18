@@ -3,6 +3,12 @@
 
 from __future__ import unicode_literals
 import os
+
+odoo_version = os.environ.get("VERSION")
+if "11" in odoo_version:
+    # Exclude builds for version 11, as it's not compatible with Python 3
+    exit(0)
+
 import sys
 import time
 import subprocess
@@ -54,9 +60,7 @@ def main(argv=None):
         odoo_version = argv[1]
         print(yellow_light("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version))
-    if "11" in odoo_version:
-        # Exclude builds for version 11, as it's not compatible with Python 3
-        exit(0)
+
     default_project_slug = "%s-%s" % (travis_repo_slug.replace('/', '-'),
                                       odoo_version.replace('.', '-'))
     transifex_project_slug = os.environ.get("TRANSIFEX_PROJECT_SLUG",
