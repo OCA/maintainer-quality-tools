@@ -45,13 +45,17 @@ Use the following types of pylint configuration files:
 
 import os
 import re
-import ConfigParser
 
 import run_pylint
 import travis_helpers
 
 from getaddons import get_modules_changed
 from git_run import GitRun
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
 
 
 def get_extra_params(odoo_version):

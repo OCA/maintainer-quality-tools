@@ -6,16 +6,14 @@ from openerp.tools.translate import _
 
 class MyExampleField(models.Model):
     _name = "my.example.field"
-    _columns = {
-        'name': fields.char(_('Title'), 100),
-        'description': fields.char(string=_('Description'), size=100),
-    }
+    name = fields.Char(_('Title'), size=100)
+    description = fields.Char(string=_('Description'), size=100)
 
 
 class MyExampleField2(models.Model):
     _name = "my.example.field2"
 
-    name = fields.Char(_('Title'), 100)
+    name = fields.Char(_('Title'), size=100)
     description = fields.Char(name=_('Description'), size=100)
 
     def my_method1(self, var):

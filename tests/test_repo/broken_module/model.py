@@ -1,17 +1,17 @@
 # missing coding
-from openerp.osv import orm, fields
+from openerp.osv import orm
+from openerp import fields
 
 import os
 import os as os2  # W0404 - duplicated import
 
-import __openerp__  # W0403 - relative import
+# py3 don't support relative import anymore
+# import __openerp__  # W0403 - relative import
 
 
 class test_model(orm.Model):
     _name = "test.model"
-    _columns = {
-        'name': fields.char('Title', 100),
-    }
+    name = fields.Char('Title', size=100)
 
     def method_test(self, arg1, arg2):
         return None
@@ -25,7 +25,7 @@ class test_model(orm.Model):
         return "%s %s" % ('value1')
 
     def method_e1601(self):
-        print "Hello world!"
+        print("Hello world!")
 
     def method_w0101(self):
         return True
@@ -34,7 +34,7 @@ class test_model(orm.Model):
     def method_w0102(self, arg1, arg2=[]):
         # avoid imported but unused
         all_imports = (
-            os, os2, __openerp__)
+            os, os2)
         return all_imports
 
     def method_w0104_w0105(self):
