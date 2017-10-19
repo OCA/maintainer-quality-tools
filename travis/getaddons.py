@@ -39,7 +39,11 @@ def is_installable_module(path):
     and the full path to the module manifest otherwise"""
     manifest_path = is_module(path)
     if manifest_path:
-        manifest = ast.literal_eval(open(manifest_path).read())
+        try:
+            manifest = ast.literal_eval(open(manifest_path).read())
+        except:
+            print("error in %s" % manifest_path)
+            raise
         if manifest.get('installable', True):
             return manifest_path
     return False
