@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from __future__ import print_function
 from __future__ import unicode_literals
 import os
+
+odoo_version = os.environ.get("VERSION")
+if "11" in odoo_version:
+    # Exclude builds for version 11, as it's not compatible with Python 3
+    exit(0)
+
 import sys
 import time
 import subprocess
