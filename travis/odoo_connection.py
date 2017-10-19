@@ -8,7 +8,11 @@ OdooXContext, implement __enter__ and add to context_mapping.
 
 import sys
 from contextlib import closing
-from cStringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 class _OdooBaseContext(object):
