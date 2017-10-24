@@ -10,7 +10,7 @@ try:
 
     import db_run
     import psql_log
-    from pstats_print2list import get_pstats_print2list, print_pstats_list
+    from pstats_print2list.pstats_print2list import get_pstats_print2list, print_pstats_list
     from test_server import get_server_path
 except ImportError:
     depends_error = True
