@@ -21,29 +21,30 @@ except ImportError:
 
 
 repo_dir = os.environ.get("TRAVIS_BUILD_DIR", ".")
-repo_dir_with_subfolders = os.path.join(
+addons_path = os.path.join(repo_dir, "tests", 'test_repo')
+addons_path_with_subfolders = os.path.join(
     repo_dir, "tests", "test_repo_with_subfolders")
-exclude = os.environ.get("EXCLUDE")
 
+exclude = os.environ.get("EXCLUDE")
 addons_list = ['test_module', 'second_module']
-to_preinstall = get_test_dependencies(repo_dir, addons_list)
+to_preinstall = get_test_dependencies(addons_path, addons_list)
 
 assert not [x for x in to_preinstall if x in addons_list], \
     "Should not preinstall modules to test!"
 
 # Testing getaddons
 assert getaddons.main() == 1
-getaddons.main(["getaddons.py", repo_dir])
-getaddons.main(["getaddons.py", "-m", repo_dir])
+getaddons.main(["getaddons.py", addons_path])
+getaddons.main(["getaddons.py", "-m", addons_path])
 getaddons.main(["getaddons.py", "-m",
-                repo_dir + "/" if repo_dir[-1] == '/' else repo_dir])
+                addons_path + "/" if addons_path[-1] == '/' else addons_path])
 if exclude:
-    getaddons.main(["getaddons.py", "-m", repo_dir, "-e", exclude])
-    getaddons.main(["getaddons.py", "-e", exclude, repo_dir])
+    getaddons.main(["getaddons.py", "-m", addons_path, "-e", exclude])
+    getaddons.main(["getaddons.py", "-e", exclude, addons_path])
 
 # Testing addons-path order is alfanumerical
 addon_paths_alfanumerical_order_is = getaddons.get_addons(
-    repo_dir_with_subfolders)
+    addons_path_with_subfolders)
 addon_paths_alfanumerical_order_should = [
     '1_testfolder',
     '2_testfolder',
@@ -84,10 +85,10 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         "--config-file=" + pylint_rcfile,
         "--extra-params", "-d", "--extra-params", "all",
         "--extra-params", "-e", "--extra-params", "F0010,duplicate-key",
-        "--path", repo_dir], standalone_mode=False)
+        "--path", addons_path], standalone_mode=False)
     assert 2 == count_errors
 
-    empty_path = os.path.join(repo_dir, 'empty_path')
+    empty_path = os.path.join(addons_path, 'empty_path')
     if not os.path.exists(empty_path):
         os.mkdir(empty_path)
     count_errors = run_pylint.main([
@@ -101,7 +102,8 @@ if os.environ.get('LINT_CHECK', 0) == '1':
         pre_commit_returned = subprocess.call(os.path.join(
             git_script_path, 'pre-commit'))
         assert pre_commit_returned == 0, \
-            "Git pre-commit script returned value != 0"
+            "Git pre-commit was unsucessfull and returned {0}".format(
+                pre_commit_returned.__repr__())
 
 # Testing git get branch
 
