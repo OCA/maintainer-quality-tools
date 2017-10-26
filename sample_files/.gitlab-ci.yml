@@ -1,0 +1,41 @@
+image: vauxoo/odoo-80-image-shippable-auto
+stages:
+  - test
+
+variables:
+    PSQL_VERSION: "9.5"
+    VERSION: "11.0"
+    ODOO_REPO: "odoo/odoo"
+    ODOO_BRANCH: "11.0"
+    TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
+
+lint:
+  stage: test
+  tags:
+    - lint
+  variables:
+    LINT_CHECK: "1"
+    TESTS: "0"
+  script:
+    - sudo apt-get update && sudo apt-get install -y dos2unix
+    - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
+    - travis_install_nightly
+    - travis_run_tests
+    - travis_after_tests_success || true
+
+test:
+  stage: test
+  tags:
+    - test
+  variables:
+    LINT_CHECK: "0"
+    TESTS: "1"
+  script:
+    - apt-get update && apt-get install -y tree dos2unix
+    - source /.repo_requirements/virtualenv/python3.5/bin/activate
+    - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
+    - travis_install_nightly
+    - travis_run_tests
+    - travis_after_tests_success || true
