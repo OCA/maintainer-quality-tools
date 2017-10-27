@@ -39,11 +39,11 @@ matrix:
     - python: 2.7
       env:
         VERSION="master" TESTS="0" LINT_CHECK="1"
-        EXCLUDE="broken_no_access_rule" PYLINT_EXPECTED_ERRORS="33" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
+        EXCLUDE="broken_no_access_rule" PYLINT_EXPECTED_ERRORS="34" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
     - python: 2.7
       env:
         VERSION="7.0" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="31" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
+        PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
     - python: 2.7
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
