@@ -15,7 +15,6 @@ import run_pylint
 import travis_helpers
 from test_server import main as test_server_main
 from test_server import get_test_dependencies
-from test_server import get_server_script
 
 try:
     import xmlrpc.client as xmlrpclib
@@ -24,23 +23,25 @@ except ImportError:
 
 
 EXPECTED_ERRORS = {
-    'reimported': 4,
-    'redundant-keyword-arg': 1,
-    'relative-import': 1,
-    'pointless-string-statement': 1,
-    'assignment-from-none': 1,
     'anomalous-backslash-in-string': 1,
-    'print-statement': 1,
+    'assignment-from-none': 1,
     'dangerous-default-value': 1,
-    'pointless-statement': 1,
-    'return-in-init': 1,
-    'unreachable': 1,
     'duplicate-key': 2,
-    'too-few-format-args': 1
+    'pointless-statement': 1,
+    'pointless-string-statement': 1,
+    'print-statement': 1,
+    'redundant-keyword-arg': 1,
+    'reimported': 4,
+    'return-in-init': 1,
+    'too-few-format-args': 1,
+    'unreachable': 1,
 }
 EXPECTED_ERRORS_PR = {
+    'eval-referenced': 6,
+    'eval-used': 1,
+    'manifest-required-author': 1,
+    'manifest-required-key': 1,
     'manifest-version-format': 6,
-    'eval-used': 1
 }
 
 
@@ -70,6 +71,7 @@ class MainTest(unittest.TestCase):
             'cfg', "travis_run_pylint_pr.cfg")
         self.modules_cmd = run_pylint.get_modules_cmd(self.git_work_dir)
         self.beta_msgs = run_pylint.get_beta_msgs()
+        self.errors_dict = EXPECTED_ERRORS.copy()
 
     def test_modules_to_preinstall(self):
         """Testing modules to preinstall"""
@@ -202,7 +204,7 @@ class MainTest(unittest.TestCase):
         thread = TestServerThread()
         thread.daemon = True
         thread.start()
-        for index in range(10):
+        for __ in range(10):
             try:
                 connection_result = self.connection_test()
             except:
@@ -216,198 +218,96 @@ class MainTest(unittest.TestCase):
         subprocess.call(['kill', '-9', odoo_pid])
 
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
-    def test_check_vmaster(self):
-        """PYLINT_EXPECTED_ERRORS="89"
-           VERSION="master"
-        """
-        print("VERSION=MASTER")
-        # IS PR True
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict.update(EXPECTED_ERRORS_PR)
-        errors_dict['manifest-version-format'] = 4
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 26
-
-        result = run_pylint.pylint_run(
-            is_pr=True, version="master", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
-        # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
-
-        # IS PR FALSE
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 21
+    def test_check_vmaster_nopr(self):
+        self.errors_dict.update({
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
 
         result = run_pylint.pylint_run(
             is_pr=False, version="master", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        # expected_errors = int(os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
 
         # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
+        self.assertEqual(self.errors_dict, result)
 
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
-    def test_check_v7(self):
-        """PYLINT_EXPECTED_ERRORS="84"
-           VERSION="7.0"
-        """
-        print("VERSION=7.0")
-        # IS PR True
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict.update(EXPECTED_ERRORS_PR)
-        expected_errors = 24
+    def test_check_vmaster_ispr(self):
+        self.errors_dict.update(EXPECTED_ERRORS_PR)
+        self.errors_dict.update({
+            'manifest-version-format': 4,
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
+
+        result = run_pylint.pylint_run(
+            is_pr=True, version="master", dir=self.git_work_dir)
+        # Expected vs found errors
+        self.assertEqual(self.errors_dict, result)
+
+    @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
+    def test_check_v7_ispr(self):
+        self.errors_dict.update(EXPECTED_ERRORS_PR)
 
         result = run_pylint.pylint_run(
             is_pr=True, version="7.0", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
         # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
-
-        # IS PR FALSE
-        errors_dict = EXPECTED_ERRORS.copy()
-        expected_errors = 17
-
-        result = run_pylint.pylint_run(
-            is_pr=False, version="7.0", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
-        # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
+        self.assertEqual(self.errors_dict, result)
 
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
-    def test_check_v8(self):
-        print("VERSION=8.0")
-        # IS PR True
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict.update(EXPECTED_ERRORS_PR)
-        errors_dict['manifest-version-format'] = 4
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 26
+    def test_check_v7_nopr(self):
+        result = run_pylint.pylint_run(
+            is_pr=False, version="7.0", dir=self.git_work_dir)
+        # Expected vs found errors
+        self.assertEqual(self.errors_dict, result)
+
+    @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
+    def test_check_v8_ispr(self):
+        self.errors_dict.update(EXPECTED_ERRORS_PR)
+        self.errors_dict.update({
+            'manifest-version-format': 4,
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
 
         result = run_pylint.pylint_run(
             is_pr=True, version="8.0", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
         # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
-
-        # IS PR FALSE
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 21
-
-        result = run_pylint.pylint_run(
-            is_pr=False, version="8.0", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
-        # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
+        self.assertEqual(self.errors_dict, result)
 
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
-    def test_check_without_version(self):
-        """PYLINT_EXPECTED_ERRORS="27"
-           VERSION=""
-        """
-        print("VERSION=''")
-        # IS PR True
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict.update(EXPECTED_ERRORS_PR)
-        errors_dict['manifest-version-format'] = 4
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 26
+    def test_check_v8_nopr(self):
+        self.errors_dict.update({
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
+        result = run_pylint.pylint_run(
+            is_pr=False, version="8.0", dir=self.git_work_dir)
+        # Expected vs found errors
+        self.assertEqual(self.errors_dict, result)
 
+    @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
+    def test_check_without_version_ispr(self):
+        self.errors_dict.update(EXPECTED_ERRORS_PR)
+        self.errors_dict.update({
+            'manifest-version-format': 4,
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
         result = run_pylint.pylint_run(
             is_pr=True, version="", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
         # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
+        self.assertEqual(self.errors_dict, result)
 
-        # IS PR FALSE
-        errors_dict = EXPECTED_ERRORS.copy()
-        errors_dict['missing-manifest-dependency'] = 2
-        errors_dict['missing-import-error'] = 2
-        expected_errors = 21
+    @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
+    def test_check_without_version_nopr(self):
+        self.errors_dict.update({
+            'missing-manifest-dependency': 2,
+            'missing-import-error': 2,
+        })
         result = run_pylint.pylint_run(
             is_pr=False, version="", dir=self.git_work_dir)
-        count_errors = sum(result.values())
-        self.assertNotEqual(count_errors, -1,
-                            travis_helpers.yellow('Python modules not found'))
-        self.assertEqual(
-            count_errors, expected_errors,
-            travis_helpers.red("pylint expected errors %s, found %s!" % (
-                expected_errors, count_errors)))
-
         # Expected vs found errors
-        self.assertEqual(result, errors_dict)
-        sum_fails_found = sum(result.values())
-        sum_fails_expected = sum(errors_dict.values())
-        self.assertEqual(sum_fails_found, sum_fails_expected)
+        self.assertEqual(self.errors_dict, result)
 
 
 if __name__ == '__main__':
