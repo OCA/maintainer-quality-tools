@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
+from six import string_types
 
 
 class GitRun(object):
-    def __init__(self, repo_path):
+
+    def __init__(self, repo_path, debug=False):
         self.repo_path = repo_path
+        self.debug = debug
 
     def run(self, command):
         """Execute git command in bash
@@ -13,11 +16,12 @@ class GitRun(object):
         :return: String output of command executed.
         """
         cmd = ['git', '--git-dir=' + self.repo_path] + command
+        print(cmd if self.debug else '')
         try:
             res = subprocess.check_output(cmd)
         except subprocess.CalledProcessError:
             res = None
-        if isinstance(res, basestring):
+        if isinstance(res, string_types):
             res = res.strip('\n')
         return res
 
@@ -32,7 +36,7 @@ class GitRun(object):
         command = ['diff-index', '--name-only',
                    '--cached', base_ref]
         res = self.run(command)
-        items = res.split('\n') if res else []
+        items = res.decode('UTF-8').split('\n') if res else []
         return items
 
     def get_branch_name(self):

@@ -5,7 +5,6 @@ Given a list  of paths, finds and returns a list of valid addons paths.
 With -m flag, will return a list of modules names instead.
 """
 
-from __future__ import print_function
 import ast
 import os
 import sys
@@ -71,7 +70,7 @@ def get_addons(path):
         res = [path]
     else:
         res = [os.path.join(path, x)
-               for x in os.listdir(path)
+               for x in sorted(os.listdir(path))
                if is_addons(os.path.join(path, x))]
     return res
 
@@ -127,6 +126,7 @@ def main(argv=None):
     if exclude_modules:
         res = [x for x in res if x not in exclude_modules]
     print(','.join(res))
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -53,6 +53,7 @@ if __name__ == '__main__':
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
     transifex_enabled = os.environ.get('TRANSIFEX') == '1'
+    weblate_enabled = os.environ.get('WEBLATE') == '1'
     is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
     is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
         'transbot@odoo-community.org'
@@ -78,6 +79,14 @@ if __name__ == '__main__':
 
     if transifex_enabled and is_valid_transifex:
         tests.append(['travis_transifex.py'])
+
+    is_valid_weblate = (
+        not is_pull_request and os.environ.get('UNIT_TEST') != '1' and
+        ['test_server.py'] in tests)
+
+    if weblate_enabled and is_valid_weblate:
+        # Re-use database of TESTS=1 except if UNIT_TEST is enabled.
+        tests.append(['travis_weblate.py'])
 
     if tests:
         exit(main(tests))

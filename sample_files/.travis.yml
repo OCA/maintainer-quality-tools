@@ -10,9 +10,7 @@ python:
 
 addons:
   apt:
-# only add the two lines below if you need wkhtmltopdf for your tests
 #    sources:
-#      - pov-wkhtmltopdf
 #    Search your sources alias here:
 #      https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     packages:
@@ -23,16 +21,31 @@ addons:
       - python-yaml
 #     Search your packages here:
 #       https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-#      - wkhtmltopdf  # only add if needed and check the before_install section below
+#     For wkhtmltopdf, see the env section below
 
-# set up an X server to run wkhtmltopdf.
+# Sometimes complicated website repos need Compass & SaSS:
 #before_install:
-#  - "export DISPLAY=:99.0"
-#  - "sh -e /etc/init.d/xvfb start"
+#  - rvm install ruby --latest
+#  - gem install bootstrap-sass
+#  - gem install compass --pre
 
 env:
   global:
-  - VERSION="8.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  # Set this variable to some version existing as linux-generic build on
+  # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
+  # if you need to install wkhtmltopdf
+  # - WKHTMLTOPDF_VERSION="0.12.4"
+  # Set the above to install a `wkhtmltopdf` version that is not the one provided
+  # by the `pov-wkhtmltopdf` repo.
+  - PHANTOMJS_VERSION="latest"
+  # The above line controls the PhantomJS version that is used for JS testing.
+  #   It is not necessary to include this value unless you are altering the default.
+  #   Use `OS` to skip the PhantomJS upgrade & use the system version instead.
+  - WEBSITE_REPO="1"
+  # Use the above line to install dependencies that are required for website repos:
+  # * SASS & Bootstrap-SASS
+  # * Compass
   - TRANSIFEX_USER='transbot@odoo-community.org'
   # This line contains the encrypted transifex password
   # To encrypt transifex password, install travis ruby utils with:
@@ -65,6 +78,12 @@ env:
 
 virtualenv:
   system_site_packages: true
+
+# Enable this if your repository needs sass command (needed for website related repos)
+#before_install:
+#  - rvm install ruby --latest
+#  - gem install bootstrap-sass
+#  - gem install compass --pre
 
 install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools

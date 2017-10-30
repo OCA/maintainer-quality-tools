@@ -3,15 +3,21 @@
 set -e
 
 if [ "${LINT_CHECK}" != "0" ]; then
-    pip install -q flake8 Click pylint-mccabe
+    pip install -q flake8=="3.4.1" Click pylint-mccabe
 
     # Install pylint plugin depends without lxml
     wget -q https://raw.githubusercontent.com/OCA/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
-    find -L ${HOME}/maintainer-quality-tools/travis -name pylint_odoo_requirements.txt -exec sed -i '/lxml/d'  {} \;  #  lxml depends is too slow
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/OCA/pylint-odoo.git   # To use last version ever
-    npm install -g jshint  # Extra package for pylint-odoo plugin
-    exit 0
+    npm install -g eslint  # Extra package for pylint-odoo plugin
+    if [ -f "${HOME}/.nvm/nvm.sh" ]; then
+        # Update nodejs v6.latest required by eslint
+        # Using nvm of travis
+        CURRENT_NODE=$(which node)
+        source ${HOME}/.nvm/nvm.sh
+        nvm install 6
+        ln -sf $(nvm which 6) $CURRENT_NODE
+    fi
 fi
 
 # We can exit here and do nothing if this only a LINT check
@@ -24,6 +30,25 @@ fi
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 npm install -g less less-plugin-clean-css
 
+if [ "${WEBSITE_REPO}" == "1" ]; then
+    if [ -f ~/.rvm/scripts/rvm ]; then
+        source ~/.rvm/scripts/rvm
+    else
+        source /usr/local/rvm/scripts/rvm
+    fi
+    rvm install ruby --latest
+    rvm use ruby --latest
+    # Uninstall current versions to be sure that
+    # the correct version will be installed
+    gem uninstall -aIx bootstrap-sass compass sass
+    gem install compass bootstrap-sass
+fi
+
+# Update PhantomJS (v10 compat)
+if [ "${PHANTOMJS_VERSION}" != "OS" ]; then
+    npm install --prefix ${TRAVIS_BUILD_DIR} "phantomjs-prebuilt@${PHANTOMJS_VERSION:=latest}"
+    ln -s "${TRAVIS_BUILD_DIR}/node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs" "${HOME}/maintainer-quality-tools/travis/phantomjs"
+fi
 
 # For backward compatibility, take version from parameter if it's not globally set
 if [ "x${VERSION}" == "x" ] ; then
@@ -31,12 +56,22 @@ if [ "x${VERSION}" == "x" ] ; then
     echo "WARNING: no env variable set for VERSION. Using '${1}'."
 fi
 
+if [ "x${ODOO_BRANCH}" == "x"  ] ; then
+    ODOO_BRANCH=${VERSION}
+fi
+
 : ${ODOO_REPO:="odoo/odoo"}  # default value, if not set
 IFS="/" read -a REPO <<< "${ODOO_REPO}"
 export REMOTE="${REPO[0],,}"
-export REPO_NAME="${REPO[1],,}"
-export BRANCH="${VERSION,,}"
-export ODOO_PATH=${HOME}/$REPO_NAME-$BRANCH
+export REPO_NAME="${REPO[1]}"
+export BRANCH="${ODOO_BRANCH}"
+export PULL_REQUEST=''
+# If the branch is a pull request
+if [[ $BRANCH == *"/"*  ]]; then
+    export PULL_REQUEST=$BRANCH
+    export BRANCH=${BRANCH/\//-}
+fi
+export ODOO_PATH=${HOME}/$REPO_NAME-$ODOO_BRANCH
 if [ -z "${REPO_CACHED}"  ]; then
     export ODOO_URL="https://github.com/$REMOTE/$REPO_NAME/archive/$BRANCH.tar.gz"
     echo "Installing Odoo $ODOO_URL"
@@ -46,16 +81,36 @@ else
     echo "Using Odoo from cache ${REPO_CACHED}"
     chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}
     ln -sf ${REPO_CACHED}/odoo ${ODOO_PATH}
-    cd ${ODOO_PATH} \
-        && git fetch --depth=1 ${REMOTE} ${BRANCH} \
-        && git config --local --bool core.bare false \
-        && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+    cd ${ODOO_PATH}
+    if [ "x${PULL_REQUEST}" == "x" ] ; then 
+        git fetch --depth=1 ${REMOTE} ${BRANCH} \
+            && git config --local --bool core.bare false \
+            && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+    else
+        ODOO_URL="https://github.com/${ODOO_REPO}"
+        # Is a pull request
+        git reset --hard
+        git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
+            && git config --local --bool core.bare false \
+            && git checkout ${BRANCH}-${REMOTE}
+    fi
 fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 pip install --upgrade pip
-pip install --user -q --no-binary pycparser -r $(dirname ${BASH_SOURCE[0]})/requirements.txt
+pip install -q --no-binary pycparser -r ${HOME}/maintainer-quality-tools/requirements.txt
+
+# Odoo <= 7.0 don't have requirements.txt file then the 8.0 file is used by default
+if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
+    wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
+fi
+# Remove python-ldap from odoo requirements because is not a common module used
+sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
+# Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
+sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
+
+pip install -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
 pip install -q QUnitSuite coveralls codecov
 
 # Use reference .coveragerc
@@ -67,6 +122,16 @@ clone_result=$?
 if [ "$clone_result" != "0"  ]; then
     echo "Error cloning dependencies"
     exit $clone_result
+fi;
+
+if [[ "${WKHTMLTOPDF_VERSION}" == "" && $(which wkhtmltopdf) != "" ]]; then
+    echo "You have installed wkhtmltopdf but is not patched (probably) then we will to overwrite it"
+    export WKHTMLTOPDF_VERSION="0.12.4"
+fi;
+
+if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
+    echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
 fi;
 
 # Expected directory structure:
