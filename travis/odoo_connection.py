@@ -8,7 +8,11 @@ OdooXContext, implement __enter__ and add to context_mapping.
 
 import sys
 from contextlib import closing
-from cStringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 class _OdooBaseContext(object):
@@ -169,4 +173,5 @@ context_mapping = {
     "8.0": Odoo8Context,
     "9.0": Odoo8Context,
     "10.0": Odoo10Context,
+    "11.0": Odoo10Context,
 }
