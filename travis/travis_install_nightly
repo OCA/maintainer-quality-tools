@@ -15,6 +15,7 @@ if [ "${LINT_CHECK}" != "0" ]; then
     # Install pylint plugin depends without lxml
     wget --no-check-certificate https://raw.githubusercontent.com/vauxoo/pylint-odoo/master/requirements.txt -O $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
     pip install --upgrade -r $(dirname ${BASH_SOURCE[0]})/pylint_odoo_requirements.txt
+    pip install pbr
     pip install --upgrade --no-deps git+https://github.com/vauxoo/pylint-odoo.git   # To use last version ever
     npm install -g eslint  # Extra package for pylint-odoo plugin
     # Get pylint configuration file of vauxoo
