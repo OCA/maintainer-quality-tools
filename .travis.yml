@@ -55,4 +55,7 @@ script:
   - coverage run --append ./travis/self_tests
 
 after_success:
+   # Seudo-fix for codecov that is not processing "data_file" parameter
+   # More info about: https://github.com/codecov/codecov-python/issues/120
+  - cp ./.coverage_mqt ./.coverage
   - TESTS="1" LINT_CHECK="0" travis_after_tests_success
