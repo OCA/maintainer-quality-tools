@@ -135,7 +135,7 @@ def version_validate(version, dir):
 
 
 def get_branch_base():
-    branch_base = os.environ.get('TRAVIS_BRANCH', False)
+    branch_base = os.environ.get('TRAVIS_BRANCH') or os.environ.get('VERSION')
     if branch_base != 'HEAD':
         branch_base = 'origin/' + (branch_base and branch_base or '')
     return branch_base
@@ -172,9 +172,14 @@ def pylint_run(is_pr, version, dir):
     count_info = "count_errors %s" % count_errors
     print (count_info)
     if is_pr:
-        modules_changed = get_modules_changed(dir, branch_base)
         print(travis_helpers.green(
             'Start lint check just in modules changed'))
+        modules_changed = get_modules_changed(dir, branch_base)
+        if not modules_changed:
+            print(travis_helpers.green(
+                'There are not modules changed from '
+                '"git --git-dir=%s diff ..%s"' % (dir, branch_base)))
+            return res
         modules_changed_cmd = []
         for module_changed in modules_changed:
             modules_changed_cmd.extend(['--path', module_changed])
