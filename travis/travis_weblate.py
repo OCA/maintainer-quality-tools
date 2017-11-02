@@ -38,8 +38,8 @@ class TravisWeblateUpdate(object):
             name = ("%(host)s:%(owner)s/%(repo)s (%(branch)s)" %
                     dict(match.groupdict(), branch=self.branch))
         self.repo_name = name
-        self.wl_api = WeblateApi()
-        self.gh_api = GitHubApi()
+        self.wl_api = WeblateApi(debug=True)
+        self.gh_api = GitHubApi(debug=True)
         self._travis_home = os.environ.get("HOME", "~/")
         self._travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
         self._odoo_version = os.environ.get("VERSION")
@@ -126,7 +126,7 @@ class TravisWeblateUpdate(object):
                     # Limit just allowed languages if is defined
                     continue
                 po_file_path = os.path.join(i18n_folder, po_file_name)
-                with open(po_file_path, 'r') as f_po:
+                with open(po_file_path, 'rb') as f_po:
                     odoo_context.load_po(f_po, lang)
                 new_content = odoo_context.get_pot_contents(module, lang)
                 if not new_content:

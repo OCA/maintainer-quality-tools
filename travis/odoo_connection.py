@@ -9,9 +9,9 @@ OdooXContext, implement __enter__ and add to context_mapping.
 import sys
 from contextlib import closing
 try:
-    from StringIO import StringIO
+    from StringIO import StringIO as Buffer
 except ImportError:
-    from io import StringIO
+    from io import BytesIO as Buffer
 
 
 class _OdooBaseContext(object):
@@ -50,7 +50,7 @@ class _OdooBaseContext(object):
         :param str addon: Addon name
         :returns str: Gettext from addon .pot content
         """
-        with closing(StringIO()) as buf:
+        with closing(Buffer()) as buf:
             self.trans_export(lang, [addon], buf, 'po', self.cr)
             return buf.getvalue()
 
@@ -74,7 +74,7 @@ class Odoo10Context(_OdooBaseContext):
         """
         sys.path.append(self.server_path)
         from odoo import netsvc, api
-        from odoo.modules.registry import RegistryManager
+        from odoo.modules.registry import Registry
         from odoo.tools import trans_export, config, trans_load_data
         self.trans_export = trans_export
         self.trans_load_data = trans_load_data
@@ -83,7 +83,7 @@ class Odoo10Context(_OdooBaseContext):
         config['addons_path'] = (
             config.get('addons_path') + ',' + self.addons_path
         )
-        registry = RegistryManager.new(self.dbname)
+        registry = Registry.new(self.dbname)
         self.environment_manage = api.Environment.manage()
         self.environment_manage.__enter__()
         self.cr = registry.cursor()
@@ -172,4 +172,5 @@ context_mapping = {
     "8.0": Odoo8Context,
     "9.0": Odoo8Context,
     "10.0": Odoo10Context,
+    "11.0": Odoo10Context,
 }

@@ -22,6 +22,8 @@ class GitRun(object):
             res = subprocess.check_output(cmd)
         except subprocess.CalledProcessError:
             res = None
+        if isinstance(res, bytes):
+            res = res.decode()
         if isinstance(res, string_types):
             res = res.strip('\n')
         return res

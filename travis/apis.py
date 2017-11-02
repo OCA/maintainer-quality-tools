@@ -17,8 +17,9 @@ class ApiException(Exception):
 
 class Request(object):
 
-    def __init__(self):
+    def __init__(self, debug=False):
         self.session = requests.Session()
+        self.debug = debug
 
     def _check(self):
         if not self._token:
@@ -31,6 +32,7 @@ class Request(object):
         self._request(self.host)
 
     def _request(self, url, payload=None, is_json=True, patch=False):
+        print((url, payload) if self.debug else '')
         try:
             if not payload and not patch:
                 response = self.session.get(url)
@@ -46,8 +48,8 @@ class Request(object):
 
 class WeblateApi(Request):
 
-    def __init__(self):
-        super(WeblateApi, self).__init__()
+    def __init__(self, debug=False):
+        super(WeblateApi, self).__init__(debug)
         self.repo_slug = None
         self.branch = None
         self._token = os.environ.get("WEBLATE_TOKEN")
@@ -166,8 +168,8 @@ class WeblateApi(Request):
 
 class GitHubApi(Request):
 
-    def __init__(self):
-        super(GitHubApi, self).__init__()
+    def __init__(self, debug=False):
+        super(GitHubApi, self).__init__(debug)
         self._token = os.environ.get("GITHUB_TOKEN")
         self.host = "https://api.github.com"
         self._owner, self._repo = os.environ.get("TRAVIS_REPO_SLUG").split('/')
@@ -186,9 +188,9 @@ class GitHubApi(Request):
             self.host + '/repos/%s/%s/git/commits/%s' %
             (self._owner, self._repo, info_branch['object']['sha']))
         for item in files:
-            with open(item) as f_po:
+            with open(item, 'rb') as f_po:
                 blob_data = json.dumps({
-                    'content': base64.b64encode(f_po.read()),
+                    'content': base64.b64encode(f_po.read()).decode(),
                     'encoding': 'base64'
                 })
                 blob_sha = self._request(
