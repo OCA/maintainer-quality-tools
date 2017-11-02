@@ -231,6 +231,15 @@ class MainTest(unittest.TestCase):
         subprocess.call(['kill', '-9', odoo_pid])
 
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
+    def test_check_ispr_without_changes(self):
+        git_work_dir = os.path.join(self.git_work_dir, "tests", "test_repo")
+        with _patch_streams(StringIO()):
+            result = run_pylint.pylint_run(
+                is_pr=True, version="7.0", dir=git_work_dir)
+        # Expected vs found errors
+        self.assertEqual(self.errors_dict, result)
+
+    @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
     def test_check_vmaster_nopr(self):
         self.errors_dict.update({
             'missing-manifest-dependency': 2,
