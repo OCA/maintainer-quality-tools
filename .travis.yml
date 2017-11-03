@@ -34,24 +34,8 @@ matrix:
         INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
     - python: 2.7
       env:
-        VERSION="9.0" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="20" TRAVIS_PULL_REQUEST="false" # Use main pylint config file
-    - python: 2.7
-      env:
-        VERSION="master" TESTS="0" LINT_CHECK="1"
-        EXCLUDE="broken_no_access_rule" PYLINT_EXPECTED_ERRORS="34" TRAVIS_PULL_REQUEST="true"  # Use PR pylint config file
-    - python: 2.7
-      env:
-        VERSION="7.0" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="32" TRAVIS_PULL_REQUEST="true"  # To check pylint_conf of PR's with old api
-    - python: 2.7
-      env:
         VERSION="" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="20" TRAVIS_PULL_REQUEST="false"  # To check VERSION empty or unset case.
-    - python: 2.7
-      env:
-        VERSION="9.0" TESTS="1" LINT_CHECK="0"
-        INCLUDE="broken_no_access_rule" SERVER_EXPECTED_ERRORS="1"  # test errors are detected
+        PYLINT_EXPECTED_ERRORS="34"
     - python: 3.5
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
@@ -61,8 +45,9 @@ install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
-  - travis_install_nightly 8.0 # only used if VERSION not set in env
-  - pip install coveralls  # Force install coveralls in all cases of MQT for self_test script.
+   # Force install lint requirements in all cases of MQT for self_test script.
+  - pip install codecov coveralls
+  - LINT_CHECK="1" travis_install_nightly 8.0 # only used if VERSION not set in env
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:
@@ -70,4 +55,7 @@ script:
   - coverage run --append ./travis/self_tests
 
 after_success:
+   # Seudo-fix for codecov that is not processing "data_file" parameter
+   # More info about: https://github.com/codecov/codecov-python/issues/120
+  - cp ./.coverage_mqt ./.coverage
   - TESTS="1" LINT_CHECK="0" travis_after_tests_success

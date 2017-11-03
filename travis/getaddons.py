@@ -125,7 +125,9 @@ def main(argv=None):
     res = [x for l in lists for x in l]  # flatten list of lists
     if exclude_modules:
         res = [x for x in res if x not in exclude_modules]
-    print(','.join(res))
+    result = ','.join(res)
+    print (result)
+    return result
 
 
 if __name__ == "__main__":
