@@ -91,9 +91,11 @@ echo "x${PHANTOMJS_TESTS}"
 if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
     # Disable phantom tests
     sed -i "s/'phantomjs'/'disable_phantomjs'/g" ${HOME}/*/openerp/tests/common.py
+    sed -i "s/'phantomjs'/'disable_phantomjs'/g" ${HOME}/*/odoo/tests/common.py
 else
     # Increase default timeout of all phantom tests
     sed -i "s/ login=None, timeout=60, / login=None, timeout=360, /g" ${HOME}/*/openerp/tests/common.py
+    sed -i "s/ login=None, timeout=60, / login=None, timeout=360, /g" ${HOME}/*/odoo/tests/common.py
     # Increase default delay of all phantom tests
     sed -i "s/defaultDelay: 50,/defaultDelay: 120,/g" ${HOME}/*/addons/web/static/src/js/tour.js
 fi
