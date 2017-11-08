@@ -9,7 +9,7 @@ OdooXContext, implement __enter__ and add to context_mapping.
 import sys
 from contextlib import closing
 try:
-    from StringIO import StringIO as Buffer
+    from cStringIO import StringIO as Buffer
 except ImportError:
     from io import BytesIO as Buffer
 
