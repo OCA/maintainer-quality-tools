@@ -41,7 +41,11 @@ class GitRun(object):
         command = ['diff-index', '--name-only',
                    '--cached', base_ref]
         res = self.run(command)
-        items = res.decode().split('\n') if res else []
+        try:
+            res = res.decode()
+        except (UnicodeDecodeError, AttributeError):
+            pass
+        items = res.split('\n') if res else []
         return items
 
     def get_branch_name(self):
