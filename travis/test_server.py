@@ -10,6 +10,7 @@ import sys
 from six import string_types
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
+from configparser import ConfigParser
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -270,16 +271,16 @@ def create_server_conf(data, version):
     :params data: Dict with all info to save in file'''
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
     if not os.path.exists(fname_conf):
+        # If not exists the file then is created
         fconf = open(fname_conf, "w")
-        fconf.write('[options]\n')
-    else:
-        # file is there, created by .travis.yml, assume the section is
-        # present and only append our stuff
-        fconf = open(fname_conf, "a")
-        fconf.write('\n')
-    for key, value in data.items():
-        fconf.write(key + ' = ' + os.path.expanduser(value) + '\n')
-    fconf.close()
+        fconf.close()
+    config = ConfigParser()
+    config.read(fname_conf)
+    if not config.has_section('options'):
+        config['options'] = {}
+    config['options'].update(data)
+    with open(fname_conf, 'w') as configfile:
+        config.write(configfile)
 
 
 def copy_attachments(dbtemplate, dbdest, data_dir):
