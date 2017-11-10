@@ -5,6 +5,8 @@ pyyaml
 coveralls
 unittest2
 
+configparser
+
 # transifex requirements
 polib
 slumber
