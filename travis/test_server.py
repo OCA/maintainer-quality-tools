@@ -3,7 +3,6 @@
 
 import ast
 import re
-import configparser
 import os
 import shutil
 import subprocess
@@ -11,6 +10,7 @@ import sys
 from six import string_types
 from getaddons import get_addons, get_modules, is_installable_module
 from travis_helpers import success_msg, fail_msg
+from configparser import ConfigParser
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -274,7 +274,7 @@ def create_server_conf(data, version):
         # If not exists the file then is created
         fconf = open(fname_conf, "w")
         fconf.close()
-    config = configparser.ConfigParser()
+    config = ConfigParser()
     config.read(fname_conf)
     if not config.has_section('options'):
         config['options'] = {}
