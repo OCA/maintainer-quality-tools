@@ -362,12 +362,7 @@ def main(argv=None):
 
     preinstall_modules = list(set(preinstall_modules or []) - set(get_modules(
         os.environ.get('TRAVIS_BUILD_DIR')) or [])) or ['base']
-    # we preinstall ALL modules for following reasons:
-    # * we don't use UNIT_TESTS, because its purpose (check dependency) is covered by runbot
-    # * we want to be sure, that tests are passing when other modules are already installed
-    # * tests for specific modules only are checked manually when developer makes the test
-    # * we would like ot have both integration and individual tests, but MQT is not flexible for this, so we just use this "workaround" 
-    preinstall_modules = tested_addons_list
+
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,
