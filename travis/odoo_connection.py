@@ -99,6 +99,22 @@ class Odoo10Context(_OdooBaseContext):
         super(Odoo10Context, self).__exit__(exc_type, exc_val, exc_tb)
 
 
+class Odoo11Context(Odoo10Context):
+    """A context for connecting to a odoo 11 server with an special override
+    for getting translations with Python 3.
+    """
+    def get_pot_contents(self, addon, lang=None):
+        """
+        Export source translation files from addon.
+        :param str addon: Addon name
+        :returns bytes: Gettext from addon .pot content
+        """
+        from io import BytesIO
+        with closing(BytesIO()) as buf:
+            self.trans_export(lang, [addon], buf, 'po', self.cr)
+            return buf.getvalue()
+
+
 class Odoo8Context(_OdooBaseContext):
     """
     A context for connecting to a odoo 8 server with function to export .pot
@@ -173,5 +189,5 @@ context_mapping = {
     "8.0": Odoo8Context,
     "9.0": Odoo8Context,
     "10.0": Odoo10Context,
-    "11.0": Odoo10Context,
+    "11.0": Odoo11Context,
 }
