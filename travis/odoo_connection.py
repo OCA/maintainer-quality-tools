@@ -115,7 +115,7 @@ class Odoo10Context(_OdooBaseContext):
         """
         sys.path.append(self.server_path)
         from odoo import netsvc, api
-        from odoo.modules.registry import RegistryManager
+        from odoo.modules.registry import Registry
         from odoo.tools import trans_export, config, trans_load_data
         self.trans_export = trans_export
         self.trans_load_data = trans_load_data
@@ -124,7 +124,7 @@ class Odoo10Context(_OdooBaseContext):
         config['addons_path'] = (
             config.get('addons_path') + ',' + self.addons_path
         )
-        registry = RegistryManager.new(self.dbname)
+        registry = Registry.new(self.dbname)
         self.environment_manage = api.Environment.manage()
         self.environment_manage.__enter__()
         self.cr = registry.cursor()
@@ -137,6 +137,22 @@ class Odoo10Context(_OdooBaseContext):
         """
         self.environment_manage.__exit__(exc_type, exc_val, exc_tb)
         super(Odoo10Context, self).__exit__(exc_type, exc_val, exc_tb)
+
+
+class Odoo11Context(Odoo10Context):
+    """A context for connecting to a odoo 11 server with an special override
+    for getting translations with Python 3.
+    """
+    def get_pot_contents(self, addon, lang=None):
+        """
+        Export source translation files from addon.
+        :param str addon: Addon name
+        :returns bytes: Gettext from addon .pot content
+        """
+        from io import BytesIO
+        with closing(BytesIO()) as buf:
+            self.trans_export(lang, [addon], buf, 'po', self.cr)
+            return buf.getvalue()
 
 
 class Odoo8Context(_OdooBaseContext):
@@ -213,5 +229,5 @@ context_mapping = {
     "8.0": Odoo8Context,
     "9.0": Odoo8Context,
     "10.0": Odoo10Context,
-    "11.0": Odoo10Context,
+    "11.0": Odoo11Context,
 }

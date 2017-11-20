@@ -124,7 +124,7 @@ def main(argv=None):
 
     # Install the modules on the database
     database = "openerp_i18n"
-    script_name = get_server_script(odoo_version)
+    script_name = get_server_script(server_path)
     setup_server(database, odoo_unittest, addons, server_path, script_name,
                  addons_path, install_options, addons_list)
 
@@ -149,8 +149,13 @@ def main(argv=None):
             # Create i18n/ directory if doesn't exist
             if not os.path.exists(os.path.dirname(source_filename)):
                 os.makedirs(os.path.dirname(source_filename))
-            with open(source_filename, 'w') as f:
-                f.write(odoo_context.get_pot_contents(module))
+            pot_contents = odoo_context.get_pot_contents(module)
+            if isinstance(pot_contents, str):
+                f = open(source_filename, 'w')
+            else:  # Odoo in Python 3 returns bytes
+                f = open(source_filename, 'wb')
+            f.write(pot_contents)
+            f.close()
             # Put the correct timestamp for letting known tx client which
             # translations to update
             for po_file_name in os.listdir(i18n_folder):
