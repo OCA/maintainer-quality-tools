@@ -8,7 +8,8 @@ omit =
     */scenario/*
     */scenarios/*
     */test/*
-    */tests/*
+#    */tests/*
+    */external_tests/*
     *_example/*
     *__init__.py
     *__openerp__.py
