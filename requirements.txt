@@ -2,6 +2,7 @@ simplejson
 pyserial
 pyopenssl>=16.2.0
 pyyaml
+codecov
 coveralls
 unittest2
 
