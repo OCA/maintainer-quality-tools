@@ -104,7 +104,7 @@ def get_beta_msgs():
     config.readfp(open(beta_cfg))
     return [
         msg.strip()
-        for msg in config.get('MESSAGES CONTROL', 'enabled2beta').split(',')
+        for msg in config.get('MESSAGES CONTROL', 'enable').split(',')
         if msg.strip()]
 
 
