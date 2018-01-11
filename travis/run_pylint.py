@@ -89,7 +89,7 @@ def get_extra_params(odoo_version):
         extra_params.extend(['--extra-params', param])
     for beta_msg in beta_msgs:
         extra_params.extend(['--msgs-no-count', beta_msg,
-                             '--enable', beta_msg])
+                             '--extra-params', '--enable=%s' % beta_msg])
     return extra_params
 
 
