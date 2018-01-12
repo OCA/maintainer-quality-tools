@@ -10,4 +10,4 @@ configparser
 # transifex requirements
 polib
 slumber
-transifex-client
+transifex-client==0.12.5
