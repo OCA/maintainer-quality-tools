@@ -34,7 +34,7 @@ matrix:
         INCLUDE="test_module,second_module" ODOO_REPO="OCA/OCB" MQT_TEMPLATE_DB='mqt_odoo_template_core' MQT_TEST_DB='mqt_odoo_core'
     - python: 2.7
       env:
-        VERSION="" TESTS="0" LINT_CHECK="1" TRAVIS_PULL_REQUEST="1"
+        VERSION="" TESTS="0" LINT_CHECK="1"
         PYLINT_EXPECTED_ERRORS="34"
     - python: 3.5
       env:
@@ -52,7 +52,7 @@ install:
 
 script:
   - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
-  - coverage run --append ./travis/self_tests
+  - TRAVIS_PULL_REQUEST="1" coverage run --append ./travis/self_tests
 
 after_success:
    # Seudo-fix for codecov that is not processing "data_file" parameter
