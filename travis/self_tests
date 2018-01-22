@@ -48,7 +48,7 @@ EXPECTED_ERRORS_PR = {
     'license-allowed': 1,
     'manifest-required-author': 1,
     'manifest-required-key': 1,
-    'manifest-version-format': 6,
+    'manifest-version-format': 4,
 }
 
 
@@ -256,7 +256,6 @@ class MainTest(unittest.TestCase):
     def test_check_vmaster_ispr(self):
         self.errors_dict.update(EXPECTED_ERRORS_PR)
         self.errors_dict.update({
-            'manifest-version-format': 4,
             'missing-manifest-dependency': 2,
             'missing-import-error': 2,
         })
@@ -289,7 +288,6 @@ class MainTest(unittest.TestCase):
     def test_check_v8_ispr(self):
         self.errors_dict.update(EXPECTED_ERRORS_PR)
         self.errors_dict.update({
-            'manifest-version-format': 4,
             'missing-manifest-dependency': 2,
             'missing-import-error': 2,
         })
@@ -316,7 +314,6 @@ class MainTest(unittest.TestCase):
     def test_check_without_version_ispr(self):
         self.errors_dict.update(EXPECTED_ERRORS_PR)
         self.errors_dict.update({
-            'manifest-version-format': 4,
             'missing-manifest-dependency': 2,
             'missing-import-error': 2,
         })
@@ -341,4 +338,5 @@ class MainTest(unittest.TestCase):
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(MainTest)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    sys.exit(not result.wasSuccessful())

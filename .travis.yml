@@ -51,7 +51,7 @@ install:
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 
 script:
-  - coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
+  - TRAVIS_PULL_REQUEST="1" coverage run --append ./travis/travis_run_tests 8.0  # only used if VERSION not set in env
   - coverage run --append ./travis/self_tests
 
 after_success:
