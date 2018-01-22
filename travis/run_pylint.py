@@ -167,8 +167,8 @@ def pylint_run(is_pr, version, dir):
 
     real_errors = main(cmd, standalone_mode=False)
     res = dict(
-        (key, value) for key, value in real_errors['by_msg'].items()
-        if key not in beta_msgs)
+        (key, value) for key, value in (real_errors.get(
+            'by_msg') or {}).items() if key not in beta_msgs)
     count_errors = get_count_fails(real_errors, list(beta_msgs))
     count_info = "count_errors %s" % count_errors
     print (count_info)
@@ -188,8 +188,8 @@ def pylint_run(is_pr, version, dir):
         cmd = conf + modules_changed_cmd + extra_params_cmd
         pr_real_errors = main(cmd, standalone_mode=False)
         pr_stats = dict(
-            (key, value) for key, value in pr_real_errors['by_msg'].items()
-            if key not in beta_msgs)
+            (key, value) for key, value in (pr_real_errors.get(
+                'by_msg') or {}).items() if key not in beta_msgs)
         if pr_stats:
             pr_errors = get_count_fails(pr_real_errors, list(beta_msgs))
             print (travis_helpers.yellow(
