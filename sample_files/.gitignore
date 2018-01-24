@@ -42,9 +42,8 @@ coverage.xml
 *.mo
 *.pot
 
-# IDEs
+# Pycharm
 .idea
-.vscode
 
 # Eclipse
 .settings
