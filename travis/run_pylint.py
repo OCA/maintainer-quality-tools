@@ -214,7 +214,7 @@ def get_count_fails(linter_stats, msgs_no_count=None):
     """
     return sum([
         linter_stats['by_msg'][msg]
-        for msg in linter_stats['by_msg']
+        for msg in (linter_stats.get('by_msg') or {})
         if msg not in msgs_no_count])
 
 
