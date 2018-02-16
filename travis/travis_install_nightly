@@ -112,10 +112,6 @@ sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
 
 pip install -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
 pip install -q QUnitSuite coveralls codecov
-# in v11, phonenumbers is an undeclared optional dependency. Not having this
-# module will trigger a warning in the logs and then a failed runbot
-# build. Force the installation.
-pip install -q phonenumbers
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
