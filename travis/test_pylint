@@ -52,7 +52,7 @@ import travis_helpers
 git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
 is_pull_request = os.environ.get(
     'TRAVIS_PULL_REQUEST', 'false') != 'false'
-version = os.environ.get('VERSION', False)
+version = os.environ.get('VERSION', '')
 beta_msgs = run_pylint.get_beta_msgs()
 expected_errors = int(os.environ.get('PYLINT_EXPECTED_ERRORS', 0))
 exit_status = 0
