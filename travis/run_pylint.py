@@ -121,7 +121,7 @@ def get_modules_cmd(dir):
 
 
 def version_validate(version, dir):
-    if version == "" and dir:
+    if not version and dir:
         repo_path = os.path.join(dir, '.git')
         branch_name = GitRun(repo_path).get_branch_name()
         version = (branch_name.replace('_', '-').split('-')[:1]
