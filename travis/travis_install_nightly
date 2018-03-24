@@ -64,7 +64,7 @@ ODOO_URL="https://github.com/${ODOO_REPO}"
 if [ "x${REPO_REQUIREMENTS}" == "x"  ] ; then
    export ODOO_PATH=${HOME}/${REPO[1]}-${BRANCH}
 else
-    chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}
+    chown `(whoami)`:`(whoami)` -R ${REPO_REQUIREMENTS}/odoo
     ln -sf ${REPO_REQUIREMENTS}/odoo ${ODOO_PATH}
 fi
 
