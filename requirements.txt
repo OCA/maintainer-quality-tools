@@ -4,6 +4,7 @@ pyopenssl>=16.2.0
 pyyaml
 coveralls
 unittest2
+gengo
 
 configparser
 
