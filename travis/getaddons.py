@@ -34,28 +34,30 @@ def is_module(path):
         return False
 
 
-def is_installable_module(path):
-    """return False if the path doesn't contain an installable odoo module,
-    and the full path to the module manifest otherwise"""
-    manifest_path = is_module(path)
-    if manifest_path:
-        manifest = ast.literal_eval(open(manifest_path).read())
-        if manifest.get('installable', True):
-            return manifest_path
-    return False
-
-
 def get_modules(path):
+    """ Used in test_server.py """
+    return get_modules_info(path).keys()
 
+
+def get_modules_info(path):
+    """ Return a digest of each installable module's manifest """
     # Avoid empty basename when path ends with slash
     if not os.path.basename(path):
         path = os.path.dirname(path)
 
-    res = []
+    modules = {}
     if os.path.isdir(path):
-        res = [x for x in os.listdir(path)
-               if is_installable_module(os.path.join(path, x))]
-    return res
+        for module in os.listdir(path):
+            manifest_path = is_module(os.path.join(path, module))
+            if manifest_path:
+                manifest = ast.literal_eval(open(manifest_path).read())
+                if manifest.get('installable', True):
+                    modules[module] = {
+                        'application': manifest.get('application'),
+                        'depends': manifest.get('depends'),
+                        'auto_install': manifest.get('auto_install'),
+                    }
+    return modules
 
 
 def is_addons(path):
@@ -102,6 +104,57 @@ def get_modules_changed(path, ref='HEAD'):
     return modules_changed_path
 
 
+def get_dependencies(modules, module_name):
+    result = []
+    for dependency in modules.get(module_name, {}).get('depends', []):
+        result += get_dependencies(modules, dependency)
+    return result + [module_name]
+
+
+def get_dependents(modules, module_name):
+    result = []
+    for dependent in modules:
+        if module_name in modules.get(dependent, {}).get('depends', []):
+            result += get_dependents(modules, dependent)
+    return result + [module_name]
+
+
+def add_auto_install(modules, to_install):
+    """ Append automatically installed glue modules to to_install if their
+    dependencies are already present. to_install is a set. """
+    found = True
+    while found:
+        found = False
+        for module in modules.keys():
+            if (modules[module].get('auto_install') and
+                    module not in to_install and
+                    all(dependency in to_install
+                        for dependency in modules[module].get('depends', []))):
+                found = True
+                to_install.add(module)
+    return to_install
+
+
+def get_applications_with_dependencies(modules):
+    """ Return all modules marked as application with their dependencies.
+    For our purposes, l10n modules cannot be an application. """
+    result = []
+    for module in modules.keys():
+        if modules[module]['application'] and not module.startswith('l10n_'):
+            result += get_dependencies(modules, module)
+    return add_auto_install(modules, set(result))
+
+
+def get_localizations_with_dependents(modules):
+    """ Return all localization modules with the modules that depend on them
+    """
+    result = []
+    for module in modules.keys():
+        if module.startswith('l10n_'):
+            result += get_dependents(modules, module)
+    return set(result)
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -111,18 +164,46 @@ def main(argv=None):
         return 1
 
     list_modules = False
+    application = None
+    localization = None
     exclude_modules = []
 
     while params and params[0].startswith('-'):
         param = params.pop(0)
         if param == '-m':
             list_modules = True
-        if param == '-e':
+        elif param == '-e':
             exclude_modules = [x for x in params.pop(0).split(',')]
+        elif param == '--only-applications':
+            application = True
+        elif param == '--exclude-applications':
+            application = False
+        elif param == '--only-localization':
+            localization = True
+        elif param == '--exclude-localization':
+            localization = False
+        elif param.startswith('-'):
+            raise Exception('Unknown parameter: %s' % param)
 
-    func = get_modules if list_modules else get_addons
-    lists = [func(x) for x in params]
-    res = [x for l in lists for x in l]  # flatten list of lists
+    if list_modules:
+        modules = {}
+        res = []
+        for path in params:
+            modules.update(get_modules_info(path))
+        res = set(modules.keys())
+        if application is True or application is False:
+            applications = get_applications_with_dependencies(modules)
+            if application:
+                return applications
+            res -= applications
+        if localization is True or localization is False:
+            localizations = get_localizations_with_dependents(modules)
+            if localization:
+                return localizations
+            res -= localizations
+    else:
+        lists = [get_addons(path) for path in params]
+        res = [x for l in lists for x in l]  # flatten list of lists
     if exclude_modules:
         res = [x for x in res if x not in exclude_modules]
     result = ','.join(res)
