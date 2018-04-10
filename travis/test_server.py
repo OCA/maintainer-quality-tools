@@ -179,10 +179,10 @@ def get_test_dependencies(addons_path, addons_list):
         modules = {}
         for path in addons_path.split(','):
             modules.update(get_modules_info(path))
-        dependencies = []
+        dependencies = set()
         for module in addons_list:
-            dependencies += get_dependencies(modules, module)
-        return list(set(dependencies) - set(addons_list))
+            dependencies |= get_dependencies(modules, module)
+        return list(dependencies - set(addons_list))
 
 
 def cmd_strip_secret(cmd):
@@ -357,8 +357,8 @@ def main(argv=None):
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
 
-    preinstall_modules = list(set(preinstall_modules or []) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR')) or [])) or ['base']
+    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
+        os.environ.get('TRAVIS_BUILD_DIR')))) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,

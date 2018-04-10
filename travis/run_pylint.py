@@ -229,25 +229,28 @@ def is_installable_module(path):
     return False
 
 
-def get_subpaths(paths):
+def get_subpaths(paths, depth=1):
     """Get list of subdirectories
     if `__init__.py` file not exists in root path then
     get subdirectories.
     Why? More info here:
         https://www.mail-archive.com/code-quality@python.org/msg00294.html
     :param paths: List of paths
+    :param depth: How many folders can be opened in deep to find a module.
     :return: Return list of paths with subdirectories.
     """
     subpaths = []
     for path in paths:
+        if depth < 0:
+            continue
         if not os.path.isfile(os.path.join(path, '__init__.py')):
-            subpaths.extend(
-                [os.path.join(path, item)
-                 for item in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, item, '__init__.py')) and
-                 (not is_installable_module(os.path.join(path, item)))])
+            new_subpaths = [os.path.join(path, item)
+                            for item in os.listdir(path)
+                            if os.path.isdir(os.path.join(path, item))]
+            if new_subpaths:
+                subpaths.extend(get_subpaths(new_subpaths, depth-1))
         else:
-            if not is_installable_module(path):
+            if is_installable_module(path):
                 subpaths.append(path)
     return subpaths
 
