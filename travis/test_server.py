@@ -179,10 +179,10 @@ def get_test_dependencies(addons_path, addons_list):
         modules = {}
         for path in addons_path.split(','):
             modules.update(get_modules_info(path))
-        dependencies = []
+        dependencies = set()
         for module in addons_list:
-            dependencies += get_dependencies(modules, module)
-        return list(set(dependencies) - set(addons_list))
+            dependencies |= get_dependencies(modules, module)
+        return list(dependencies - set(addons_list))
 
 
 def cmd_strip_secret(cmd):

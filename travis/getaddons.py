@@ -78,11 +78,11 @@ def get_addons(path):
 
 
 def get_modules_changed(path, ref='HEAD'):
-    '''Get modules changed from git diff-index {ref}
+    """Get modules changed from git diff-index {ref}
     :param path: String path of git repo
     :param ref: branch or remote/branch or sha to compare
     :return: List of paths of modules changed
-    '''
+    """
     git_run_obj = GitRun(os.path.join(path, '.git'))
     if ref != 'HEAD':
         fetch_ref = ref
@@ -105,18 +105,18 @@ def get_modules_changed(path, ref='HEAD'):
 
 
 def get_dependencies(modules, module_name):
-    result = []
+    result = set()
     for dependency in modules.get(module_name, {}).get('depends', []):
-        result += get_dependencies(modules, dependency)
-    return result + [module_name]
+        result |= get_dependencies(modules, dependency)
+    return result | set(module_name)
 
 
 def get_dependents(modules, module_name):
-    result = []
-    for dependent in modules:
+    result = set()
+    for dependent in modules.keys():
         if module_name in modules.get(dependent, {}).get('depends', []):
-            result += get_dependents(modules, dependent)
-    return result + [module_name]
+            result |= get_dependents(modules, dependent)
+    return result | set(module_name)
 
 
 def add_auto_install(modules, to_install):
@@ -138,21 +138,21 @@ def add_auto_install(modules, to_install):
 def get_applications_with_dependencies(modules):
     """ Return all modules marked as application with their dependencies.
     For our purposes, l10n modules cannot be an application. """
-    result = []
+    result = set()
     for module in modules.keys():
         if modules[module]['application'] and not module.startswith('l10n_'):
-            result += get_dependencies(modules, module)
-    return add_auto_install(modules, set(result))
+            result |= get_dependencies(modules, module)
+    return add_auto_install(modules, result)
 
 
 def get_localizations_with_dependents(modules):
     """ Return all localization modules with the modules that depend on them
     """
-    result = []
+    result = set()
     for module in modules.keys():
         if module.startswith('l10n_'):
-            result += get_dependents(modules, module)
-    return set(result)
+            result |= get_dependents(modules, module)
+    return result
 
 
 def main(argv=None):
@@ -187,27 +187,30 @@ def main(argv=None):
 
     if list_modules:
         modules = {}
-        res = []
         for path in params:
             modules.update(get_modules_info(path))
         res = set(modules.keys())
+        applications, localizations = set(), set()
         if application is True or application is False:
             applications = get_applications_with_dependencies(modules)
-            if application:
-                return applications
-            res -= applications
+            if not application:
+                res -= applications
+                applications = set()
         if localization is True or localization is False:
             localizations = get_localizations_with_dependents(modules)
-            if localization:
-                return localizations
-            res -= localizations
+            if not localization:
+                res -= localizations
+                localizations = set()
+        if application or localization:
+            res = applications | localizations
+        res = list(res)
     else:
         lists = [get_addons(path) for path in params]
         res = [x for l in lists for x in l]  # flatten list of lists
     if exclude_modules:
         res = [x for x in res if x not in exclude_modules]
     result = ','.join(res)
-    print (result)
+    print(result)
     return result
 
 

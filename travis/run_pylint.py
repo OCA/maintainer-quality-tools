@@ -241,13 +241,13 @@ def get_subpaths(paths):
     subpaths = []
     for path in paths:
         if not os.path.isfile(os.path.join(path, '__init__.py')):
-            subpaths.extend(
-                [os.path.join(path, item)
-                 for item in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, item, '__init__.py')) and
-                 (not is_installable_module(os.path.join(path, item)))])
+            new_subpaths = [os.path.join(path, item)
+                            for item in os.listdir(path)
+                            if os.path.isdir(os.path.join(path, item))]
+            if new_subpaths:
+                subpaths.extend(get_subpaths(new_subpaths))
         else:
-            if not is_installable_module(path):
+            if is_installable_module(path):
                 subpaths.append(path)
     return subpaths
 
