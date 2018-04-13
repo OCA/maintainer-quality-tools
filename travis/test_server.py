@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import ast
 import re
 import os
 import shutil
 import subprocess
 import sys
 from six import string_types
-from getaddons import get_addons, get_modules, is_installable_module
+from getaddons import (
+    get_addons, get_modules, get_modules_info, get_dependencies)
 from travis_helpers import success_msg, fail_msg
 from configparser import ConfigParser
 
@@ -176,16 +176,13 @@ def get_test_dependencies(addons_path, addons_list):
     if not addons_list:
         return ['base']
     else:
+        modules = {}
         for path in addons_path.split(','):
-            manif_path = is_installable_module(
-                os.path.join(path, addons_list[0]))
-            if not manif_path:
-                continue
-            manif = ast.literal_eval(open(manif_path).read())
-            return list(
-                set(manif.get('depends', [])) |
-                set(get_test_dependencies(addons_path, addons_list[1:])) -
-                set(addons_list))
+            modules.update(get_modules_info(path))
+        dependencies = set()
+        for module in addons_list:
+            dependencies |= get_dependencies(modules, module)
+        return list(dependencies - set(addons_list))
 
 
 def cmd_strip_secret(cmd):
@@ -360,8 +357,8 @@ def main(argv=None):
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
 
-    preinstall_modules = list(set(preinstall_modules or []) - set(get_modules(
-        os.environ.get('TRAVIS_BUILD_DIR')) or [])) or ['base']
+    preinstall_modules = list(set(preinstall_modules) - set(get_modules(
+        os.environ.get('TRAVIS_BUILD_DIR')))) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,

@@ -97,22 +97,38 @@ class MainTest(unittest.TestCase):
     def test_get_addons(self):
         self.assertEquals(getaddons.main(), 1)
         self.assertEquals(
-            getaddons.main(["getaddons.py", self.repo_dir]), self.repo_dir)
-        self.assertIsNotNone(
-            getaddons.main(["getaddons.py", "-m", self.repo_dir]))
-        self.assertIsNotNone(
-            getaddons.main(
+            getaddons.main(["getaddons.py", self.repo_dir]), [self.repo_dir])
+        self.assertEquals(
+            len(getaddons.main(["getaddons.py", "-m", self.repo_dir])), 6)
+        self.assertEquals(
+            len(getaddons.main(
                 ["getaddons.py", "-m", self.repo_dir + "/" if
-                 self.repo_dir[-1] == '/' else self.repo_dir]))
+                 self.repo_dir[-1] == '/' else self.repo_dir])), 6)
+        self.assertEquals(
+            len(getaddons.main(
+                ["getaddons.py", "-m", "--only-applications",
+                 self.repo_dir])), 0)
+        self.assertEquals(
+            len(getaddons.main(
+                ["getaddons.py", "-m", "--only-localization",
+                 self.repo_dir])), 0)
+        self.assertEquals(
+            len(getaddons.main(
+                ["getaddons.py", "-m", "--exclude-applications",
+                 "--exclude-localization", self.repo_dir])), 6)
 
     @unittest.skipIf(os.environ.get("EXCLUDE", False) is False, "Set EXCLUDE")
     def test_get_addons_exclude(self):
-        self.assertIsNotNone(
+        self.assertEquals(
+            len(getaddons.main(
+                ["getaddons.py", "-m", "-e", self.exclude, self.repo_dir])), 3)
+        self.assertEquals(
+            len(getaddons.main(
+                ["getaddons.py", "-m", self.repo_dir, "-e", self.exclude])), 6)
+        self.assertEquals(
             getaddons.main(
-                ["getaddons.py", "-m", self.repo_dir, "-e", self.exclude]))
-        self.assertIsNotNone(
-            getaddons.main(
-                ["getaddons.py", "-e", self.exclude, self.repo_dir]))
+                ["getaddons.py", "-e", self.exclude, self.repo_dir]),
+            [self.repo_dir])
 
     def test_addons_path_order(self):
         addon_paths_alfanumerical_order_is = getaddons.get_addons(

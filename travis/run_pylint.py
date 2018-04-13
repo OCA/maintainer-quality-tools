@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 
+import ast
 import os
 import re
 import sys
@@ -10,9 +11,8 @@ import sys
 import click
 import pylint.lint
 
-import getaddons
 import travis_helpers
-from getaddons import get_modules_changed
+from getaddons import get_modules_changed, is_module
 from git_run import GitRun
 
 try:
@@ -218,27 +218,39 @@ def get_count_fails(linter_stats, msgs_no_count=None):
         if msg not in msgs_no_count])
 
 
-def get_subpaths(paths):
+def is_installable_module(path):
+    """return False if the path doesn't contain an installable odoo module,
+    and the full path to the module manifest otherwise"""
+    manifest_path = is_module(path)
+    if manifest_path:
+        manifest = ast.literal_eval(open(manifest_path).read())
+        if manifest.get('installable', True):
+            return manifest_path
+    return False
+
+
+def get_subpaths(paths, depth=1):
     """Get list of subdirectories
     if `__init__.py` file not exists in root path then
     get subdirectories.
     Why? More info here:
         https://www.mail-archive.com/code-quality@python.org/msg00294.html
     :param paths: List of paths
+    :param depth: How many folders can be opened in deep to find a module.
     :return: Return list of paths with subdirectories.
     """
     subpaths = []
     for path in paths:
+        if depth < 0:
+            continue
         if not os.path.isfile(os.path.join(path, '__init__.py')):
-            subpaths.extend(
-                [os.path.join(path, item)
-                 for item in os.listdir(path)
-                 if os.path.isfile(os.path.join(path, item, '__init__.py')) and
-                 (not getaddons.is_module(os.path.join(path, item)) or
-                  getaddons.is_installable_module(os.path.join(path, item)))])
+            new_subpaths = [os.path.join(path, item)
+                            for item in os.listdir(path)
+                            if os.path.isdir(os.path.join(path, item))]
+            if new_subpaths:
+                subpaths.extend(get_subpaths(new_subpaths, depth-1))
         else:
-            if not getaddons.is_module(path) or \
-                    getaddons.is_installable_module(path):
+            if is_installable_module(path):
                 subpaths.append(path)
     return subpaths
 
