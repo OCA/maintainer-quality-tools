@@ -16,6 +16,6 @@ if (os.environ.get('TESTS', '1') == '1' and
     except:
         pass
     try:
-        codecov_main(argv='-F backend controllers tests res_config'.split())
+        codecov_main(*('-F backend controllers tests res_config'.split()))
     except:
         pass
