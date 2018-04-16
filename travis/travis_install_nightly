@@ -72,28 +72,24 @@ if [[ $BRANCH == *"/"*  ]]; then
     export BRANCH=${BRANCH/\//-}
 fi
 export ODOO_PATH=${HOME}/$REPO_NAME-$ODOO_BRANCH
-if [ -z "${REPO_CACHED}"  ]; then
-    export ODOO_URL="https://github.com/$REMOTE/$REPO_NAME/archive/$BRANCH.tar.gz"
-    echo "Installing Odoo $ODOO_URL"
-    wget -nv -O odoo.tar.gz $ODOO_URL
-    tar -xf odoo.tar.gz -C ${HOME}
-else
+if [ -d "${REPO_CACHED}/odoo" ]; then
     echo "Using Odoo from cache ${REPO_CACHED}"
-    chown `(whoami)`:`(id -gn)` -R ${REPO_CACHED}
     ln -sf ${REPO_CACHED}/odoo ${ODOO_PATH}
-    cd ${ODOO_PATH}
-    if [ "x${PULL_REQUEST}" == "x" ] ; then 
-        git fetch --depth=1 ${REMOTE} ${BRANCH} \
-            && git config --local --bool core.bare false \
-            && git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
-    else
-        ODOO_URL="https://github.com/${ODOO_REPO}"
-        # Is a pull request
-        git reset --hard
-        git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
-            && git config --local --bool core.bare false \
-            && git checkout ${BRANCH}-${REMOTE}
-    fi
+else
+    echo "Downloading Odoo"
+    git clone --depth=50 https://github.com/$REMOTE/$REPO_NAME.git -b $BRANCH ${ODOO_PATH}
+    git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git remote rename origin $REMOTE
+fi
+if [ "x${PULL_REQUEST}" == "x" ] ; then
+    git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git fetch --depth=1 ${REMOTE} ${BRANCH} \
+        && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git config --local --bool core.bare false \
+        && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
+else
+    # Is a pull request
+    git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git reset --hard
+    git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
+        && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git config --local --bool core.bare false \
+        && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git checkout ${BRANCH}-${REMOTE}
 fi
 
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
