@@ -101,6 +101,96 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     return len(errors)
 
 
+def installed_modules(fname, dbname, preinstall_modules=None):
+    """
+    Check a list of log lines for modules installed.
+    """
+    # Rules defining checks to perform
+    # this can be
+    # - a string which will be checked in a simple substring match
+    # - a regex object that will be matched against the whole message
+    # - a callable that receives a dictionary of the form
+    #     {
+    #         'loglevel': ...,
+    #         'message': ....,
+    #     }
+    if preinstall_modules is None:
+        preinstall_modules = ['base']
+    infos_ignore = [
+        'Computing parent',
+        'Storing computed',
+        'deleted',
+        'skip',
+        'with ID',
+        ' /',
+        ' modules',
+        ]
+    infos_report = [
+        lambda x: x['loglevel'] == 'INFO',
+        ]
+
+    def make_pattern_list_callable(pattern_list):
+        for i in range(len(pattern_list)):
+            if isinstance(pattern_list[i], string_types):
+                regex = re.compile(pattern_list[i])
+                pattern_list[i] = lambda x, regex=regex:\
+                    regex.search(x['message'])
+            elif hasattr(pattern_list[i], 'match'):
+                regex = pattern_list[i]
+                pattern_list[i] = lambda x, regex=regex:\
+                    regex.search(x['message'])
+
+    make_pattern_list_callable(infos_ignore)
+    make_pattern_list_callable(infos_report)
+
+    # Read log file removing ASCII color escapes:
+    # http://serverfault.com/questions/71285
+    color_regex = re.compile(r'\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]')
+    log_start_regex = re.compile(
+        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \d+ (?P<loglevel>\w+) '
+        '(?P<db>(%s)|([?])) (?P<logger>\S+): (?P<message>.*)$' % dbname)
+    log_records = []
+    last_log_record = dict.fromkeys(log_start_regex.groupindex.keys())
+    with open(fname) as log:
+        for line in log:
+            line = color_regex.sub('', line)
+            match = log_start_regex.match(line)
+            if match:
+                last_log_record = match.groupdict()
+                log_records.append(last_log_record)
+            else:
+                last_log_record['message'] = '%s\n%s' % (
+                    last_log_record['message'], line.rstrip('\n')
+                )
+    infos = []
+    for log_record in log_records:
+        ignore = False
+        for ignore_pattern in infos_ignore:
+            if ignore_pattern(log_record):
+                ignore = True
+                break
+        if ignore:
+            continue
+        for report_pattern in infos_report:
+            if report_pattern(log_record):
+                infos.append(log_record)
+                break
+
+    modules_installed = set()
+    for info in infos:
+        if info['message'].find("module ") == 0:
+            module_name = info['message'].lstrip("module ").partition(":")[0]
+            modules_installed |= set([module_name])
+        elif info['message'].find("loading ") == 0:
+            module_name = info['message'].lstrip("loading ").partition("/")[0]
+            modules_installed |= set([module_name])
+    extra_modules = modules_installed - set(preinstall_modules)
+    extra_modules_list = sorted(list(extra_modules))
+    if extra_modules_list:
+        print('\nUnpredicted installed modules: %s' % extra_modules_list)
+    return extra_modules_list
+
+
 def parse_list(comma_sep_list):
     return [x.strip() for x in comma_sep_list.split(',')]
 
@@ -214,13 +304,16 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     if the database template exists then will be used.
     :param db: Template database name
     :param odoo_unittest: Boolean for unit test (travis parameter)
-    :param tested_addons: List of modules that need to be installed
+    :param tested_addons: (list) Modules that need to be installed
     :param server_path: Server path
-    :param travis_build_dir: path to the modules to be tested
+    :param script_name: name of the main server file
     :param addons_path: Addons path
     :param install_options: Install options (travis parameter)
+    :param preinstall_modules: (list) Modules that should be preinstalled
+    :param unbuffer: keeps output colors
     :param server_options: (list) Add these flags to the Odoo server init
     """
+    to_update = set()
     if preinstall_modules is None:
         preinstall_modules = ['base']
     if server_options is None:
@@ -231,7 +324,6 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
     else:
-        # unbuffer keeps output colors
         cmd_odoo = ["unbuffer"] if unbuffer else []
         cmd_odoo += ["%s/%s" % (server_path, script_name),
                      "-d", db,
@@ -241,18 +333,30 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                      ] + install_options + server_options
         print(" ".join(cmd_strip_secret(cmd_odoo)))
         try:
-            subprocess.check_call(cmd_odoo)
+            pipe = subprocess.Popen(cmd_odoo,
+                                    stderr=subprocess.STDOUT,
+                                    stdout=subprocess.PIPE)
+            with open('stdout_install.log', 'wb') as stdout:
+                for line in iter(pipe.stdout.readline, b''):
+                    stdout.write(line)
+                    print(line.strip().decode('UTF-8'))
+            pipe.wait()
         except subprocess.CalledProcessError as e:
             return e.returncode
-    return 0
+
+        # Find extra installed modules
+        extra = installed_modules("stdout_install.log", db, preinstall_modules)
+
+        to_update = set(tested_addons) & set(extra)
+    return to_update
 
 
 def run_from_env_var(env_name_startswith, environ):
-    '''Method to run a script defined from a environment variable
+    """Method to run a script defined from a environment variable
     :param env_name_startswith: String with name of first letter of
                                 environment variable to find.
     :param environ: Dictionary with full environ to search
-    '''
+    """
     commands = [
         command
         for environ_variable, command in sorted(environ.items())
@@ -264,8 +368,8 @@ def run_from_env_var(env_name_startswith, environ):
 
 
 def create_server_conf(data, version):
-    '''Create (or edit) default configuration file of odoo
-    :params data: Dict with all info to save in file'''
+    """Create (or edit) default configuration file of odoo
+    :params data: Dict with all info to save in file"""
     fname_conf = os.path.expanduser('~/.openerp_serverrc')
     if not os.path.exists(fname_conf):
         # If not exists the file then is created
@@ -352,17 +456,26 @@ def main(argv=None):
         print("WARNING!\nNothing to test- exiting early.")
         return 0
     else:
-        print("Modules to test: %s" % tested_addons)
-    # setup the base module without running the tests
+        print("Modules to test: %s" % tested_addons_list)
+    # setup the preinstall modules without running the tests
     preinstall_modules = get_test_dependencies(addons_path,
                                                tested_addons_list)
 
     preinstall_modules = list(set(preinstall_modules) - set(get_modules(
         os.environ.get('TRAVIS_BUILD_DIR')))) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
-    setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
-                 script_name, addons_path, install_options, preinstall_modules,
-                 unbuffer, server_options)
+    to_update = setup_server(
+        dbtemplate, odoo_unittest, tested_addons_list, server_path,
+        script_name, addons_path, install_options, preinstall_modules,
+        unbuffer, server_options)
+
+    # modules that should be tested but are already preinstalled
+    to_update_tested_addons_list = sorted(list(to_update))
+    to_update_tested_addons = ','.join(to_update_tested_addons_list)
+
+    # modules that should be tested and are not installed yet
+    upd_tested_addons_list = sorted(list(set(tested_addons_list) - to_update))
+    upd_tested_addons = ','.join(upd_tested_addons_list)
 
     # Running tests
     cmd_odoo_test = ["coverage", "run",
@@ -375,28 +488,32 @@ def main(argv=None):
 
     if test_loghandler is not None:
         cmd_odoo_test += ['--log-handler', test_loghandler]
-    cmd_odoo_test += options + ["--init", None]
+    cmd_odoo_test += options
 
     if odoo_unittest:
         to_test_list = tested_addons_list
+        to_upd_test_list = to_update_tested_addons_list
         cmd_odoo_install = [
             "%s/%s" % (server_path, script_name),
             "-d", database,
             "--stop-after-init",
             "--log-level=warn",
-        ] + install_options + ["--init", None] + server_options
+        ] + install_options + server_options
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
     else:
         to_test_list = [tested_addons]
+        to_upd_test_list = to_update_tested_addons
         commands = ((cmd_odoo_test, True),
                     )
     all_errors = []
     counted_errors = 0
     for to_test in to_test_list:
-        print("\nTesting %s:" % to_test)
-        db_odoo_created = False
+        if odoo_unittest:
+            print("\nTesting %s:" % [to_test])
+        else:
+            print("\nTesting %s:" % tested_addons_list)
         try:
             db_odoo_created = subprocess.call(
                 ["createdb", "-T", dbtemplate, database])
@@ -417,7 +534,16 @@ def main(argv=None):
                                 if item not in rm_items] + \
                     ['--pidfile=/tmp/odoo.pid']
             else:
-                command[-1] = to_test
+                if odoo_unittest:
+                    if to_test in to_upd_test_list:
+                        command += ["--update", to_test]
+                    else:
+                        command += ["--init", to_test]
+                else:
+                    if to_update:
+                        command += ["--update", to_upd_test_list]
+                    if upd_tested_addons_list:
+                        command += ["--init", upd_tested_addons]
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
             print(" ".join(cmd_strip_secret(command_call)))
