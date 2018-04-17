@@ -9,11 +9,6 @@ OdooXContext, implement __enter__ and add to context_mapping.
 import sys
 from contextlib import closing
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
 
 class _OdooBaseContext(object):
     """
@@ -51,9 +46,13 @@ class _OdooBaseContext(object):
         :param str addon: Addon name
         :returns str: Gettext from addon .pot content
         """
-        with closing(StringIO()) as buf:
-            self.trans_export(lang, [addon], buf, 'po', self.cr)
-            return buf.getvalue()
+        import cStringIO, codecs
+        buffer = cStringIO.StringIO()
+        codecs.getwriter("utf8")(buffer)
+        self.trans_export(lang, [addon], buffer, 'po', self.cr)
+        tmp = buffer.getvalue()
+        buffer.close()
+        return tmp
 
     def load_po(self, po, lang):
         self.trans_load_data(self.cr, po, 'po', lang)

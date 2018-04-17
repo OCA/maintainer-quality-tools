@@ -1,3 +1,6 @@
+# Project specific
+oca.cfg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -21,6 +24,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.eggs
 
 # Installer logs
 pip-log.txt
@@ -36,9 +40,23 @@ coverage.xml
 
 # Translations
 *.mo
+*.pot
 
 # Pycharm
 .idea
+
+# Eclipse
+.settings
+
+# Visual Studio cache/options directory
+.vs/
+.vscode
+
+# OSX Files
+.DS_Store
+
+# Django stuff:
+*.log
 
 # Mr Developer
 .mr.developer.cfg
@@ -55,5 +73,5 @@ docs/_build/
 *~
 *.swp
 
-# OSX Files
-*.DS_Store
+# OCA rules
+!static/lib/
