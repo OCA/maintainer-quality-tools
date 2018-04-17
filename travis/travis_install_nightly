@@ -143,6 +143,9 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     npm install -g less-plugin-clean-css
 fi
 
+echo "Adding git.vauxoo.com ECDSA key fingerprint"
+ssh-keyscan git.vauxoo.com >>~/.ssh/known_hosts
+
 echo "Getting addons dependencies"
 clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
 clone_result=$?
