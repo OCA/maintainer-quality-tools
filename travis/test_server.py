@@ -546,8 +546,9 @@ def main(argv=None):
             copy_attachments(dbtemplate, database, data_dir)
         except subprocess.CalledProcessError:
             db_odoo_created = True
-        shutil.rmtree(os.path.expanduser(os.path.join(data_dir, 'sessions')),
-                      ignore_errors=True)
+        sessions_dir = os.path.expanduser(os.path.join(data_dir, 'sessions'))
+        shutil.rmtree(sessions_dir, ignore_errors=True)
+        os.makedirs(sessions_dir, 0700)
         for command, check_loaded in commands:
             if db_odoo_created and instance_alive:
                 rm_items = [
