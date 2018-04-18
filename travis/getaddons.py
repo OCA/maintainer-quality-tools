@@ -197,6 +197,9 @@ def main(argv=None):
         elif param.startswith('-'):
             raise Exception('Unknown parameter: %s' % param)
 
+    # https://github.com/OCA/OCB/pull/730
+    specific_exc = set(['l10_generic_coa'])
+
     if list_modules:
         modules = {}
         for path in params:
@@ -212,9 +215,13 @@ def main(argv=None):
             localizations = get_localizations_with_dependents(modules)
             if not localization:
                 res -= localizations
+                if specific_exc in res:
+                    res -= specific_exc
                 localizations = set()
         if application or localization:
             res = applications | localizations
+            if specific_exc in res:
+                res -= specific_exc
         res = sorted(list(res))
     else:
         lists = [get_addons(path) for path in params]
