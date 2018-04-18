@@ -548,7 +548,7 @@ def main(argv=None):
             db_odoo_created = True
         sessions_dir = os.path.expanduser(os.path.join(data_dir, 'sessions'))
         shutil.rmtree(sessions_dir, ignore_errors=True)
-        os.makedirs(sessions_dir, 0700)
+        os.makedirs(sessions_dir, 0o700)
         for command, check_loaded in commands:
             if db_odoo_created and instance_alive:
                 rm_items = [
