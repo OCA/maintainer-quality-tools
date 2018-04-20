@@ -125,8 +125,8 @@ def main(argv=None):
     # Install the modules on the database
     database = "openerp_i18n"
     script_name = get_server_script(server_path)
-    setup_server(database, odoo_unittest, addons, server_path, script_name,
-                 addons_path, install_options, addons_list)
+    setup_server(database, odoo_unittest, addons_list, server_path,
+                 script_name, addons_path, install_options, addons_list)
 
     # Initialize Transifex project
     print()
