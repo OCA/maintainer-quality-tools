@@ -34,7 +34,7 @@ import logging
 _logger = logging.getLogger()
 
 
-def parse_depfile(depfile, owner='OCA'):
+def parse_depfile(depfile, owner='it-projects-llc'):
     deps = []
     for line in depfile:
         line = line.strip()
@@ -71,6 +71,11 @@ def git_checkout(deps_checkout_dir, reponame, url, branch):
 def run(deps_checkout_dir, build_dir):
     dependencies = []
     processed = set()
+
+    # don't checkout build repo:
+    build_name = build_dir.split('/')[-1]
+    processed.add(build_name)
+
     depfilename = osp.join(build_dir, 'oca_dependencies.txt')
     dependencies.append(depfilename)
     reqfilenames = []

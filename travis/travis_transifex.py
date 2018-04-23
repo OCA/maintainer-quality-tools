@@ -66,7 +66,7 @@ def main(argv=None):
         "TRANSIFEX_FILL_UP_RESOURCES", "True"
     )
     transifex_team = os.environ.get(
-        "TRANSIFEX_TEAM", "23907"
+        "TRANSIFEX_TEAM", "76080"
     )
     repository_url = "https://github.com/%s" % travis_repo_slug
 

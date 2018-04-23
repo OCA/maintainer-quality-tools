@@ -58,6 +58,46 @@ class _OdooBaseContext(object):
         self.trans_load_data(self.cr, po, 'po', lang)
 
 
+class Odoo11Context(_OdooBaseContext):
+    """A context for connecting to a odoo 11 server with function to export
+    .pot files.
+    """
+
+    def __enter__(self):
+        """
+        Context enter function.
+        Temporarily add odoo 11 server path to system path and pop afterwards.
+        Import odoo 11 server from path as library.
+        Init logger, registry and environment.
+        Add addons path to config.
+        :returns Odoo11Context: This instance
+        """
+        sys.path.append(self.server_path)
+        from odoo import netsvc, api
+        from odoo.modules.registry import Registry
+        from odoo.tools import trans_export, config, trans_load_data
+        self.trans_export = trans_export
+        self.trans_load_data = trans_load_data
+        sys.path.pop()
+        netsvc.init_logger()
+        config['addons_path'] = (
+            config.get('addons_path') + ',' + self.addons_path
+        )
+        registry = RegistryManager.new(self.dbname)
+        self.environment_manage = api.Environment.manage()
+        self.environment_manage.__enter__()
+        self.cr = registry.cursor()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Context exit function.
+        Cleanly close environment manage and cursor.
+        """
+        self.environment_manage.__exit__(exc_type, exc_val, exc_tb)
+        super(Odoo11Context, self).__exit__(exc_type, exc_val, exc_tb)
+
+
 class Odoo10Context(_OdooBaseContext):
     """A context for connecting to a odoo 10 server with function to export
     .pot files.
