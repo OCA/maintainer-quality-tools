@@ -19,6 +19,10 @@ lint:
     LINT_CHECK: "1"
     TESTS: "0"
   script:
+    # In some cases gitlab-runners might override the default $PATH defined within the image
+    # when that happens things will fail as pointers to the proper binaries are lost, uncomment if this happens
+    #- source ${REPO_REQUIREMENTS}/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/activate
+    #- source ${REPO_REQUIREMENTS}/virtualenv/nodejs/bin/activate
     - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
@@ -33,6 +37,8 @@ test:
     LINT_CHECK: "0"
     TESTS: "1"
   script:
+    #- source ${REPO_REQUIREMENTS}/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/activate
+    #- source ${REPO_REQUIREMENTS}/virtualenv/nodejs/bin/activate
     - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
