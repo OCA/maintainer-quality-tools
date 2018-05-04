@@ -8,6 +8,8 @@ variables:
     ODOO_REPO: "odoo/odoo"
     ODOO_BRANCH: "11.0"
     TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
+    TRAVIS_PYTHON_VERSION: "3.5"
+    # GIT_DEPTH: "3" - Lower clone depth for better performance
 
 lint:
   stage: test
