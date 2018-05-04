@@ -11,6 +11,18 @@ variables:
     TRAVIS_PYTHON_VERSION: "3.5"
     # GIT_DEPTH: "3" - Lower clone depth for better performance
 
+# If you need to clone other private repositories except the current one
+# before_script:
+#     - eval "$(ssh-agent -s)"
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan github.com >> ~/.ssh/known_hosts
+#     # Repeat for as many hosts as needed
+#     # Store ssh config file and id_rsa private key in Settings -> CI/CD -> Secret variables and use here
+#     - echo "$SSH_CONFIG" > ~/.ssh/config
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add  - > /dev/null
+#     - chmod 600 ~/.ssh/ -R
+
 lint:
   stage: test
   tags:
