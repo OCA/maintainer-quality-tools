@@ -2,7 +2,7 @@
 
 [report]
 include =
-    */build/*
+    ${TRAVIS_BUILD_DIR}/*
 
 omit =
     */scenario/*
