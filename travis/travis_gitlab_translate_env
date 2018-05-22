@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# This script sets Travis CI's variables using GitLab CI's variables. This
+# makes possible to run scripts which depend on Travis CI's variables when
+# running under Gitlab CI
+#
+# To use this script, simply source it from your .gitlab-ci.yml file on
+# the "script" section:
+# - source travis_gitlab_translate_env
+#
+# For documentation on these environment variables, please check:
+# - Predefined environment variables on Travis CI:
+#   https://docs.travis-ci.com/user/environment-variables#Default-Environment-Variables
+# - Predefined environment variables on GitLab CI:
+#   https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
+
+
+# will only work if it's being sourced, otherwise variables won't keep set
+if [[ "${BASH_SOURCE}" == "$0" ]] ; then
+    echo "This script needs to be sourced in order to work properly."
+    echo "You must run \`source $0' instead."
+    exit 1
+fi
+
+if [ -z "$GITLAB_CI" ]; then
+    echo "Not running on GitLab CI! Terminating..." && return 1
+fi
+
+# This is a guess
+target_branch="${VERSION}"
+
+# Predefined values
+export TRAVIS="true"
+export CONTINUOUS_INTEGRATION="true"
+export HAS_JOSH_K_SEAL_OF_APPROVAL="true"
+export RAILS_ENV="test"
+export RACK_ENV="test"
+export MERB_ENV="test"
+
+# Dinamic values
+export TRAVIS_ALLOW_FAILURE="false"
+export TRAVIS_BRANCH="${target_branch}"
+export TRAVIS_BUILD_DIR="${CI_PROJECT_DIR}"
+export TRAVIS_BUILD_ID="${CI_BUILD_ID}"
+export TRAVIS_BUILD_NUMBER="${CI_JOB_ID}"
+export TRAVIS_COMMIT="${CI_COMMIT_SHA}"
+export TRAVIS_COMMIT_MESSAGE="$(git log -1 --pretty=%b -C "${CI_PROJECT_DIR}")"
+export TRAVIS_COMMIT_RANGE="unknown"
+export TRAVIS_EVENT_TYPE="${CI_PIPELINE_SOURCE}"
+export TRAVIS_JOB_ID="${CI_JOB_ID}"
+export TRAVIS_JOB_NUMBER="1"
+export TRAVIS_OS_NAME="$(uname)"
+# If within an MR
+if [[ "${CI_COMMIT_REF_NAME}" != "${target_branch}" ]]; then
+    # there's no way to know the MR number. 
+    # For more info, see https://gitlab.com/gitlab-org/gitlab-ce/issues/15280
+    export TRAVIS_PULL_REQUEST="unknown"
+    export TRAVIS_PULL_REQUEST_BRANCH="${CI_COMMIT_REF_NAME}"
+    export TRAVIS_PULL_REQUEST_SHA="${CI_COMMIT_SHA}"
+    export TRAVIS_PULL_REQUEST_SLUG="${CI_PROJECT_PATH}"
+else
+    export TRAVIS_PULL_REQUEST="false"
+    export TRAVIS_PULL_REQUEST_BRANCH=""
+    export TRAVIS_PULL_REQUEST_SHA=""
+    export TRAVIS_PULL_REQUEST_SLUG=""
+fi
+export TRAVIS_REPO_SLUG="${CI_PROJECT_PATH}"
+if [[ "$(whoami)" == "root" ]]; then
+    export TRAVIS_SUDO="true"
+else
+    export TRAVIS_SUDO="false"
+fi
+export TRAVIS_TEST_RESULT="0"
+export TRAVIS_BUILD_STAGE_NAME="${CI_BUILD_STAGE}"
+
+# Sets the path
+script_dir="$(cd "$(dirname "${BASH_SOURCE}")"; pwd)"
+if ! echo "${PATH}" | grep -q "${script_dir}"; then
+    export PATH="${script_dir}:${PATH}"
+fi
+
+unset target_branch
