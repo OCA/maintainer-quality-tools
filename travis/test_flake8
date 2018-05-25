@@ -8,14 +8,15 @@ from getaddons import get_modules
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 flake8_config_dir = os.path.join(root_dir, 'cfg')
+folders = (os.environ.get("INCLUDE_LINT", "").split(",") or
+           get_modules(os.path.abspath('.')))
+exclude = os.environ.get('EXCLUDE_LINT', '').split(',')
 
 status = 0
 
-exclude = os.environ.get('EXCLUDE_LINT', '').split(',')
-modules = [module for module in get_modules(os.path.abspath('.'))
-           if module not in exclude]
-
-for addon in modules:
+for addon in folders:
+    if addon in exclude:
+        continue
     status += subprocess.call(['flake8', addon,
                                '--config=%s/travis_run_flake8__init__.cfg' %
                                flake8_config_dir])
