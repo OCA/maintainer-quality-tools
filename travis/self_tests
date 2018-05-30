@@ -39,6 +39,7 @@ EXPECTED_ERRORS = {
     'redundant-keyword-arg': 1,
     'reimported': 4,
     'return-in-init': 1,
+    'rst-syntax-error': 1,
     'too-few-format-args': 1,
     'unreachable': 1,
 }
