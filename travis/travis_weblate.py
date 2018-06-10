@@ -128,7 +128,7 @@ class TravisWeblateUpdate(object):
             for po_file_name in po_files:
                 lang = os.path.basename(os.path.splitext(po_file_name)[0])
                 if self._langs and lang not in self._langs:
-                    # Limit just allowed languages if is defined
+                    # Limit to only allowed languages if it's defined
                     continue
                 po_file_path = os.path.join(i18n_folder, po_file_name)
                 with open(po_file_path, 'r') as f_po:

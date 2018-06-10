@@ -59,7 +59,7 @@ class _OdooBaseContext(object):
 
 
 class Odoo10Context(_OdooBaseContext):
-    """A context for connecting to a odoo 10 server with function to export
+    """A context for connecting to an odoo 10 server with function to export
     .pot files.
     """
 
@@ -99,7 +99,7 @@ class Odoo10Context(_OdooBaseContext):
 
 
 class Odoo11Context(Odoo10Context):
-    """A context for connecting to a odoo 11 server with an special override
+    """A context for connecting to an odoo 11 server with a special override
     for getting translations with Python 3.
     """
     def get_pot_contents(self, addon, lang=None):
@@ -116,7 +116,7 @@ class Odoo11Context(Odoo10Context):
 
 class Odoo8Context(_OdooBaseContext):
     """
-    A context for connecting to a odoo 8 server with function to export .pot
+    A context for connecting to an odoo 8 server with function to export .pot
     """
 
     def __enter__(self):
@@ -156,7 +156,7 @@ class Odoo8Context(_OdooBaseContext):
 
 class Odoo7Context(_OdooBaseContext):
     """
-    A context for connecting to a odoo 7 server with function to export .pot
+    A context for connecting to an odoo 7 server with function to export .pot
     """
 
     def __enter__(self):
