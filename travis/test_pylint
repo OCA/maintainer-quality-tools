@@ -14,26 +14,26 @@ Use the following types of pylint configuration files:
 1) Global
 
   Used to check enabled messages on this file in all modules of the project.
-  The result affect your build status.
+  The result affects your build status.
   File name: `travis_run_pylint.cfg`
 
 
 2) Pull request
 
-  Used to check enabled messages on this file just in modules
+  Used to check enabled messages on this file only in modules
   changed in a pull request of the project.
   The result affects your build status.
   File name: `travis_run_pylint_pr.cfg`
 
 
-2) Version Exclusions
+3) Version Exclusions
 
-  Used to disable the previously enabled messages of `global` or `pull request`
+  Used to disable previously enabled messages on `global` or `pull request`
   configuration files based on `VERSION` variable environment.
   File name: `travis_run_pylint_exclude_{VERSION}.cfg`
 
 
-3) Beta
+4) Beta
 
   Used to add the previously enabled messages in `global` or `pull request`
   configuration files that you want to display, without affecting your build
