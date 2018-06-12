@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+import os
+import subprocess
+
+
+def main():
+    database = os.environ.get('MQT_TEST_DB', 'openerp_test')
+    print("Installing click-odoo-contrib")
+    # TODO release to pypi click-odoo-contrib makepot
+    r = subprocess.call([
+        'pip', 'install',
+        'git+https://github.com/acsone/click-odoo-contrib@master',
+    ])
+    if r:
+        return r
+    print("Exporting .pot files and updating .po files")
+    r = subprocess.call([
+        'click-odoo-makepot',
+        '-d', database,
+        '--commit',
+        '--log-level=debug',
+    ])
+    if r:
+        return r
+    print("Pushing .pot and .po files changes to GitHub")
+    r = subprocess.call([
+        'git', 'push',
+        'https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/'
+        '{TRAVIS_REPO_SLUG}'.format(**os.environ),
+        'HEAD:{TRAVIS_BRANCH}'.format(**os.environ),
+    ])
+    if r:
+        return r
+    return 0
+
+
+if __name__ == "__main__":
+    exit(main())
