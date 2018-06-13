@@ -2,12 +2,7 @@
 
 import base64
 import os
-import re
-import subprocess
-import tempfile
-import time
 import json
-from contextlib import contextmanager
 import requests
 
 
@@ -42,125 +37,6 @@ class Request(object):
         except requests.RequestException as error:
             raise ApiException(str(error))
         return response.json() if is_json else response
-
-
-class WeblateApi(Request):
-
-    def __init__(self):
-        super(WeblateApi, self).__init__()
-        self.repo_slug = None
-        self.branch = None
-        self._token = os.environ.get("WEBLATE_TOKEN")
-        self.host = os.environ.get(
-            "WEBLATE_HOST", "https://weblate.odoo-community.org/api")
-        self.ssh = os.environ.get(
-            "WEBLATE_SSH", "ssh://user@webpage.com")
-        self.tempdir = os.path.join(tempfile.gettempdir(), 'weblate_api')
-        self._ssh_keyscan()
-
-    def _ssh_keyscan(self):
-        """This method execute the command 'ssh-keysan' to avoid the
-        question when the command git clone is excecuted.
-        The question is like to:
-            'Are you sure you want to continue connecting (yes/no)?'"""
-        cmd = ['ssh-keyscan', '-p']
-        match = re.search(
-            r'(ssh\:\/\/\w+@(?P<host>[a-zA-Z0-9_.-]+))(:{0,1})'
-            r'(?P<port>(\d+))?', self.ssh)
-        if not match:
-            return False
-        data = match.groupdict()
-        cmd.append(data['port'] or '22')
-        cmd.append(data['host'])
-        with open(os.path.expanduser('~/.ssh/known_hosts'), 'a+') as hosts:
-            subprocess.Popen(cmd, stdout=hosts)
-
-    def get_project(self, repo_slug, branch):
-        self.branch = branch
-        projects = []
-        page = 1
-        while True:
-            data = self._request(self.host + '/projects/?page=%s' % page)
-            projects.extend(data['results'] or [])
-            if not data['next']:
-                break
-            page += 1
-        for project in projects:
-            if project['name'] == repo_slug:
-                self.repo_slug = project['slug']
-                return project
-        raise ApiException('No project found in "%s" for this path "%s"' %
-                           (self.host, repo_slug))
-
-    def load_project(self, repo_slug, branch):
-        self.project = self.get_project(repo_slug, branch)
-        self.load_components()
-
-    def get_components(self):
-        components = []
-        values = []
-        page = 1
-        while True:
-            data = self._request(self.host +
-                                 '/projects/%s/components/?page=%s' %
-                                 (self.project['slug'], page))
-            values.extend(data['results'] or [])
-            if not data['next']:
-                break
-            page += 1
-        for value in values:
-            if value['branch'] and value['branch'] != self.branch:
-                continue
-            components.append(value)
-        return components
-
-    def load_components(self):
-        self.components = self.get_components()
-
-    def pull(self):
-        pull = self._request(
-            self.host + '/projects/%s/repository/' % self.project['slug'],
-            {'operation': 'pull'})
-        return pull['result']
-
-    def component_repository(self, component, operation):
-        result = self._request(self.host + '/components/%s/%s/repository/' %
-                               (self.project['slug'], component['slug']),
-                               {'operation': operation})
-        return result['result']
-
-    @contextmanager
-    def component_lock(self):
-        try:
-            for component in self.components:
-                self._component_lock(component)
-                self._component_commit(component)
-            yield
-        finally:
-            for component in self.components:
-                self._component_lock(component, lock=False)
-
-    def _component_lock(self, component, lock=True):
-        url = (self.host + '/components/%s/%s/lock/' %
-               (self.project['slug'], component['slug']))
-        for i in range(10):
-            new_lock = self._request(url, {'lock': lock})
-            if new_lock['locked'] == lock:
-                break
-            time.sleep(60)
-        return True
-
-    def _component_commit(self, component):
-        url = (self.host + '/components/%s/%s/repository/' %
-               (self.project['slug'], component['slug']))
-        needs_commit = self._request(url)
-        if not needs_commit['needs_commit']:
-            return
-        new_commit = self._request(url, {'operation': 'commit'})
-        if not new_commit['result']:
-            raise ApiException('The commit into the component "%s" cannot be '
-                               'made' % component['slug'])
-        return True
 
 
 class GitHubApi(Request):
