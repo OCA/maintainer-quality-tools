@@ -11,20 +11,6 @@ from getaddons import (
     get_addons, get_modules, get_modules_info, get_dependencies)
 from travis_helpers import success_msg, fail_msg
 from configparser import ConfigParser
-from contextlib import contextmanager
-
-
-@contextmanager
-def setenv(key, value):
-    old_value = os.environ.get(key)
-    os.environ[key] = value
-    try:
-        yield
-    finally:
-        if old_value:
-            os.environ[key] = old_value
-        else:
-            del os.environ[key]
 
 
 def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
@@ -485,13 +471,14 @@ def main(argv=None):
         os.environ.get('GITHUB_TOKEN')
     )
     if must_run_makepot:
-        with setenv('PYTHONPATH', server_path):
-            makepot_cmd = ['unbuffer'] if unbuffer else []
-            makepot_cmd += [
-                'travis_makepot',
-            ]
-            if subprocess.call(makepot_cmd) != 0:
-                return 1
+        # run makepot using the database we just tested
+        makepot_cmd = ['unbuffer'] if unbuffer else []
+        makepot_cmd += [
+            'travis_makepot',
+            database,
+        ]
+        if subprocess.call(makepot_cmd) != 0:
+            return 1
     # if we get here, all is OK
     return 0
 
