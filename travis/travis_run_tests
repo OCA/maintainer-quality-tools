@@ -67,6 +67,7 @@ if __name__ == '__main__':
         is_oca_project and
         not is_pull_request and
         os.environ.get('GITHUB_USER') and
+        os.environ.get('GITHUB_EMAIL') and
         os.environ.get('GITHUB_TOKEN')
     )
 

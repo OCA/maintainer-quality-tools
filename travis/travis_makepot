@@ -53,6 +53,13 @@ def main(argv=None, database=None):
     else:
         print("\nUsing db %s to generate .pot" % (database, ))
 
+    subprocess.check_call([
+        'git', 'config', 'user.name', os.environ['GITHUB_USER'],
+    ])
+    subprocess.check_call([
+        'git', 'config', 'user.email', os.environ['GITHUB_EMAIL'],
+    ])
+
     print("Installing click-odoo-contrib")
     r = subprocess.call([
         'pip', 'install', 'click-odoo-contrib',

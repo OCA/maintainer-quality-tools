@@ -469,6 +469,7 @@ def main(argv=None):
         os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/') and
         os.environ.get('TRAVIS_PULL_REQUEST') == 'false' and
         os.environ.get('GITHUB_USER') and
+        os.environ.get('GITHUB_EMAIL') and
         os.environ.get('GITHUB_TOKEN')
     )
     if must_run_makepot:
