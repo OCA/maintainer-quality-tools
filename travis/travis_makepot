@@ -74,6 +74,7 @@ def main(argv=None, database=None):
         r = subprocess.call([
             'click-odoo-makepot',
             '-d', database,
+            '--msgmerge-if-new-pot',
             '--commit',
             '--log-level=debug',
         ])
