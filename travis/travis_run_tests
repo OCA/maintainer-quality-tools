@@ -52,17 +52,25 @@ if __name__ == '__main__':
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
-    transifex_enabled = os.environ.get('TRANSIFEX') == '1'
-    weblate_enabled = os.environ.get('WEBLATE') == '1'
     is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
-    is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
-        'transbot@odoo-community.org'
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
-    # Avoid false red from forks using OCA transifex user
-    is_valid_transifex = not is_pull_request and \
-        (is_oca_project or not is_oca_transifex_user)
+    # run makepot using a fresh database
+    # where addons are going to be installed
+    # is MAKEPOT=1 and TESTS=1, test_server.py will run
+    # makepot using the test database, which will be faster
+    must_run_makepot = (
+        (os.environ.get('MAKEPOT') == '1' or
+         os.environ.get('TRANSIFEX') == '1') and
+        not tests_enabled and
+        is_oca_project and
+        os.environ.get('TRAVIS_BRANCH') in ('8.0', '9.0', '10.0', '11.0') and
+        not is_pull_request and
+        os.environ.get('GITHUB_USER') and
+        os.environ.get('GITHUB_EMAIL') and
+        os.environ.get('GITHUB_TOKEN')
+    )
 
     # Test list. Each test is a list with command + arguments.
     tests = []
@@ -77,16 +85,8 @@ if __name__ == '__main__':
     elif tests_enabled:
         tests.append(['test_server.py'])
 
-    if transifex_enabled and is_valid_transifex:
-        tests.append(['travis_transifex.py'])
-
-    is_valid_weblate = (
-        not is_pull_request and os.environ.get('UNIT_TEST') != '1' and
-        ['test_server.py'] in tests)
-
-    if weblate_enabled and is_valid_weblate:
-        # Re-use database of TESTS=1 except if UNIT_TEST is enabled.
-        tests.append(['travis_weblate.py'])
+    if must_run_makepot:
+        tests.append(['travis_makepot'])
 
     if tests:
         exit(main(tests))

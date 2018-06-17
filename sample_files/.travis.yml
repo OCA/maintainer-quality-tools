@@ -31,7 +31,7 @@ addons:
 
 env:
   global:
-  - VERSION="10.0" TESTS="0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="10.0" TESTS="0" LINT_CHECK="0" MAKEPOT="0"
   # Set this variable to some version existing as linux-generic build on
   # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
   # if you need to install wkhtmltopdf
@@ -46,28 +46,14 @@ env:
   # Use the above line to install dependencies that are required for website repos:
   # * SASS & Bootstrap-SASS
   # * Compass
-  - TRANSIFEX_USER='transbot@odoo-community.org'
-  # This line contains the encrypted transifex password
-  # To encrypt transifex password, install travis ruby utils with:
-  #   $ gem install travis --user-install
-  # and use:
-  #   $ travis encrypt TRANSIFEX_PASSWORD=your-password -r owner/project
-  # Secure list for current OCA projects is in https://github.com/OCA/maintainer-quality-tools/issues/194
-  - secure: PjP88tPSwimBv4tsgn3UcQAD1heK/wcuSaSfhi2xUt/jSrOaTmWzjaW2gH/eKM1ilxPXwlPGyAIShJ2JJdBiA97hQufOeiqxdkWDctnNVVEDx2Tk0BiG3PPYyhXPgUZ+FNOnjZFF3pNWvzXTQaB0Nvz8plqp93Ov/DEyhrCxHDs=
-  # Use the following lines if you need to manually change the transifex project slug or/and the transifex organization.
-  # The default project slug is owner-repo_name-version (with dash in the version string).
-  # The default organization is the owner of the repo.
-  # The default fill up resources (TM) is True.
-  # The default team is 23907. https://www.transifex.com/organization/oca/team/23907/
-  # - TRANSIFEX_PROJECT_SLUG=
-  # - TRANSIFEX_ORGANIZATION=
-  # - TRANSIFEX_FILL_UP_RESOURCES=
-  # - TRANSIFEX_TEAM=
 
   matrix:
   - LINT_CHECK="1"
-  - TRANSIFEX="1"
-  - TESTS="1" ODOO_REPO="odoo/odoo"
+# use this to install a standalone database to export .pot files
+# - MAKEPOT="1"
+# add MAKEPOT="1" to a TEST line to export .pot files from
+# the test database after test success
+  - TESTS="1" ODOO_REPO="odoo/odoo" MAKEPOT="1"
   - TESTS="1" ODOO_REPO="OCA/OCB"
 # either use the two lines above or the two below. Don't change the default if
 # it's not necessary (it is only necessary if modules in your repository can't

@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+# Copyright 2018 ACSONE SA/NV
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+
+from __future__ import print_function
+from contextlib import contextmanager
+import os
+import subprocess
+
+from test_server import setup_server, get_addons_path, \
+    get_server_path, get_addons_to_check, create_server_conf, get_server_script
+
+
+@contextmanager
+def setenv(key, value):
+    old_value = os.environ.get(key)
+    os.environ[key] = value
+    try:
+        yield
+    finally:
+        if old_value:
+            os.environ[key] = old_value
+        else:
+            del os.environ[key]
+
+
+def main(argv=None, database=None):
+    odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
+    odoo_version = os.environ.get("VERSION")
+    odoo_exclude = os.environ.get("EXCLUDE")
+    odoo_include = os.environ.get("INCLUDE")
+    odoo_unittest = False
+    install_options = os.environ.get("INSTALL_OPTIONS", "").split()
+    travis_home = os.environ.get("HOME", "~/")
+    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
+    travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
+    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    addons_path = get_addons_path(travis_dependencies_dir,
+                                  travis_build_dir,
+                                  server_path)
+    addons_list = get_addons_to_check(travis_build_dir, odoo_include,
+                                      odoo_exclude)
+    addons = ','.join(addons_list)
+    create_server_conf({'addons_path': addons_path}, odoo_version)
+
+    print("\nWorking in %s" % travis_build_dir)
+    print("Using repo %s and addons path %s" % (odoo_full, addons_path))
+
+    if not database:
+        database = 'openerp_i18n'
+        print("\nInitializing db %s to generate .pot for: %s" % (database, addons))
+        script_name = get_server_script(server_path)
+        setup_server(database, odoo_unittest, addons_list, server_path,
+                     script_name, addons_path, install_options, addons_list)
+    else:
+        print("\nUsing db %s to generate .pot" % (database, ))
+
+    subprocess.check_call([
+        'git', 'config', 'user.name', os.environ['GITHUB_USER'],
+    ])
+    subprocess.check_call([
+        'git', 'config', 'user.email', os.environ['GITHUB_EMAIL'],
+    ])
+
+    print("Installing click-odoo-contrib")
+    r = subprocess.call([
+        'pip', 'install', 'click-odoo-contrib',
+    ])
+    if r:
+        return r
+
+    with setenv('PYTHONPATH', server_path):
+        print("Exporting .pot files")
+        r = subprocess.call([
+            'click-odoo-makepot',
+            '-d', database,
+            '--msgmerge-if-new-pot',
+            '--commit',
+            '--log-level=debug',
+        ])
+        if r:
+            return r
+
+    print("Pushing .pot files changes to GitHub")
+    r = subprocess.call([
+        'git', 'push',
+        'https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/'
+        '{TRAVIS_REPO_SLUG}'.format(**os.environ),
+        'HEAD:{TRAVIS_BRANCH}'.format(**os.environ),
+    ])
+    if r:
+        return r
+
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    database = None
+    if len(sys.argv) > 1:
+        database = sys.argv[1]
+    exit(main(database=database))
