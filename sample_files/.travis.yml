@@ -1,9 +1,6 @@
 language: python
 sudo: false
-cache:
-  apt: true
-  directories:
-    - $HOME/.cache/pip
+cache: pip
 
 python:
   # For branches <= 10.0, put `- "2.7.13"`
