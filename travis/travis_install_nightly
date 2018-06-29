@@ -127,13 +127,6 @@ else
 fi
 
 
-if [ ${PHANTOMJS_VERSION+x} ]; then
-    echo "Installing phantomjs-${PHANTOMJS_VERSION}"
-    wget -qO - https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-${PHANTOMJS_VERSION}-linux-x86_64.tar.bz2 | tar -xj -C /tmp
-    cp /tmp/phantomjs-${PHANTOMJS_VERSION}*/bin/phantomjs ${HOME}/maintainer-quality-tools/travis/
-    phantomjs --version
-fi
-
 # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
 rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
 
