@@ -36,7 +36,7 @@ fi
 
 # Install less
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
-npm install -g less less-plugin-clean-css
+npm install -g less@3.0.4 less-plugin-clean-css
 
 if [ "${WEBSITE_REPO}" == "1" ]; then
     if [ -f ~/.rvm/scripts/rvm ]; then
@@ -157,8 +157,6 @@ if [ "x${WITHOUT_DEPENDENCIES}" == "x" ] ; then
     #  Install new dependence: npm package
     wget -qO- https://deb.nodesource.com/setup | sudo bash -
     apt-get install nodejs
-    npm install -g less
-    npm install -g less-plugin-clean-css
 fi
 
 echo "Adding git.vauxoo.com ECDSA key fingerprint"
