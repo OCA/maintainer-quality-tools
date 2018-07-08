@@ -6,6 +6,10 @@ from __future__ import print_function
 from contextlib import contextmanager
 import os
 import subprocess
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 from test_server import setup_server, get_addons_path, \
     get_server_path, get_addons_to_check, create_server_conf, get_server_script
@@ -32,7 +36,7 @@ def main(argv=None, database=None):
     odoo_unittest = False
     install_options = os.environ.get("INSTALL_OPTIONS", "").split()
     travis_home = os.environ.get("HOME", "~/")
-    travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
+    travis_dependencies_dir = os.path.join(travis_home)
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
     server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = get_addons_path(travis_dependencies_dir,
@@ -80,12 +84,28 @@ def main(argv=None, database=None):
         ])
         if r:
             return r
+    repository_url = os.environ.get('CI_REPOSITORY_URL')
+    if not repository_url:
+        # Running on Travis CI
+        repository_url = (
+            'https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/'
+            '{TRAVIS_REPO_SLUG}'.format(**os.environ))
+        host = 'GitHub'
+    else:
+        # Running on GitLab CI
+        # The original url will look like http://***.com/vauxoo-dev/project.git
+        # so we need to replace vauxoo-dev by vauxoo.
+        # TODO need a better fix, e.g. introducing a new env variable, because
+        # This will work only if the same project name is used
+        org = os.environ.get('CI_PROJECT_PATH', '').split('/')[0]
+        if org.lower() == 'vauxoo-dev':
+            repository_url = repository_url.replace('/%s/' % org, '/Vauxoo/')
+        host = urlparse(repository_url).netloc.split('@')[1]
 
-    print("Pushing .pot files changes to GitHub")
+    print("Pushing .pot files changes to %s" % host)
     r = subprocess.call([
         'git', 'push',
-        'https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/'
-        '{TRAVIS_REPO_SLUG}'.format(**os.environ),
+        repository_url,
         'HEAD:{TRAVIS_BRANCH}'.format(**os.environ),
     ])
     if r:

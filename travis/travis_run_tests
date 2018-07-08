@@ -54,7 +54,7 @@ if __name__ == '__main__':
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
-    is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+    is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('Vauxoo')
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
