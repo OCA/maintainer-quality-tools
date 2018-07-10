@@ -113,6 +113,20 @@ else
     ;
 fi
 
+# Patch Odoo so all database tables are created as unlogged
+echo "Patching Odoo to create all database tables as unlogged"
+for file in ${ODOO_PATH}/{odoo,openerp}/addons/base/{base.sql,data/base_data.sql} \
+            ${ODOO_PATH}/{odoo,openerp}/fields.py \
+            ${ODOO_PATH}/{odoo,openerp}/models.py \
+            ${ODOO_PATH}/{odoo,openerp}/tools/sql.py \
+            ${ODOO_PATH}/{odoo,openerp}/osv/orm.py
+    do
+        if [[ -f ${file} ]] && grep -iq "CREATE TABLE" ${file} ; then
+            echo -e "\tPatching file '${file}' to create tables as unlogged"
+            sed -i 's/CREATE TABLE/CREATE UNLOGGED TABLE/gI' ${file}
+        fi
+done
+
 echo "x${PHANTOMJS_TESTS}"
 if [ "x${PHANTOMJS_TESTS}" == "x0" ]; then
     # Disable phantom tests
