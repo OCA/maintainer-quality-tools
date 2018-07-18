@@ -128,7 +128,17 @@ fi;
 
 if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
     echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
-    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
+
+    cd ${HOME}/maintainer-quality-tools/travis/ &&
+    wkhtmltox=$(wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz) &&
+    WKHTMLTOX_CHECKSUM='049b2cdec9a8254f0ef8ac273afaf54f7e25459a273e27189591edc7d7cf29db'
+
+    if [ $(echo -n "${wkhtmltox}" | sha256sum) != "${WKHTMLTOX_CHECKSUM}" ]; then
+        echo "SHA256 Checksum mismatch for wkhtmltopdf - skipping install"
+    else
+        echo -n "${wkhtmltox}" | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf
+    fi
+
 fi;
 
 # Expected directory structure:
