@@ -40,6 +40,10 @@ matrix:
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
+    - python: 3.7-dev
+      env:
+        VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
+        INCLUDE="test_module,second_module"
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
