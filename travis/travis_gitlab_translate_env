@@ -13,7 +13,7 @@
 #   https://docs.travis-ci.com/user/environment-variables#Default-Environment-Variables
 # - Predefined environment variables on GitLab CI:
 #   https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
-
+# TODO remove this script, it was migrated to travis_gitlab.py
 
 # will only work if it's being sourced, otherwise variables won't keep set
 if [[ "${BASH_SOURCE}" == "$0" ]] ; then
