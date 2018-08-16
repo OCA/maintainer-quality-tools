@@ -1,6 +1,7 @@
 #!/bin/bash
 set -v
 
+: ${TRAVIS_BUILD_DIR:="${CI_PROJECT_DIR}"}  # If unset, takes it from GitLab CI
 if [ "${LINT_CHECK}" != "0" ]; then
     if [ -f "${HOME}/.nvm/nvm.sh" ]; then
         # Update nodejs v6.latest required by eslint
