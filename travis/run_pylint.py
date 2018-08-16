@@ -83,7 +83,7 @@ def run_pylint(paths, ignores, cfg, beta_msgs=None, sys_paths=None,
 @click.option('paths', '--path', envvar='TRAVIS_BUILD_DIR',
               multiple=True, type=CLICK_DIR, required=True,
               help="Addons paths to check pylint")
-@click.option('ignores', '--ignore', envvar='EXCLUDE_LINT',
+@click.option('ignores', '--ignore',
               multiple=True, type=CLICK_DIR, required=False,
               help="Addons paths to check pylint")
 @click.option('--config-file', '-c',

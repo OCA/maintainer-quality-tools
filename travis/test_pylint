@@ -140,14 +140,20 @@ pylint_rcfile = os.path.join(
     'cfg',
     "travis_run_pylint.cfg")
 modules_cmd = []
-if os.environ.get('INCLUDE_LINT'):
-    for path in os.environ.get('INCLUDE_LINT', '').split(' '):
-        modules_cmd.extend(['--path', path])
+include_lint = os.environ.get('INCLUDE_LINT')
+if include_lint:
+    modules_cmd.extend([
+        '--path=%s' % path.strip()
+        for path in include_lint.split(',') if path
+    ])
 else:
-    modules_cmd.extend(["--path", os.environ.get('TRAVIS_BUILD_DIR')])
-if os.environ.get('EXCLUDE_LINT'):
-    modules_cmd.extend(['--ignore=%s' % path for path in
-                        os.environ.get('EXCLUDE_LINT', '').split(',') if path])
+    modules_cmd.extend(["--path=%s" % os.environ.get('TRAVIS_BUILD_DIR')])
+exclude_lint = os.environ.get('EXCLUDE_LINT')
+if exclude_lint:
+    modules_cmd.extend([
+        '--ignore=%s' % path.strip()
+        for path in exclude_lint.split(',') if path
+    ])
 
 print("modules_cmd", modules_cmd)
 print("extra_params_cmd", extra_params_cmd)
