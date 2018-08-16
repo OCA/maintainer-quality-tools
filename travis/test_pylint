@@ -173,7 +173,13 @@ pylint_rcfile_pr = os.path.join(
 
 
 if is_pull_request and branch_base and git_work_dir:
-    if branch_base != 'HEAD':
+    if os.environ.get("GITLAB_CI"):
+        # When running on GitLab CI, there's no way to know the base/target
+        # branch, thus there's no way to know for sure what files were
+        # modified. Therefore, our best bet is to compare changes against
+        # HEAD~1, and hope the MR doesn't contain more than one commit
+        branch_base = 'HEAD~1'
+    elif branch_base != 'HEAD':
         branch_base = 'origin/' + branch_base
     modules_changed = get_modules_changed(
         git_work_dir,
