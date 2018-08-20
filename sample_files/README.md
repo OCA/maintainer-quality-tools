@@ -10,6 +10,10 @@ ${REPO_DESCRIPTION}
 This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
 [//]: # (end addons)
 
+Translation Status
+------------------
+[![Transifex Status](https://www.transifex.com/projects/p/${ORG_NAME}-${REPO_NAME}-${BRANCH_NAME_WITH_DASH}/chart/image_png)](https://www.transifex.com/projects/p/${ORG_NAME}-${REPO_NAME}-${BRANCH_NAME_WITH_DASH})
+
 ----
 
 OCA, or the [Odoo Community Association](http://odoo-community.org/), is a nonprofit organization whose

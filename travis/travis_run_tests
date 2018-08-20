@@ -52,10 +52,17 @@ if __name__ == '__main__':
     lint_check_enabled = os.environ.get('LINT_CHECK') == '1'
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
+    transifex_enabled = os.environ.get('TRANSIFEX') == '1'
+    weblate_enabled = os.environ.get('WEBLATE') == '1'
     is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+    is_oca_transifex_user = os.environ.get('TRANSIFEX_USER') == \
+        'transbot@odoo-community.org'
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
+    # Avoid false red from forks using OCA transifex user
+    is_valid_transifex = not is_pull_request and \
+        (is_oca_project or not is_oca_transifex_user)
     # run makepot using a fresh database
     # where addons are going to be installed
     # is MAKEPOT=1 and TESTS=1, test_server.py will run
@@ -84,6 +91,9 @@ if __name__ == '__main__':
 
     elif tests_enabled:
         tests.append(['test_server.py'])
+
+    if transifex_enabled and is_valid_transifex:
+        tests.append(['travis_transifex.py'])
 
     if must_run_makepot:
         tests.append(['travis_makepot'])
