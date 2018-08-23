@@ -11,3 +11,7 @@ configparser
 polib
 slumber
 transifex-client==0.12.5
+
+# Supports code-block for module/README.rst
+# More info about: https://github.com/OCA/maintainer-quality-tools/issues/568
+pygments
