@@ -90,6 +90,7 @@ class MainTest(unittest.TestCase):
         self.modules_cmd = run_pylint.get_modules_cmd(self.git_work_dir)
         self.beta_msgs = run_pylint.get_beta_msgs()
         self.errors_dict = EXPECTED_ERRORS.copy()
+        self.maxDiff = None
 
     def test_modules_to_preinstall(self):
         res = [x for x in self.to_preinstall if x in self.addons_list]
@@ -286,6 +287,9 @@ class MainTest(unittest.TestCase):
     @unittest.skipIf(os.environ.get('LINT_CHECK', 0) != '1', "Set LINT_CHECK")
     def test_check_v7_ispr(self):
         self.errors_dict.update(EXPECTED_ERRORS_PR)
+        self.errors_dict.update({
+            'manifest-version-format': 6,
+        })
 
         with _patch_streams(StringIO()):
             result = run_pylint.pylint_run(
