@@ -80,6 +80,7 @@ def get_extra_params(odoo_version):
                 params.extend(['--' + option, value])
     return params
 
+
 git_work_dir = os.environ.get('TRAVIS_BUILD_DIR', False)
 is_pull_request = os.environ.get(
     'TRAVIS_PULL_REQUEST', 'false') != 'false'
@@ -88,6 +89,7 @@ branch_base = os.environ.get('TRAVIS_BRANCH', False)
 extra_params_cmd = [
     '--extra-params', '--load-plugins=pylint_odoo',
 ]
+
 
 def get_beta_msgs():
     '''Get beta msgs from beta.cfg file
@@ -148,12 +150,11 @@ if include_lint:
     ])
 else:
     modules_cmd.extend(["--path=%s" % os.environ.get('TRAVIS_BUILD_DIR')])
-exclude_lint = os.environ.get('EXCLUDE_LINT')
-if exclude_lint:
-    modules_cmd.extend([
-        '--ignore=%s' % path.strip()
-        for path in exclude_lint.split(',') if path
-    ])
+exclude_lint = os.environ.get('EXCLUDE_LINT', '')
+modules_cmd.extend([
+    '--ignore=%s' % path.strip()
+    for path in exclude_lint.split(',') if path
+])
 
 print("modules_cmd", modules_cmd)
 print("extra_params_cmd", extra_params_cmd)
@@ -185,12 +186,14 @@ if is_pull_request and branch_base and git_work_dir:
         git_work_dir,
         branch_base)
     if modules_changed and count_errors >= 0:
-        modules_changed_cmd = []
-        for module_changed in modules_changed:
-            modules_changed_cmd.extend([
-                '--path',
-                module_changed,
-            ])
+        modules_changed_cmd = [
+            '--path=%s' % module
+            for module in modules_changed
+        ]
+        modules_changed_cmd.extend([
+            '--ignore=%s' % path.strip()
+            for path in exclude_lint.split(',') if path
+        ])
         pr_errors = run_pylint.main([
             "--config-file=" + pylint_rcfile_pr,
         ] + modules_changed_cmd + extra_params_cmd, standalone_mode=False)
