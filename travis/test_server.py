@@ -355,6 +355,31 @@ def run_from_env_var(env_name_startswith, environ):
             raise RuntimeWarning("Return different to zero")
 
 
+def patch_odoo_unlogged_tables(server_path):
+    """Patch Odoo to  make it to create all DB tables as unlogged"""
+    print("Patching Odoo to create DB tables as unlogged...")
+    filenames_to_patch = [
+        'addons/base/base.sql',
+        'addons/base/data/base_data.sql',
+        'fields.py',
+        'models.py',
+        'tools/sql.py',
+        'osv/orm.py',
+    ]
+    odoo_subdir = "odoo" if os.path.isdir(
+        os.path.join(server_path, "odoo")) else "openerp"
+    for filename in filenames_to_patch:
+        filename = os.path.join(server_path, odoo_subdir, filename)
+        if not os.path.isfile(filename):
+            continue
+        with open(filename) as f_to_patch:
+            if not re.search("create table", f_to_patch.read(), re.IGNORECASE):
+                continue
+        print("\tPatching file %s" % filename)
+        subprocess.call(
+            ["sed", "-i", "s/CREATE TABLE/CREATE UNLOGGED TABLE/gI", filename])
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -373,7 +398,8 @@ def main(argv=None):
     test_other_projects = parse_list(os.environ.get("TEST_OTHER_PROJECTS", ''))
     instance_alive = str2bool(os.environ.get('INSTANCE_ALIVE'))
     unbuffer = str2bool(os.environ.get('UNBUFFER', True))
-    # is_runbot = str2bool(os.environ.get('RUNBOT'))
+    is_runbot = str2bool(os.environ.get('RUNBOT'))
+    is_gitlab_ci = str2bool(os.environ.get('GITLAB_CI'))
     data_dir = os.environ.get("DATA_DIR", '~/data_dir')
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     pg_logs_enable = str2bool(os.environ.get('PG_LOGS_ENABLE', False))
@@ -405,6 +431,8 @@ def main(argv=None):
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(
         odoo_full, odoo_branch or odoo_version, travis_home)
+    if is_runbot or is_gitlab_ci:
+        patch_odoo_unlogged_tables(server_path)
     script_name = get_server_script(server_path)
     addons_path = get_addons_path(travis_home, travis_build_dir, server_path)
     create_server_conf({
