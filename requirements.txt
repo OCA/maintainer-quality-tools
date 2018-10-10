@@ -3,6 +3,7 @@ pyserial
 pyopenssl>=16.2.0
 pyyaml
 coveralls
+websocket-client
 unittest2
 
 configparser
