@@ -65,7 +65,8 @@ if __name__ == '__main__':
          os.environ.get('TRANSIFEX') == '1') and
         not tests_enabled and
         is_oca_project and
-        os.environ.get('TRAVIS_BRANCH') in ('8.0', '9.0', '10.0', '11.0') and
+        os.environ.get('TRAVIS_BRANCH')
+        in ('8.0', '9.0', '10.0', '11.0', '12.0') and
         not is_pull_request and
         os.environ.get('GITHUB_USER') and
         os.environ.get('GITHUB_EMAIL') and
