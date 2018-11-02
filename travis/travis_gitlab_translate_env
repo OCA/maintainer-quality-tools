@@ -64,7 +64,10 @@ else
     export TRAVIS_PULL_REQUEST_SHA=""
     export TRAVIS_PULL_REQUEST_SLUG=""
 fi
-export TRAVIS_REPO_SLUG="${CI_PROJECT_PATH}"
+
+# By default use Vauxoo for gitlab, if it is required another owner then re-define it
+# export TRAVIS_REPO_SLUG="${CI_PROJECT_PATH}"
+export TRAVIS_REPO_SLUG="Vauxoo/"
 if [[ "$(whoami)" == "root" ]]; then
     export TRAVIS_SUDO="true"
 else
