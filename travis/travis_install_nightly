@@ -232,7 +232,7 @@ echo "Content of ${HOME}:"
 ls -l ${HOME}
 
 if [ "x${WKHTMLTOPDF_VERSION}" == "x" ] ; then
-    WKHTMLTOPDF_VERSION="0.12.3"
+    WKHTMLTOPDF_VERSION="0.12.5"
 fi
 echo "Installing webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
 case ${WKHTMLTOPDF_VERSION} in 0.12.[15])
