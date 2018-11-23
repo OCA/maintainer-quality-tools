@@ -48,7 +48,7 @@ EXPECTED_ERRORS_PR = {
     'eval-used': 1,
     'license-allowed': 1,
     'manifest-required-author': 1,
-    'manifest-required-key': 1,
+    'manifest-required-key': 7,
     'manifest-version-format': 4,
 }
 

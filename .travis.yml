@@ -36,7 +36,7 @@ matrix:
     - python: 2.7
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="35"
+        PYLINT_EXPECTED_ERRORS="41"
     - python: 3.5
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
