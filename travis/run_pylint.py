@@ -128,7 +128,7 @@ def version_validate(version, dir):
                    if branch_name else False)
         version = version[0] if version else None
     if not version:
-        print (travis_helpers.yellow(
+        print(travis_helpers.yellow(
             'Undefined environment variable'
             ' `VERSION`.\nSet `VERSION` for '
             'compatibility with guidelines by version.'))
@@ -161,7 +161,7 @@ def pylint_run(is_pr, version, dir):
     branch_base = get_branch_base()
     extra_params_cmd = get_extra_params(odoo_version)
     extra_info = "extra_params_cmd %s " % extra_params_cmd
-    print (extra_info)
+    print(extra_info)
     conf = ["--config-file=%s" % (pylint_rcfile)]
     cmd = conf + modules_cmd + extra_params_cmd
 
@@ -171,7 +171,7 @@ def pylint_run(is_pr, version, dir):
             'by_msg') or {}).items() if key not in beta_msgs)
     count_errors = get_count_fails(real_errors, list(beta_msgs))
     count_info = "count_errors %s" % count_errors
-    print (count_info)
+    print(count_info)
     if is_pr:
         print(travis_helpers.green(
             'Starting lint check only for modules changed'))
@@ -192,7 +192,7 @@ def pylint_run(is_pr, version, dir):
                 'by_msg') or {}).items() if key not in beta_msgs)
         if pr_stats:
             pr_errors = get_count_fails(pr_real_errors, list(beta_msgs))
-            print (travis_helpers.yellow(
+            print(travis_helpers.yellow(
                 "Found %s errors in modules changed." % (pr_errors)))
             if pr_errors < 0:
                 res = pr_stats
