@@ -2,6 +2,7 @@ simplejson
 pyserial
 pyopenssl>=16.2.0
 pyyaml
+six
 coveralls
 websocket-client
 unittest2
