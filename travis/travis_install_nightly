@@ -257,4 +257,7 @@ if [ "$PG_LOGS_ENABLE" == "1" ]; then
     python $(dirname ${BASH_SOURCE[0]})/psql_log.py
 fi
 
+# Applying patches
+python $(dirname ${BASH_SOURCE[0]})/travis_apply_patches.py ${TRAVIS_BUILD_DIR}/patches.txt ${ODOO_PATH} ${HOME}
+
 exit 0
