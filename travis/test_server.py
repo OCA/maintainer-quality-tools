@@ -430,7 +430,9 @@ def main(argv=None):
             with open('stdout.log', 'wb') as stdout:
                 for line in iter(pipe.stdout.readline, b''):
                     stdout.write(line)
-                    print(line.strip().decode('UTF-8'))
+                    print(line.strip().decode(
+                        'UTF-8', errors='backslashreplace'
+                    ))
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(
