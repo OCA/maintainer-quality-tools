@@ -29,7 +29,9 @@ def apply_patches(fname_patch, odoo_path, dependencies_path):
             git_cmd = [
                 'git', '--git-dir=%s' % os.path.join(repo, '.git'),
                 '--work-tree=%s' % repo, '-c', 'user.name="MQT Patches"',
-                '-c', 'user.email="mqt@patches"']
+                '-c', 'user.email="mqt@patches"',
+                '-c', 'commit.gpgsign=false',
+            ]
             p_wget = subprocess.Popen(
                 ['wget', '-O-', patch_url], stdout=subprocess.PIPE)
             p_git = subprocess.Popen(
