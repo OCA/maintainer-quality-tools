@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-
 """This script runs `pylint` with plugins and special configuration files.
 Use the following types of pylint configuration files:
 

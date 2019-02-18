@@ -6,6 +6,9 @@ six
 coveralls
 websocket-client
 unittest2
+click
+pylint
+flake8
 
 configparser
 

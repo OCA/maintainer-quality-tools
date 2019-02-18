@@ -32,13 +32,15 @@ Multiple values for environment variable VERSION
 You can use branch or pull request into environment variable VERSION:
 
 - Branch 10.0
+
 ```
-    VERSION="10.0" ODOO_REPO="odoo/odoo"
+VERSION="10.0" ODOO_REPO="odoo/odoo"
 ```
 
 - Pull request odoo/odoo#143
+
 ```
-    VERSION="pull/143" ODOO_REPO="odoo/odoo"
+VERSION="pull/143" ODOO_REPO="odoo/odoo"
 ```
 
 Using custom branch inside odoo repository using ODOO_BRANCH
@@ -48,8 +50,9 @@ You can use the custom branch into the ODOO_REPO using the environment variable 
 
 
 - Branch saas-17
+
 ```
-  ODOO_REPO="odoo/odoo" ODOO_BRANCH="saas-17"
+ODOO_REPO="odoo/odoo" ODOO_BRANCH="saas-17"
 ```
 
 Module unit tests
@@ -61,8 +64,9 @@ Activate it through the `UNIT_TEST` directive.
 An additional line should be added to the `env:` section,
 similar to this one:
 
-    - VERSION="8.0" UNIT_TEST="1"
-
+```
+VERSION="8.0" UNIT_TEST="1"
+```
 
 Coveralls/Codecov configuration file
 ------------------------------------
@@ -86,15 +90,16 @@ templates in order to speed up your CI pipeline.
 Just specify at will:
 `MQT_TEMPLATE_DB='mqt_odoo_template' MQT_TEST_DB='mqt_odoo_test'`.
 Give us feedback on you experiences, and if you could share findings
-from your use case, there might be some grateful people arround.
-
+from your use case, there might be some grateful people around.
 
 Isolated pylint+flake8 checks
 -----------------------------
 If you want to make a build exclusive for these checks, you can add a line
 on the `env:` section of the .travis.yml file with this content:
 
-    - VERSION="7.0" LINT_CHECK="1"
+```
+VERSION="7.0" LINT_CHECK="1"
+```
 
 You will get a faster answer about these questions and also a fast view over
 semaphore icons in Travis build view.
@@ -102,13 +107,12 @@ semaphore icons in Travis build view.
 To avoid making again these checks on other builds, you have to add
 LINT_CHECK="0" variable on the line:
 
-    - VERSION="7.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
-
+```
+VERSION="7.0" ODOO_REPO="odoo/odoo" LINT_CHECK="0"
+```
 
 Disable test
 ------------
 If you want to make a build without tests, you can use the following directive:
-`TEST_ENABLE="0"`
-
-You will simply get the databases with packages installed, 
-but whithout running any tests.
+`TEST_ENABLE="0"` You will simply get the databases with packages installed,
+but without running any tests.

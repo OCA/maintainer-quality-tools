@@ -1,0 +1,8 @@
+__title__ = 'mqt'
+__package_name__ = 'mqt'
+__author__ = 'Odoo Community Association'
+__description__ = 'QA Tools for Odoo maintainers (MQT)'
+__email__ = 'github@odoo-community.org'
+__version__ = '0.1.1'
+__license__ = 'AGPL-v3'
+__copyright__ = 'Copyright 2017 Odoo Community Association'
