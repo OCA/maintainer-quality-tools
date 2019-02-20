@@ -13,6 +13,7 @@ import pylint.lint
 
 import travis_helpers
 from getaddons import get_modules_changed, is_module
+from testserver import get_addons_to_check
 from git_run import GitRun
 
 try:
@@ -112,11 +113,16 @@ def get_beta_msgs():
 def get_modules_cmd(dir):
     modules_cmd = []
     include_lint = os.environ.get('INCLUDE_LINT')
+    odoo_exclude = os.environ.get("EXCLUDE")
+    odoo_include = os.environ.get("INCLUDE")
     if include_lint:
         for path in include_lint.split(' '):
             modules_cmd.extend(['--path', path])
     else:
         modules_cmd.extend(["--path", dir])
+    print(odoo_include)
+    print(include_lint)
+    print(get_addons_to_check(dir,odoo_include,odoo_exclude))
     return modules_cmd
 
 
