@@ -13,7 +13,7 @@ import pylint.lint
 
 import travis_helpers
 from getaddons import get_modules_changed, is_module
-from testserver import get_addons_to_check
+from test_server import get_addons_to_check
 from git_run import GitRun
 
 try:
