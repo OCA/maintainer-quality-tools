@@ -120,7 +120,7 @@ def get_modules_cmd(dir):
             modules_cmd.extend(['--path', path])
     else:
         modules_cmd.extend(["--path", dir])
-    print(odoo_include)
+    print(modules_cmd)
     print(include_lint)
     print(get_addons_to_check(dir,odoo_include,odoo_exclude))
     return modules_cmd
