@@ -277,7 +277,6 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
         raise UserWarning("Python modules not found in paths %s" % (paths))
     cmd.extend(subpaths)
     print(subpaths)
-    print(cmd)
     pylint_res = pylint.lint.Run(cmd, exit=False)
     return pylint_res.linter.stats
 
