@@ -13,7 +13,6 @@ import pylint.lint
 
 import travis_helpers
 from getaddons import get_modules_changed, is_module
-from test_server import get_addons_to_check
 from git_run import GitRun
 
 try:
@@ -75,6 +74,7 @@ def get_extra_params(odoo_version):
             '--extra-params', '--valid_odoo_versions=%s' % odoo_version])
 
     odoo_version = odoo_version.replace('.', '')
+    print("\nVersion %s:" % [odoo_version])
     version_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg/travis_run_pylint_exclude_%s.cfg' % (odoo_version))
