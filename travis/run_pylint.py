@@ -113,16 +113,11 @@ def get_beta_msgs():
 def get_modules_cmd(dir):
     modules_cmd = []
     include_lint = os.environ.get('INCLUDE_LINT')
-    odoo_exclude = os.environ.get("EXCLUDE")
-    odoo_include = os.environ.get("INCLUDE")
     if include_lint:
         for path in include_lint.split(' '):
             modules_cmd.extend(['--path', path])
     else:
         modules_cmd.extend(["--path", dir])
-    print(modules_cmd)
-    print(include_lint)
-    print(get_addons_to_check(dir,odoo_include,odoo_exclude))
     return modules_cmd
 
 
@@ -281,6 +276,8 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     if not subpaths:
         raise UserWarning("Python modules not found in paths %s" % (paths))
     cmd.extend(subpaths)
+    print(subpaths)
+    print(cmd)
     pylint_res = pylint.lint.Run(cmd, exit=False)
     return pylint_res.linter.stats
 
