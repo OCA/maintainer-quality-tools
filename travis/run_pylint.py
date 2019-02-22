@@ -74,7 +74,6 @@ def get_extra_params(odoo_version):
             '--extra-params', '--valid_odoo_versions=%s' % odoo_version])
 
     odoo_version = odoo_version.replace('.', '')
-    print("\nVersion %s:" % [odoo_version])
     version_cfg = os.path.join(
         os.path.dirname(os.path.realpath(__file__)),
         'cfg/travis_run_pylint_exclude_%s.cfg' % (odoo_version))
@@ -276,7 +275,6 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     if not subpaths:
         raise UserWarning("Python modules not found in paths %s" % (paths))
     cmd.extend(subpaths)
-    print(subpaths)
     pylint_res = pylint.lint.Run(cmd, exit=False)
     return pylint_res.linter.stats
 
