@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import os
 import sys
+import inspect
 
 import click
 import pylint.lint
@@ -75,7 +76,11 @@ def run_pylint(paths, ignores, cfg, beta_msgs=None, sys_paths=None,
         raise UserWarning("Python modules not found in paths"
                           " {paths}".format(paths=paths))
     cmd.extend(subpaths)
-    pylint_res = pylint.lint.Run(cmd, exit=False)
+    if 'do_exit' in inspect.getargspec(pylint.lint.Run.__init__)[0]:
+        # pylint has renamed this keyword argument
+        pylint_res = pylint.lint.Run(cmd, do_exit=False)
+    else:
+        pylint_res = pylint.lint.Run(cmd, exit=False)
     return pylint_res.linter.stats
 
 
