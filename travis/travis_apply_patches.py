@@ -32,8 +32,15 @@ def apply_patches(fname_patch, odoo_path, dependencies_path):
                 '-c', 'user.email="mqt@patches"',
                 '-c', 'commit.gpgsign=false',
             ]
+            p_wget = ['wget', '-O-', patch_url]
+            if 'api.github.com' in patch_url:
+                github_token = os.environ.get('GITHUB_TOKEN')
+                p_wget += [
+                    '--header=Authorization: token %s' % github_token,
+                    '--header=Accept: application/vnd.github.VERSION.patch',
+                ]
             p_wget = subprocess.Popen(
-                ['wget', '-O-', patch_url], stdout=subprocess.PIPE)
+                p_wget, stdout=subprocess.PIPE)
             p_git = subprocess.Popen(
                 git_cmd + ['am', '--signoff'],
                 stdin=p_wget.stdout, stdout=subprocess.PIPE)
