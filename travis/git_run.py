@@ -18,7 +18,7 @@ class GitRun(object):
         cmd = ['git', '--git-dir=' + self.repo_path] + command
         print(cmd if self.debug else '')
         try:
-            res = subprocess.check_output(cmd)
+            res = subprocess.check_output(cmd).decode('UTF-8')
         except subprocess.CalledProcessError:
             res = None
         if isinstance(res, string_types):
@@ -36,7 +36,7 @@ class GitRun(object):
         command = ['diff-index', '--name-only',
                    '--cached', base_ref]
         res = self.run(command)
-        items = res.decode('UTF-8').split('\n') if res else []
+        items = res.split('\n') if res else []
         return items
 
     def get_branch_name(self):
