@@ -62,7 +62,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
     color_regex = re.compile(r'\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]')
     log_start_regex = re.compile(
         r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \d+ (?P<loglevel>\w+) '
-        '(?P<db>(%s)|([?])) (?P<logger>\S+): (?P<message>.*)$' % dbname)
+        '(?P<db>(%s)|([?])) (?P<logger>\S+): (?P<message>.*\S)\s*$' % dbname)
     log_records = []
     last_log_record = dict.fromkeys(log_start_regex.groupindex.keys())
     with open(fname) as log:
@@ -92,7 +92,7 @@ def has_test_errors(fname, dbname, odoo_version, check_loaded=True):
 
     if check_loaded:
         if not [r for r in log_records if 'Modules loaded.' in r['message']]:
-            errors.append({'message': "Modules loaded message not found."})
+            errors.append({'message': "Message not found: 'Modules loaded.'"})
 
     if errors:
         for e in errors:
@@ -430,7 +430,9 @@ def main(argv=None):
             with open('stdout.log', 'wb') as stdout:
                 for line in iter(pipe.stdout.readline, b''):
                     stdout.write(line)
-                    print(line.strip().decode('UTF-8'))
+                    print(line.strip().decode(
+                        'UTF-8', errors='backslashreplace'
+                    ))
             returncode = pipe.wait()
             # Find errors, except from failed mails
             errors = has_test_errors(
@@ -467,7 +469,8 @@ def main(argv=None):
     must_run_makepot = (
         os.environ.get('MAKEPOT') == '1' and
         os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/') and
-        os.environ.get('TRAVIS_BRANCH') in ('8.0', '9.0', '10.0', '11.0') and
+        os.environ.get('TRAVIS_BRANCH')
+        in ('8.0', '9.0', '10.0', '11.0', '12.0') and
         os.environ.get('TRAVIS_PULL_REQUEST') == 'false' and
         os.environ.get('GITHUB_USER') and
         os.environ.get('GITHUB_EMAIL') and

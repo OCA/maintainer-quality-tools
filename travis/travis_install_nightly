@@ -122,14 +122,28 @@ if [ "$clone_result" != "0"  ]; then
 fi;
 
 if [[ "${WKHTMLTOPDF_VERSION}" == "" && $(which wkhtmltopdf) != "" ]]; then
-    echo "You have installed wkhtmltopdf but is not patched (probably) then we will to overwrite it"
+    echo "You have installed wkhtmltopdf but is not patched (probably) then we will overwrite it"
     export WKHTMLTOPDF_VERSION="0.12.4"
 fi;
 
 if [ "${WKHTMLTOPDF_VERSION}" != "" ]; then
-    echo "Install webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
-    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf)
-fi;
+    echo "Installing webkit (wkhtmltopdf) patched version ${WKHTMLTOPDF_VERSION}"
+fi
+case ${WKHTMLTOPDF_VERSION} in 0.12.[15])
+    # these versions need to be installed via .deb
+    if [[ ${WKHTMLTOPDF_VERSION} == "0.12.5" ]]; then
+        wk_installer="wkhtmltox_${WKHTMLTOPDF_VERSION}-1.$(lsb_release -sc)_amd64.deb"
+    else
+        wk_installer="wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-$(lsb_release -sc)-amd64.deb"
+    fi
+    wget -q --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/${wk_installer} -O wkhtmltox.deb
+    dpkg --extract wkhtmltox.deb wkhtmltox.deb_files
+    cp wkhtmltox.deb_files/usr/local/bin/wkhtmltopdf ${HOME}/maintainer-quality-tools/travis/wkhtmltopdf
+    rm -r wkhtmltox.deb*;;
+"") ;;  # Do nothing if no version was provided
+*)
+    (cd ${HOME}/maintainer-quality-tools/travis/ && wget -qO- -t 1 --timeout=240 https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox-${WKHTMLTOPDF_VERSION}_linux-generic-amd64.tar.xz | tar -xJ --strip-components=2 wkhtmltox/bin/wkhtmltopdf);;
+esac
 
 # Expected directory structure:
 #
