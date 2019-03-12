@@ -53,6 +53,7 @@ if __name__ == '__main__':
     tests_enabled = os.environ.get('TESTS') == '1'
     tests_unspecified = os.environ.get('TESTS') is None
     is_oca_project = os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+    rspec_integration_tests = os.environ.get('RSPEC_INTEGRATION_TESTS') == '1'
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
@@ -88,6 +89,9 @@ if __name__ == '__main__':
 
     if must_run_makepot:
         tests.append(['travis_makepot'])
+
+    if rspec_integration_tests:
+        tests.append(['rspec_integration_tests'])
 
     if tests:
         exit(main(tests))
