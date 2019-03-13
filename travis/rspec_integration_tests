@@ -18,7 +18,7 @@ def main(argv=None):
     thread.daemon = True
     thread.start()
 
-    time.sleep(20)
+    time.sleep(1)
     print("server started, starting RSpec test")
     test_result = subprocess.call(["bundle", "exec", "rspec"])
     outcome_message = """
