@@ -293,6 +293,8 @@ def copy_attachments(dbtemplate, dbdest, data_dir):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
+    else:
+        argv = sys.argv + argv
     run_from_env_var('RUN_COMMAND_MQT', os.environ)
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
@@ -372,7 +374,7 @@ def main(argv=None):
                      "--db-filter=^%s$" % database,
                      "--log-level", test_loglevel,
                      ]
-    if argv.get("do_not_stop"):
+    if "do_not_stop" in argv:
         cmd_odoo_test.append("--stop-after-init")
 
     if test_loghandler is not None:
@@ -386,7 +388,7 @@ def main(argv=None):
             "-d", database,
             "--log-level=warn",
         ] + server_options + install_options + ["--init", None]
-        if argv.get("do_not_stop"):
+        if "do_not_stop" in argv:
             cmd_odoo_install.append("--stop-after-init")
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
@@ -417,7 +419,7 @@ def main(argv=None):
                     '--test-enable', '--init', None,
                     '--log-handler', 'openerp.tools.yaml_import:DEBUG',
                 ]
-                if argv.get("do_not_stop"):
+                if "do_not_stop" in argv:
                     rm_items.append("--stop-after-init")
                 command_call = [item
                                 for item in commands[0][0]
