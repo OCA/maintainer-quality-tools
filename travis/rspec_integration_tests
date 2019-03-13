@@ -21,15 +21,21 @@ def main(argv=None):
     time.sleep(20)
     print("server started, starting RSpec test")
     test_result = subprocess.call(["bundle", "exec", "rspec"])
+    outcome_message = """
+                               __.-._
+                               '-._"7'
+                                /'.-c
+                                |  /T
+                               _)_/LI
+"""
     if test_result == 0:
-        print("""
-       __.-._
-       '-._"7'
-        /'.-c
-        |  /T
-       _)_/LI
-Zero failures, you have.
-    All good, it is""")
+        outcome_message += """
+                        Zero failures, you have.
+                            All good, it is"""
+    else:
+        outcome_message += """
+                    The greatest teacher, failure is."""
+    print(outcome_message)
 
     return test_result
 
