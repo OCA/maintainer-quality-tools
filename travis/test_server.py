@@ -370,9 +370,10 @@ def main(argv=None):
                      "%s/%s" % (server_path, script_name),
                      "-d", database,
                      "--db-filter=^%s$" % database,
-                     "--stop-after-init",
                      "--log-level", test_loglevel,
                      ]
+    if argv.get("do_not_stop"):
+        cmd_odoo_test.append("--stop-after-init")
 
     if test_loghandler is not None:
         cmd_odoo_test += ['--log-handler', test_loghandler]
@@ -383,9 +384,10 @@ def main(argv=None):
         cmd_odoo_install = [
             "%s/%s" % (server_path, script_name),
             "-d", database,
-            "--stop-after-init",
             "--log-level=warn",
         ] + server_options + install_options + ["--init", None]
+        if argv.get("do_not_stop"):
+            cmd_odoo_install.append("--stop-after-init")
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
@@ -411,10 +413,12 @@ def main(argv=None):
                 # If exists database of odoo test
                 # then start server with regular command without tests params
                 rm_items = [
-                    'coverage', 'run', '--stop-after-init',
+                    'coverage', 'run',
                     '--test-enable', '--init', None,
                     '--log-handler', 'openerp.tools.yaml_import:DEBUG',
                 ]
+                if argv.get("do_not_stop"):
+                    rm_items.append("--stop-after-init")
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
