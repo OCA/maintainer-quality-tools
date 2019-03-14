@@ -375,9 +375,9 @@ def main(argv=None):
                      "--log-level", test_loglevel,
                      ]
     if "background_no_stop" in argv:
-        cmd_odoo_test += " > output.log 2>&1 &"
+        cmd_odoo_test.append(" > output.log 2>&1 &")
     else:
-        cmd_odoo_test += "--stop-after-init"
+        cmd_odoo_test.append("--stop-after-init")
 
     if test_loghandler is not None:
         cmd_odoo_test += ['--log-handler', test_loghandler]
@@ -391,9 +391,9 @@ def main(argv=None):
             "--log-level=warn",
         ] + server_options + install_options + ["--init", None]
         if "background_no_stop" in argv:
-            cmd_odoo_install += " > output.log 2>&1 &"
+            cmd_odoo_install.append(" > output.log 2>&1 &")
         else:
-            cmd_odoo_install += "--stop-after-init"
+            cmd_odoo_install.append("--stop-after-init")
         commands = ((cmd_odoo_install, False),
                     (cmd_odoo_test, True),
                     )
@@ -424,9 +424,9 @@ def main(argv=None):
                     '--log-handler', 'openerp.tools.yaml_import:DEBUG',
                 ]
                 if "background_no_stop" in argv:
-                    rm_items += " > output.log 2>&1 &"
+                    rm_items.append(" > output.log 2>&1 &")
                 else:
-                    rm_items += "--stop-after-init"
+                    rm_items.append("--stop-after-init")
                 command_call = [item
                                 for item in commands[0][0]
                                 if item not in rm_items] + \
