@@ -10,7 +10,7 @@ import os
 
 class TestServerThread(threading.Thread):
     def run(self):
-        test_server_main()
+        test_server_main(["background_no_stop"])
 
 def main(argv=None):
     """Run integration tests with RSpec"""
