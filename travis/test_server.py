@@ -430,8 +430,6 @@ def main(argv=None):
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
             print(" ".join(cmd_strip_secret(command_call)))
-            if "background_no_stop" in argv:
-                command_call += ["-cmd", " > output.log 2>&1 &"]
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE)
