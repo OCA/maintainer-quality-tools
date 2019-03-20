@@ -320,7 +320,7 @@ def main(argv=None):
         odoo_version = argv[1]
         print("WARNING: no env variable set for VERSION. "
               "Using '%s'" % odoo_version)
-    test_loghandler = 'openerp.tools.yaml_import:DEBUG'
+    test_loghandler = None
     if odoo_version == "6.1":
         install_options += ["--test-disable"]
         test_loglevel = 'test'
