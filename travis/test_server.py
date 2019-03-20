@@ -379,8 +379,9 @@ def main(argv=None):
 
     if test_loghandler is not None:
         cmd_odoo_test += ['--log-handler', test_loghandler]
-    cmd_odoo_test += options + ["--init", None]
-
+    cmd_odoo_test += options
+    if not "background_no_stop" in argv:
+        cmd_odoo_test += ["--init", None]
     if odoo_unittest:
         to_test_list = tested_addons_list
         cmd_odoo_install = [
@@ -426,7 +427,9 @@ def main(argv=None):
                                 if item not in rm_items] + \
                     ['--pidfile=/tmp/odoo.pid']
             else:
-                if not "background_no_stop" in argv:
+                if "background_no_stop" in argv:
+                    command[-1] = ""
+                else:
                     command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
