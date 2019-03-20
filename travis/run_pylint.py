@@ -275,6 +275,11 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
     subpaths = get_subpaths(paths)
     if not subpaths:
         raise UserWarning("Python modules not found in paths %s" % (paths))
+    exclude = os.environ.get('EXCLUDE', '').split(',')
+    subpaths = [path for path in subpaths
+                if os.path.basename(path) not in exclude]
+    if not subpaths:
+        return {'error': 0}
     cmd.extend(subpaths)
     if 'do_exit' in inspect.getargspec(pylint.lint.Run.__init__)[0]:
         # pylint has renamed this keyword argument
