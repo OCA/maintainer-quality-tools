@@ -426,7 +426,8 @@ def main(argv=None):
                                 if item not in rm_items] + \
                     ['--pidfile=/tmp/odoo.pid']
             else:
-                command[-1] = to_test
+                if not "background_no_stop" in argv:
+                    command[-1] = to_test
                 # Run test command; unbuffer keeps output colors
                 command_call = (["unbuffer"] if unbuffer else []) + command
             print(" ".join(cmd_strip_secret(command_call)))
