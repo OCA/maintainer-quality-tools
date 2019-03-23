@@ -37,7 +37,7 @@ EXPECTED_ERRORS = {
     'duplicate-key': 2,
     'pointless-statement': 1,
     'pointless-string-statement': 1,
-    'print-statement': 1,
+    'print-used': 1,
     'redundant-keyword-arg': 1,
     'reimported': 4,
     'return-in-init': 1,
@@ -60,7 +60,6 @@ if PY3K:
     EXPECTED_ERRORS.update({
         'assignment-from-none': 2,
     })
-    EXPECTED_ERRORS.pop('print-statement')
 
 @contextlib.contextmanager
 def _patch_streams(out):

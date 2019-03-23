@@ -40,11 +40,11 @@ matrix:
     - python: 3.5
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="35"
+        PYLINT_EXPECTED_ERRORS="36"
     - python: 3.7-dev
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
-        PYLINT_EXPECTED_ERRORS="35"
+        PYLINT_EXPECTED_ERRORS="36"
     - python: 3.5
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
