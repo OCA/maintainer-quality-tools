@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 from __future__ import unicode_literals
+import fcntl
 import os
 import subprocess
 import sys
@@ -49,6 +50,8 @@ def main(test_list):
 
 
 if __name__ == '__main__':
+    flags = fcntl.fcntl(sys.stdout, fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout, fcntl.F_SETFL, flags&~os.O_NONBLOCK)
     translate_gitlab_env()
     do_odoo_lint = os.environ.get("ODOO_LINT", '0') == "1"
     do_lint_check = os.environ.get("LINT_CHECK", '1') == "1"
