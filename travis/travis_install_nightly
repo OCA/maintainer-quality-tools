@@ -162,6 +162,8 @@ fi
 
 echo "Adding git.vauxoo.com ECDSA key fingerprint"
 ssh-keyscan git.vauxoo.com >>~/.ssh/known_hosts
+echo "Adding birbucket ECDSA key fingerprint"
+ssh-keyscan bitbucket.org >>~/.ssh/known_hosts
 
 echo "Getting addons dependencies"
 clone_oca_dependencies ${HOME} ${TRAVIS_BUILD_DIR}/..
