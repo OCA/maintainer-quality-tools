@@ -229,6 +229,14 @@ def is_installable_module(path):
             return manifest_path
     return False
 
+def is_beta_module(path):
+    manifest_path = is_module(path)
+    if manifest_path:
+        manifest = ast.literal_eval(open(manifest_path).read())
+        if manifest.get('deployment_status', 'Beta'):
+            return True
+    return False
+
 
 def get_subpaths(paths, depth=1):
     """Get list of subdirectories

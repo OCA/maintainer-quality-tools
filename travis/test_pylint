@@ -9,6 +9,7 @@ Use the following types of pylint configuration files:
  2) Pull request
  3) Version
  4) Beta
+ 5) Global Beta
 
 
 1) Global
@@ -40,6 +41,14 @@ Use the following types of pylint configuration files:
   status.
 
   File name: `travis_run_pylint_beta.cfg`
+
+5) Global Beta
+
+  Used for enable checks just for modules with deployment_status==beta where
+  other ones checks are disabled
+
+  File name: `travis_run_pylint_global_beta.cfg`
+
 """
 
 
