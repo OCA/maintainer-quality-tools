@@ -142,6 +142,18 @@ def get_branch_base():
         branch_base = 'origin/' + (branch_base and branch_base or '')
     return branch_base
 
+def get_status_module(path):
+    if not os.path.basename(path):
+        path = os.path.dirname(path)
+
+    if os.path.isdir(path) and depth > 0:
+        for module in os.listdir(path):
+            manifest_path = is_module(os.path.join(path, module))
+            if manifest_path:
+                manifest = ast.literal_eval(open(manifest_path).read())
+                if manifest.get('development_status'):
+                    return manifest.get('development_status').lower()
+    return 'Beta'.lower()
 
 def pylint_run(is_pr, version, dir):
     # Look for an environment variable
@@ -158,12 +170,15 @@ def pylint_run(is_pr, version, dir):
         'cfg', "travis_run_pylint_pr.cfg")
     odoo_version = version_validate(version, dir)
     modules_cmd = get_modules_cmd(dir)
+    pylint_config_file_status = 'travis_run_pylint_%s.cfg'%(get_status_module(modules_cmd))
+    pylint_rcfile_status = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                           'cfg', pylint_config_file_status)
     beta_msgs = get_beta_msgs()
     branch_base = get_branch_base()
     extra_params_cmd = get_extra_params(odoo_version)
     extra_info = "extra_params_cmd %s " % extra_params_cmd
     print(extra_info)
-    conf = ["--config-file=%s" % (pylint_rcfile)]
+    conf = ["--config-file=%s" % (pylint_rcfile_status)]
     cmd = conf + modules_cmd + extra_params_cmd
 
     real_errors = main(cmd, standalone_mode=False)
@@ -228,15 +243,6 @@ def is_installable_module(path):
         if manifest.get('installable', True):
             return manifest_path
     return False
-
-def is_beta_module(path):
-    manifest_path = is_module(path)
-    if manifest_path:
-        manifest = ast.literal_eval(open(manifest_path).read())
-        if manifest.get('deployment_status', 'Beta'):
-            return True
-    return False
-
 
 def get_subpaths(paths, depth=1):
     """Get list of subdirectories
