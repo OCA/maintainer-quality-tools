@@ -167,7 +167,7 @@ def pylint_run(is_pr, version, dir):
         'cfg', "travis_run_pylint_pr.cfg")
     odoo_version = version_validate(version, dir)
     modules_cmd = get_modules_cmd(dir)
-    pylint_config_file_status = 'travis_run_pylint_%s.cfg'%(get_status_module(modules_cmd))
+    pylint_config_file_status = 'travis_run_pylint_%s.cfg'%(get_status_module(dir))
     pylint_rcfile_status = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                            'cfg', pylint_config_file_status)
     beta_msgs = get_beta_msgs()
