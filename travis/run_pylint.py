@@ -142,7 +142,7 @@ def get_branch_base():
         branch_base = 'origin/' + (branch_base and branch_base or '')
     return branch_base
 
-def get_status_module(path):
+def get_status_module(path, depth=1):
     if not os.path.basename(path):
         path = os.path.dirname(path)
 
