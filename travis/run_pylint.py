@@ -143,7 +143,7 @@ def get_branch_base():
     return branch_base
 
 def get_status_module(path):
-    if os.path.isdir(path):
+    if path and os.path.isdir(path):
         for module in os.listdir(path):
             manifest_path = is_module(os.path.join(path, module))
             if manifest_path:
