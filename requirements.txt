@@ -3,7 +3,6 @@ pyserial
 pyopenssl>=16.2.0
 pyyaml==3.12 ; python_version < '3.7'
 pyyaml==3.13 ; python_version >= '3.7'
-six
 coveralls
 websocket-client
 unittest2
