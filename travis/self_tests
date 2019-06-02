@@ -27,6 +27,8 @@ try:
 except ImportError:
     from io import StringIO
 
+PY3K = sys.version_info[0] == 3
+
 
 EXPECTED_ERRORS = {
     'anomalous-backslash-in-string': 1,
@@ -35,7 +37,7 @@ EXPECTED_ERRORS = {
     'duplicate-key': 2,
     'pointless-statement': 1,
     'pointless-string-statement': 1,
-    'print-statement': 1,
+    'print-used': 1,
     'redundant-keyword-arg': 1,
     'reimported': 4,
     'return-in-init': 1,
@@ -52,6 +54,12 @@ EXPECTED_ERRORS_PR = {
     'manifest-version-format': 4,
 }
 
+if PY3K:
+    # python3 uses another pylint version
+    # and pylint change these expected errors
+    EXPECTED_ERRORS.update({
+        'assignment-from-none': 2,
+    })
 
 @contextlib.contextmanager
 def _patch_streams(out):

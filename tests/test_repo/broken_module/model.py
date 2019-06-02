@@ -1,4 +1,6 @@
 # missing coding
+import unittest
+
 from openerp.osv import orm
 from openerp import fields
 
@@ -53,6 +55,11 @@ class test_model(orm.Model):
         my_regex_str_bad = '\d'
         my_regex_str_good = r'\d'
         return my_regex_str_bad, my_regex_str_good
+
+    # Reproduce issue https://github.com/OCA/pylint-odoo/issues/243
+    @unittest.skipIf(lambda self: self.method_w1401(), "")
+    def my_method(self):
+        pass
 
 
 if __name__ == '__main__':
