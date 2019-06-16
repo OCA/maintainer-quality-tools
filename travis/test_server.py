@@ -467,14 +467,16 @@ def main(argv=None):
         return 1
     # no test error, let's generate .pot and msgmerge all .po files
     must_run_makepot = (
-        os.environ.get('MAKEPOT') == '1' and
-        os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/') and
-        os.environ.get('TRAVIS_BRANCH')
-        in ('8.0', '9.0', '10.0', '11.0', '12.0') and
-        os.environ.get('TRAVIS_PULL_REQUEST') == 'false' and
-        os.environ.get('GITHUB_USER') and
-        os.environ.get('GITHUB_EMAIL') and
-        os.environ.get('GITHUB_TOKEN')
+        os.environ.get('MAKEPOT') == '1'
+        and os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
+        and (
+            os.environ.get('TRAVIS_BRANCH')
+            in ('8.0', '9.0', '10.0', '11.0', '12.0') 
+        )
+        and os.environ.get('TRAVIS_PULL_REQUEST') == 'false'
+        and os.environ.get('GITHUB_USER')
+        and os.environ.get('GITHUB_EMAIL') 
+        and os.environ.get('GITHUB_TOKEN')
     )
     if must_run_makepot:
         # run makepot using the database we just tested
