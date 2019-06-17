@@ -56,21 +56,26 @@ if __name__ == '__main__':
 
     # TRAVIS_PULL_REQUEST contains the pull request number or 'false'
     is_pull_request = os.environ.get('TRAVIS_PULL_REQUEST') != 'false'
-    # run makepot using a fresh database
-    # where addons are going to be installed
-    # is MAKEPOT=1 and TESTS=1, test_server.py will run
-    # makepot using the test database, which will be faster
+    # Run makepot using a fresh database
+    # where addons are going to be installed.
+    # If MAKEPOT=1 and TESTS=1, test_server.py will run
+    # makepot using the test database, which will be faster.
     must_run_makepot = (
-        (os.environ.get('MAKEPOT') == '1' or
-         os.environ.get('TRANSIFEX') == '1') and
-        not tests_enabled and
-        is_oca_project and
-        os.environ.get('TRAVIS_BRANCH')
-        in ('8.0', '9.0', '10.0', '11.0', '12.0') and
-        not is_pull_request and
-        os.environ.get('GITHUB_USER') and
-        os.environ.get('GITHUB_EMAIL') and
-        os.environ.get('GITHUB_TOKEN')
+        (
+            os.environ.get('MAKEPOT') == '1'
+            or os.environ.get('TRANSIFEX') == '1'
+        )
+        and not tests_enabled
+        and is_oca_project
+        and (
+            os.environ.get('TRAVIS_BRANCH')
+            in ('8.0', '9.0', '10.0', '11.0', '12.0')
+            or "ocabot-merge" in os.environ.get('TRAVIS_BRANCH')
+        )
+        and not is_pull_request
+        and os.environ.get('GITHUB_USER')
+        and os.environ.get('GITHUB_EMAIL')
+        and os.environ.get('GITHUB_TOKEN')
     )
 
     # Test list. Each test is a list with command + arguments.
