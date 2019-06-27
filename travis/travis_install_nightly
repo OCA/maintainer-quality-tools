@@ -11,12 +11,12 @@ if [ "${LINT_CHECK}" != "0" ]; then
     pip install --upgrade --pre --no-deps git+https://github.com/OCA/pylint-odoo.git   # To use last version ever
     npm install -g eslint  # Extra package for pylint-odoo plugin
     if [ -f "${HOME}/.nvm/nvm.sh" ]; then
-        # Update nodejs v6.latest required by eslint
+        # Update nodejs v11.latest required by eslint
         # Using nvm of travis
         CURRENT_NODE=$(which node)
         source ${HOME}/.nvm/nvm.sh
-        nvm install 6
-        ln -sf $(nvm which 6) $CURRENT_NODE
+        nvm install 11
+        ln -sf $(nvm which 11) $CURRENT_NODE
     fi
 fi
 
