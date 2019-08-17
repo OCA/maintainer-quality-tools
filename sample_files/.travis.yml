@@ -33,7 +33,7 @@ env:
   # Set this variable to some version existing as linux-generic build on
   # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
   # if you need to install wkhtmltopdf
-  # - WKHTMLTOPDF_VERSION="0.12.4"
+  # - WKHTMLTOPDF_VERSION="0.12.5"
   # Set the above to install a `wkhtmltopdf` version that is not the one provided
   # by the `pov-wkhtmltopdf` repo.
   - PHANTOMJS_VERSION="latest"
