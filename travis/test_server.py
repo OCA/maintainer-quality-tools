@@ -471,7 +471,7 @@ def main(argv=None):
         and os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
         and (
             os.environ.get('TRAVIS_BRANCH')
-            in ('8.0', '9.0', '10.0', '11.0', '12.0') 
+            in ('8.0', '9.0', '10.0', '11.0', '12.0', '13.0') 
             or "ocabot-merge" in os.environ.get('TRAVIS_BRANCH', '')
         )
         and os.environ.get('TRAVIS_PULL_REQUEST') == 'false'

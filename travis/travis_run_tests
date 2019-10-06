@@ -69,7 +69,7 @@ if __name__ == '__main__':
         and is_oca_project
         and (
             os.environ.get('TRAVIS_BRANCH')
-            in ('8.0', '9.0', '10.0', '11.0', '12.0')
+            in ('8.0', '9.0', '10.0', '11.0', '12.0', '13.0')
             or "ocabot-merge" in os.environ.get('TRAVIS_BRANCH', '')
         )
         and not is_pull_request
