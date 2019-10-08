@@ -32,14 +32,15 @@ stages:
 
 jobs:
   include:
-    # use this linting job for >= 13
+    # use this linting job repos that use pre-commit (mandatory for >= 13)
     - stage: linting
       name: "pre-commit"
       python: "3.6"  # Black requires python >= 3.6
       install: pip install pre-commit
       script: pre-commit run --all --show-diff-on-failure
-      after_success: true
-    # use this linting job for < 13
+      after_success:
+      before_install:
+    # use this linting job for repos that do not use pre-commit (default for < 13)
     - stage: linting
       env:
         - LINT_CHECK="1"
