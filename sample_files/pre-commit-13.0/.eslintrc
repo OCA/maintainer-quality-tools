@@ -196,7 +196,7 @@
     "lines-around-comment": "warn",
     "max-depth": "warn",
     "max-len": ["warn", {
-      "code": 80,
+      "code": 88,
       "ignorePattern": "odoo\\.define\\(",
       "tabWidth": 4
     }],
