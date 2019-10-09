@@ -1,4 +1,4 @@
-exclude: "^setup/"
+exclude: "^setup/|/static/src/lib"
 default_language_version:
   python: python3
 repos:
@@ -59,4 +59,3 @@ repos:
   hooks:
   - id: eslint
     verbose: true
-    exclude: /static/src/lib/
