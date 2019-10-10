@@ -3,7 +3,8 @@ cache: pip
 
 python:
   # For branches <= 10.0, put `- "2.7.13"`
-  - "3.5"
+  # For branches 11.0 and 12.0, put `- "3.5"`
+  - "3.6"
 
 addons:
   # By default postgresql-9.1 is installed but there is issue related:
