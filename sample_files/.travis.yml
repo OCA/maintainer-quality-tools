@@ -1,5 +1,9 @@
 language: python
-cache: pip
+cache:
+  directories:
+  - $HOME/.cache/pip
+  # Add cache for pre-commit on repo that uses it (mandatory for >= 13)
+  - $HOME/.cache/pre-commit
 
 python:
   # For branches <= 10.0, put `- "2.7.13"`
