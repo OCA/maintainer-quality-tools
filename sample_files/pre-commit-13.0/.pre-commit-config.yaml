@@ -1,4 +1,4 @@
-exclude: "^setup/|/static/src/lib"
+exclude: "^setup/|/static/lib/|/static/src/lib/"
 default_language_version:
   python: python3
 repos:
