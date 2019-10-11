@@ -7,14 +7,24 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Specific language overrides
+[*.{yml,yaml,rst,md}]
+indent_size = 2
+
 # External web libs should be left untouched
 [*/static/lib/**]
 charset = unset
 end_of_line = unset
 indent_size = unset
+indent_style = unset
 insert_final_newline = false
 trim_trailing_whitespace = false
 
-# Specific language overrides
-[*.{yml,yaml,rst,md}]
-indent_size = 2
+# External web libs should be left untouched
+[*/static/src/lib/**]
+charset = unset
+end_of_line = unset
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+trim_trailing_whitespace = false
