@@ -21,7 +21,10 @@ The expected format for oca_dependencies.txt:
 * a dependency line contains:
   - the name of the OCA project
   - (optional) the URL to the git repository (defaulting to the OCA repository)
-  - (optional) the name of the branch to use (defaulting to ${VERSION})
+  - (optional) the name of the branch to use (defaulting to ${VERSION}). It is
+    required if you want to select a commit SHA in the next parameter.
+  - (optional) the commit SHA1 to use. If you set this option you MUST specify
+    the branch
 """
 from __future__ import print_function
 import sys
@@ -41,20 +44,18 @@ def parse_depfile(depfile, owner='OCA'):
         if not line or line.startswith('#'):
             continue
         parts = line.split()
-        repo = parts[0]
-        if len(parts) > 2:
-            branch = parts[2]
-        else:
+        num_parts = len(parts)
+        repo, url, branch, commit = [
+            num_parts > i and parts[i] for i in range(4)]
+        if not branch:
             branch = os.environ.get('VERSION', '8.0')
-        if len(parts) > 1:
-            url = parts[1]
-        else:
+        if not url:
             url = 'https://github.com/%s/%s.git' % (owner, repo)
-        deps.append((repo, url, branch))
+        deps.append((repo, url, branch, commit))
     return deps
 
 
-def git_checkout(deps_checkout_dir, reponame, url, branch):
+def git_checkout(deps_checkout_dir, reponame, url, branch, commit=False):
     checkout_dir = osp.join(deps_checkout_dir, reponame)
     if not osp.isdir(checkout_dir):
         command = ['git', 'clone', '-q', url, '-b', branch,
@@ -63,8 +64,19 @@ def git_checkout(deps_checkout_dir, reponame, url, branch):
         command = ['git', '--git-dir=' + os.path.join(checkout_dir, '.git'),
                    '--work-tree=' + checkout_dir, 'pull', '--ff-only',
                    url, branch]
+    if commit:
+        try:
+            command.remove('--depth=1')
+            command.remove('--ff-only')
+        except ValueError:
+            pass
     _logger.info('Calling %s', ' '.join(command))
     subprocess.check_call(command)
+    if commit:
+        command = ['git',  '--git-dir=' + os.path.join(checkout_dir, '.git'),
+                   '--work-tree=' + checkout_dir, 'reset', '--hard', commit]
+        _logger.info('Calling %s', ' '.join(command))
+        subprocess.check_call(command)
     return checkout_dir
 
 
@@ -90,13 +102,13 @@ def run(deps_checkout_dir, build_dir):
                 deps = parse_depfile(depfile)
         except IOError:
             deps = []
-        for depname, url, branch in deps:
+        for depname, url, branch, commit in deps:
             _logger.info('* processing %s', depname)
             if depname in processed:
                 continue
             processed.add(depname)
             checkout_dir = git_checkout(deps_checkout_dir, depname,
-                                        url, branch)
+                                        url, branch, commit)
             new_dep_filename = osp.join(checkout_dir, 'oca_dependencies.txt')
             reqfilename = osp.join(checkout_dir, 'requirements.txt')
             if osp.isfile(reqfilename):
