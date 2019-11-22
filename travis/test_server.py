@@ -438,9 +438,6 @@ def main(argv=None):
     create_server_conf({
         'addons_path': addons_path,
         'data_dir': data_dir,
-        # Fix wkhtmltopdf freezing issue
-        'limit_memory_soft': 1073741824,
-        'limit_memory_hard': 1610612736,
     }, odoo_version)
     tested_addons_list = get_addons_to_check(travis_build_dir,
                                              odoo_include,
