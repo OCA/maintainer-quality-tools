@@ -190,4 +190,6 @@ context_mapping = {
     "10.0": Odoo10Context,
     "11.0": Odoo11Context,
     "12.0": Odoo11Context,
+    "13.0": Odoo11Context,
+    "14.0": Odoo11Context,
 }
