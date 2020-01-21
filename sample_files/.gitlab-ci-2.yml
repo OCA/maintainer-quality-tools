@@ -22,7 +22,7 @@ variables:
 before_script:
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
   - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
-  - pip install coverage coveralls codecov
+  - pip install codecov==2.0.15 coveralls==1.8.2 coverage
 
 lint:
   stage: test
