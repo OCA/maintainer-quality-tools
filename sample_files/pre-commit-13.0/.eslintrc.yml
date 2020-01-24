@@ -1,0 +1,202 @@
+env:
+  browser: true
+
+# See https://github.com/OCA/odoo-community.org/issues/37#issuecomment-470686449
+parserOptions:
+  ecmaVersion: 2017
+
+# Globals available in Odoo that shouldn't produce warnings
+globals:
+  $: false
+  _: false
+  fuzzy: false
+  jQuery: false
+  moment: false
+  Promise: false
+  odoo: false
+  openerp: false
+
+# Styling is handled by Prettier, so we only need to enable AST rules;
+# see https://github.com/OCA/maintainer-quality-tools/pull/618#issuecomment-558576890
+rules:
+  no-alert: warn
+  no-array-constructor: warn
+  no-caller: warn
+  no-case-declarations: warn
+  no-catch-shadow: warn
+  no-class-assign: warn
+  no-cond-assign: warn
+  no-confusing-arrow: warn
+  no-const-assign: warn
+  no-constant-condition: warn
+  no-control-regex: warn
+  no-debugger: warn
+  no-delete-var: warn
+  no-div-regex: warn
+  no-dupe-args: warn
+  no-dupe-class-members: warn
+  no-dupe-keys: warn
+  no-duplicate-case: warn
+  no-duplicate-imports: warn
+  no-else-return: warn
+  no-empty: warn
+  no-empty-character-class: warn
+  no-empty-function: warn
+  no-empty-pattern: warn
+  no-eq-null: warn
+  no-eval: warn
+  no-ex-assign: warn
+  no-extend-native: warn
+  no-extra-bind: warn
+  no-extra-boolean-cast: warn
+  no-extra-label: warn
+  no-extra-parens: warn
+  no-extra-semi: warn
+  no-fallthrough: warn
+  no-floating-decimal: warn
+  no-func-assign: warn
+  no-implicit-coercion:
+    - warn
+    - allow: ["~"]
+  no-implicit-globals: warn
+  no-implied-eval: warn
+  no-inline-comments: warn
+  no-inner-declarations: warn
+  no-invalid-regexp: warn
+  no-iterator: warn
+  no-label-var: warn
+  no-labels: warn
+  no-lone-blocks: warn
+  no-lonely-if: warn
+  no-mixed-operators: warn
+  no-mixed-requires: warn
+  no-multi-str: warn
+  no-multiple-empty-lines: warn
+  no-native-reassign: warn
+  no-negated-condition: warn
+  no-negated-in-lhs: warn
+  no-new: warn
+  no-new-func: warn
+  no-new-object: warn
+  no-new-require: warn
+  no-new-symbol: warn
+  no-new-wrappers: warn
+  no-obj-calls: warn
+  no-octal: warn
+  no-octal-escape: warn
+  no-param-reassign: warn
+  no-path-concat: warn
+  no-process-env: warn
+  no-process-exit: warn
+  no-proto: warn
+  no-prototype-builtins: warn
+  no-redeclare: warn
+  no-regex-spaces: warn
+  no-restricted-globals: warn
+  no-restricted-imports: warn
+  no-restricted-modules: warn
+  no-restricted-syntax: warn
+  no-return-assign: warn
+  no-script-url: warn
+  no-self-assign: warn
+  no-self-compare: warn
+  no-sequences: warn
+  no-shadow: warn
+  no-shadow-restricted-names: warn
+  no-sparse-arrays: warn
+  no-sync: warn
+  no-tabs: warn
+  no-this-before-super: warn
+  no-throw-literal: warn
+  no-undef: warn
+  no-undef-init: warn
+  no-unexpected-multiline: warn
+  no-unmodified-loop-condition: warn
+  no-unneeded-ternary: warn
+  no-unreachable: warn
+  no-unsafe-finally: warn
+  no-unused-expressions: warn
+  no-unused-labels: warn
+  no-unused-vars: warn
+  no-use-before-define: warn
+  no-useless-call: warn
+  no-useless-computed-key: warn
+  no-useless-concat: warn
+  no-useless-constructor: warn
+  no-useless-escape: warn
+  no-useless-rename: warn
+  no-void: warn
+  no-with: warn
+  array-callback-return: warn
+  accessor-pairs: warn
+  callback-return: warn
+  capitalized-comments:
+    - warn
+    - always
+    - ignoreConsecutiveComments: true
+      ignoreInlineComments: true
+  complexity:
+    - warn
+    - 15
+  constructor-super: warn
+  curly: warn
+  dot-location:
+    - warn
+    - property
+  dot-notation: warn
+  eol-last: warn
+  eqeqeq: warn
+  global-require: warn
+  handle-callback-err: warn
+  id-blacklist: warn
+  id-match: warn
+  init-declarations: warn
+  jsx-quotes: warn
+  max-depth: warn
+  max-nested-callbacks: warn
+  max-statements-per-line: warn
+  new-parens: warn
+  operator-assignment: warn
+  operator-linebreak: warn
+  prefer-const: warn
+  radix: warn
+  require-yield: warn
+  sort-imports: warn
+  spaced-comment:
+    - warn
+    - always
+  strict:
+    - warn
+    - function
+  unicode-bom: warn
+  use-isnan: warn
+  valid-jsdoc:
+    - warn
+    - prefer:
+        arg: param
+        argument: param
+        augments: extends
+        constructor: class
+        exception: throws
+        func: function
+        method: function
+        prop: property
+        return: returns
+        virtual: abstract
+        yield: yields
+      preferType:
+        array: Array
+        bool: Boolean
+        boolean: Boolean
+        number: Number
+        object: Object
+        str: String
+        string: String
+      requireParamDescription: false
+      requireReturn: false
+      requireReturnDescription: false
+      requireReturnType: false
+  valid-typeof: warn
+  wrap-iife: warn
+  wrap-regex: warn
+  yoda: warn
