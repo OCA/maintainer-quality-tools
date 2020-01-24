@@ -1,9 +1,9 @@
 language: python
 cache:
   directories:
-  - $HOME/.cache/pip
-  # Add cache for pre-commit on repo that uses it (mandatory for >= 13)
-  - $HOME/.cache/pre-commit
+    - $HOME/.cache/pip
+    # Add cache for pre-commit on repo that uses it (mandatory for >= 13)
+    - $HOME/.cache/pre-commit
 
 python:
   # For branches <= 10.0, put `- "2.7.13"`
@@ -20,7 +20,7 @@ addons:
 #    Search your sources alias here:
 #      https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
     packages:
-      - expect-dev  # provides unbuffer utility
+      - expect-dev # provides unbuffer utility
 #     Search your packages here:
 #       https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
 #     For wkhtmltopdf, see the env section below
@@ -69,21 +69,21 @@ jobs:
 
 env:
   global:
-  - VERSION="10.0" TESTS="0" LINT_CHECK="0" MAKEPOT="0"
-  # Set this variable to some version existing as linux-generic build on
-  # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
-  # if you need to install wkhtmltopdf
-  # - WKHTMLTOPDF_VERSION="0.12.5"
-  # Set the above to install a `wkhtmltopdf` version that is not the one provided
-  # by the `pov-wkhtmltopdf` repo.
-  - PHANTOMJS_VERSION="latest"
-  # The above line controls the PhantomJS version that is used for JS testing.
-  #   It is not necessary to include this value unless you are altering the default.
-  #   Use `OS` to skip the PhantomJS upgrade & use the system version instead.
-  - WEBSITE_REPO="1"
-  # Use the above line to install dependencies that are required for website repos:
-  # * SASS & Bootstrap-SASS
-  # * Compass
+    - VERSION="10.0" TESTS="0" LINT_CHECK="0" MAKEPOT="0"
+    # Set this variable to some version existing as linux-generic build on
+    # https://github.com/wkhtmltopdf/wkhtmltopdf/releases
+    # if you need to install wkhtmltopdf
+    # - WKHTMLTOPDF_VERSION="0.12.5"
+    # Set the above to install a `wkhtmltopdf` version that is not the one provided
+    # by the `pov-wkhtmltopdf` repo.
+    - PHANTOMJS_VERSION="latest"
+    # The above line controls the PhantomJS version that is used for JS testing.
+    #   It is not necessary to include this value unless you are altering the default.
+    #   Use `OS` to skip the PhantomJS upgrade & use the system version instead.
+    - WEBSITE_REPO="1"
+    # Use the above line to install dependencies that are required for website repos:
+    # * SASS & Bootstrap-SASS
+    # * Compass
 
 install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
