@@ -1,0 +1,2 @@
+# Limit conflicts in PRs by automatically merging lines of both sides
+requirements.txt merge=union
