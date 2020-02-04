@@ -57,17 +57,19 @@ matrix:
       env:
         VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
+        SERVER_EXPECTED_ERRORS="1"  # Supporting broken_uninstallable module after https://github.com/odoo/odoo/commit/c5d6a39
     - python: 3.7-dev
       env:
         VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
+        SERVER_EXPECTED_ERRORS="1"  # Supporting broken_uninstallable module after https://github.com/odoo/odoo/commit/c5d6a39
 
 install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
    # Force install lint requirements in all cases of MQT for self_test script.
-  - pip install codecov coveralls
+  - pip install codecov==2.0.15 coveralls==1.8.2
   - LINT_CHECK="1" travis_install_nightly 8.0 # only used if VERSION not set in env
   - git --git-dir=${TRAVIS_BUILD_DIR}/.git add --all  # All modules moved are modules changed to test PR changes
 

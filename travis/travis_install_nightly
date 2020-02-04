@@ -108,7 +108,7 @@ sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
 sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
 
 pip install -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
-pip install -q QUnitSuite coveralls codecov
+pip install -q QUnitSuite codecov==2.0.15 coveralls==1.8.2
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
