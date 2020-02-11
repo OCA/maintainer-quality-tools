@@ -41,7 +41,7 @@ matrix:
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
         PYLINT_EXPECTED_ERRORS="36"
-    - python: 3.7-dev
+    - python: 3.7
       env:
         VERSION="" TESTS="0" LINT_CHECK="1"
         PYLINT_EXPECTED_ERRORS="36"
@@ -49,7 +49,7 @@ matrix:
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
-    - python: 3.7-dev
+    - python: 3.7
       env:
         VERSION="11.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
@@ -58,7 +58,7 @@ matrix:
         VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
         SERVER_EXPECTED_ERRORS="1"  # Supporting broken_uninstallable module after https://github.com/odoo/odoo/commit/c5d6a39
-    - python: 3.7-dev
+    - python: 3.7
       env:
         VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
         INCLUDE="test_module,second_module"
