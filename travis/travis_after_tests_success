@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import sys
+import subproces
 
 from coverage.cmdline import main as coverage_main
 from coveralls import cli as coveralls_cli
@@ -19,3 +21,12 @@ if (os.environ.get('TESTS', '1') == '1' and
         codecov_main(argv=None)
     except:
         pass
+
+if os.environ.get('AUTODOC') == '1':
+    odoo_version = os.environ.get("VERSION")
+    proc = subprocess.call([
+        'travis-sphinx',
+        '--branch=%s' % odoo_version,
+        'deploy'
+        ])
+    sys.exit(proc.returncode)

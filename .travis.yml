@@ -55,12 +55,12 @@ matrix:
         INCLUDE="test_module,second_module"
     - python: 3.5
       env:
-        VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
+        VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0" AUTODOC="1"
         INCLUDE="test_module,second_module"
         SERVER_EXPECTED_ERRORS="1"  # Supporting broken_uninstallable module after https://github.com/odoo/odoo/commit/c5d6a39
     - python: 3.7
       env:
-        VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0"
+        VERSION="12.0" ODOO_REPO="OCA/OCB" TESTS="1" LINT_CHECK="0" AUTODOC="1"
         INCLUDE="test_module,second_module"
         SERVER_EXPECTED_ERRORS="1"  # Supporting broken_uninstallable module after https://github.com/odoo/odoo/commit/c5d6a39
 

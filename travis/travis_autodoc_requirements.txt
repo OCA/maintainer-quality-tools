@@ -1,0 +1,7 @@
+sphinx 
+sphinx-rtd-theme 
+sphinx_bootstrap_theme 
+odoo-sphinx-autodoc
+docutils
+pillow
+travis-sphinx
