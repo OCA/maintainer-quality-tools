@@ -113,13 +113,22 @@ pip install -q QUnitSuite codecov==2.0.15 coveralls==1.8.2
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
 
-echo "Getting addons dependencies"
-clone_oca_dependencies
-clone_result=$?
-if [ "$clone_result" != "0"  ]; then
-    echo "Error cloning dependencies"
-    exit $clone_result
-fi;
+MQT_DEP=${MQT_DEP:-OCA}
+if [[ "${MQT_DEP}" == "OCA" ]] ; then
+    echo "Getting addons dependencies"
+    clone_oca_dependencies
+else
+    echo "Installing addons to test and their dependencies"
+    if [[ "${VERSION}" == "10.0" || "${VERSION}" == "9.0" || "${VERSION}" == "8.0" ]] ; then
+        pip install odoo-autodiscover
+    fi
+    for addon in $(ls setup/ -I README -I _metapackage) ; do
+        echo "-e ./setup/${addon}" >> test-requirements.txt
+    done
+    # use OCA wheelhouse because it is slightly fresher than PyPI
+    pip install --pre -e ${ODOO_PATH} -r test-requirements.txt \
+        --extra-index-url https://wheelhouse.odoo-community.org/oca-simple/
+fi
 
 if [[ "${WKHTMLTOPDF_VERSION}" == "" && $(which wkhtmltopdf) != "" ]]; then
     echo "You have installed wkhtmltopdf but is not patched (probably) then we will overwrite it"
