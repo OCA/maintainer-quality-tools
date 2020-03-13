@@ -160,4 +160,8 @@ ls -l ${HOME}
 echo "Content of ${HOME}/dependencies:"
 mkdir -p ${HOME}/dependencies && ls -l ${HOME}/dependencies
 
+if [ "${AUTODOC}" == "1" ]; then
+    pip install --upgrade -r ./travis/travis_autodoc_requirements.txt
+fi
+
 set +e
