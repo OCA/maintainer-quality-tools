@@ -338,7 +338,8 @@ def main(argv=None):
                                   travis_build_dir,
                                   server_path)
     create_server_conf({
-        'addons_path': addons_path,
+        # when installing with pip we don't need an addons_path
+        'addons_path': addons_path if os.environ.get("MQT_DEP", "OCA") == "OCA" else "",
         'data_dir': data_dir,
     }, odoo_version)
     tested_addons_list = get_addons_to_check(travis_build_dir,
@@ -471,12 +472,12 @@ def main(argv=None):
         and os.environ.get('TRAVIS_REPO_SLUG', '').startswith('OCA/')
         and (
             os.environ.get('TRAVIS_BRANCH')
-            in ('8.0', '9.0', '10.0', '11.0', '12.0', '13.0') 
+            in ('8.0', '9.0', '10.0', '11.0', '12.0', '13.0')
             or "ocabot-merge" in os.environ.get('TRAVIS_BRANCH', '')
         )
         and os.environ.get('TRAVIS_PULL_REQUEST') == 'false'
         and os.environ.get('GITHUB_USER')
-        and os.environ.get('GITHUB_EMAIL') 
+        and os.environ.get('GITHUB_EMAIL')
         and os.environ.get('GITHUB_TOKEN')
     )
     if must_run_makepot:
