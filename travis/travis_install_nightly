@@ -108,10 +108,7 @@ sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
 sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
 
 pip install -q --no-binary pycparser -r ${ODOO_PATH}/requirements.txt
-pip install -q QUnitSuite codecov==2.0.15 coveralls==1.8.2
-
-# Use reference .coveragerc
-cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
+pip install -q QUnitSuite
 
 MQT_DEP=${MQT_DEP:-OCA}
 if [[ "${MQT_DEP}" == "OCA" ]] ; then
@@ -128,6 +125,10 @@ else
     pip install --pre -e ${ODOO_PATH} -r test-requirements.txt \
         --extra-index-url https://wheelhouse.odoo-community.org/oca-simple/
 fi
+
+# Use reference .coveragerc
+cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
+pip install coverage
 
 if [[ "${WKHTMLTOPDF_VERSION}" == "" && $(which wkhtmltopdf) != "" ]]; then
     echo "You have installed wkhtmltopdf but is not patched (probably) then we will overwrite it"
