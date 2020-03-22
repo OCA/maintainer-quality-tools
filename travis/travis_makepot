@@ -34,7 +34,10 @@ def main(argv=None, database=None):
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
-    server_path = get_server_path(odoo_full, odoo_version, travis_home)
+    server_path = os.environ.get("PYTHONPATH")
+    # when installing with pip we don't need 
+    if os.environ.get("MQT_DEP", "OCA") == "OCA":
+        server_path = get_server_path(odoo_full, odoo_version, travis_home)
     addons_path = ""
     # when installing with pip we don't need an addons_path
     if os.environ.get("MQT_DEP", "OCA") == "OCA":
@@ -64,6 +67,20 @@ def main(argv=None, database=None):
     subprocess.check_call([
         'git', 'config', 'user.email', os.environ['GITHUB_EMAIL'],
     ])
+
+    if (
+        os.environ.get("MQT_DEP", "OCA") != "OCA" and
+        odoo_version in ("8.0", "9.0", "10.0")
+    ):
+        # TODO This should have been done in travis_install_nightly
+        #      but that apparently confuses runbot (or travis2docker)
+        #      so we do it here
+        print("Installing odoo-autodiscover (because odoo version is <11.0")
+        r = subprocess.call([
+            'pip', 'install', 'odoo-autodiscover',
+        ])
+        if r:
+            return r
 
     print("Installing click-odoo-contrib")
     r = subprocess.call([
