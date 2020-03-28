@@ -93,36 +93,44 @@ else
         && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git checkout ${BRANCH}-${REMOTE}
 fi
 
-# Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
-rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
-pip install --upgrade pip
-pip install -q -r ${HOME}/maintainer-quality-tools/requirements.txt
-
 # Odoo <= 7.0 doesn't have requirements.txt file, then the 8.0 file is used by default
 if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
     wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
 fi
-# Remove python-ldap from odoo requirements because is not a common module used
-sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
-# Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
-sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
-
-pip install -q -r ${ODOO_PATH}/requirements.txt
-pip install -q QUnitSuite
 
 MQT_DEP=${MQT_DEP:-OCA}
 if [[ "${MQT_DEP}" == "OCA" ]] ; then
+    # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
+    rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
+    pip install --upgrade pip
+    pip install -q -r ${HOME}/maintainer-quality-tools/requirements.txt
+
+    # Remove python-ldap from odoo requirements because is not a common module used
+    sed -i '/^python-ldap\=\=/d' ${ODOO_PATH}/requirements.txt
+    # Use requests with [security] suffix to fix [Errno 111] Connection refused for old python2.7 versions.
+    sed -i 's/^requests\=\=/requests[security]\=\=/g' ${ODOO_PATH}/requirements.txt
+
+    pip install -q -r ${ODOO_PATH}/requirements.txt
+    pip install -q QUnitSuite
+
     echo "Getting addons dependencies"
     clone_oca_dependencies
 else
+    pip install --upgrade pip setuptools wheel
+
+    echo "Installing Odoo"
+    pip install -r ${ODOO_PATH}/requirements.txt -e ${ODOO_PATH}
+
     echo "Installing addons to test and their dependencies"
+    pip install setuptools-odoo
+    setuptools-odoo-make-default --clean --addons-dir .
     SHORT_VERSION=$(echo $VERSION | cut -d '.' -f 1)
     for addon in $(ls setup/ -I README -I _metapackage) ; do
         addon_dist="odoo${SHORT_VERSION}-addon-${addon}"
         echo "-e file://${PWD}/setup/${addon}#egg=${addon_dist}" >> test-requirements.txt
     done
     # use OCA wheelhouse because it is slightly fresher than PyPI
-    pip install --pre -e ${ODOO_PATH} -r test-requirements.txt \
+    pip install --pre -r test-requirements.txt \
         --extra-index-url https://wheelhouse.odoo-community.org/oca-simple/
 fi
 
