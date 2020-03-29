@@ -18,20 +18,26 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/prettier/prettier
-    rev: "1.19.1"
+    rev: "2.0.2"
     hooks:
       - id: prettier
-  # TODO Avoid awebdeveloper/pre-commit-prettier if possible
-  # HACK https://github.com/prettier/prettier/issues/7407
-  - repo: https://github.com/awebdeveloper/pre-commit-prettier
-    rev: v0.0.1
-    hooks:
-      - id: prettier
-        name: prettier xml plugin
         additional_dependencies:
-          - "prettier@1.19.1"
           - "@prettier/plugin-xml@0.7.2"
-        files: \.xml$
+        args:
+          - --plugin=@prettier/plugin-xml
+        files: "\\.(\
+          css|less|scss\
+          |graphql|gql\
+          |html\
+          |js|jsx\
+          |json\
+          |md|markdown|mdown|mkdn\
+          |mdx\
+          |ts|tsx\
+          |vue\
+          |yaml|yml\
+          |xml\
+          )$"
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v6.8.0
     hooks:
