@@ -6,6 +6,14 @@ QA Tools for Odoo maintainers (MQT)
 
 The goal of Maintainer Quality Tools (MQT) is to provide helpers to ensure the quality of Odoo addons.
 
+If you are a developer and are looking to run the pre-commit action locally,
+you don't need this repository.
+Follow the [pre-commit tool](https://pre-commit.com/#install) installations instructions.
+The OCA-recommended `pre-commit` configuration and associated linters configuration files may be found in the [sample_files](https://github.com/OCA/maintainer-quality-tools/tree/master/sample_files/pre-commit-13.0) directory of this repo.
+More information can be found [here]
+(https://odoo-community.org/blog/the-oca-blog-1/post/black-isort-pre-commit-97).
+
+
 Sample travis configuration file (for version 7.0)
 --------------------------------------------------
 
