@@ -1,10 +1,18 @@
 [![Build Status](https://travis-ci.org/OCA/maintainer-quality-tools.svg)](https://travis-ci.org/OCA/maintainer-quality-tools)
-[![Coverage Status](https://coveralls.io/repos/OCA/maintainer-quality-tools/badge.svg)](https://coveralls.io/r/OCA/maintainer-quality-tools)
+[![codecov](https://codecov.io/gh/OCA/maintainer-quality-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/OCA/maintainer-quality-tools)
 
 QA Tools for Odoo maintainers (MQT)
 ===================================
 
 The goal of Maintainer Quality Tools (MQT) is to provide helpers to ensure the quality of Odoo addons.
+
+If you are a developer and are looking to run the pre-commit action locally,
+you don't need this repository.
+Follow the [pre-commit tool](https://pre-commit.com/#install) installations instructions.
+The OCA-recommended `pre-commit` configuration and associated linters configuration files may be found in the [sample_files](https://github.com/OCA/maintainer-quality-tools/tree/master/sample_files/pre-commit-13.0) directory of this repo.
+More information can be found [here]
+(https://odoo-community.org/blog/the-oca-blog-1/post/black-isort-pre-commit-97).
+
 
 Sample travis configuration file (for version 7.0)
 --------------------------------------------------
@@ -64,12 +72,12 @@ similar to this one:
     - VERSION="8.0" UNIT_TEST="1"
 
 
-Coveralls/Codecov configuration file
-------------------------------------
+Codecov configuration file
+--------------------------
 
-[Coveralls](https://coveralls.io/) and [Codecov](https://codecov.io/) services provide information on the test coverage of your modules.
-Currently both configurations are automatic (check default configuration [here](cfg/.coveragerc)).
-So, as of today, you don't need to include a `.coveragerc` into the repository,
+[Codecov](https://codecov.io/) provides information on the test coverage of your modules.
+The configurations is automatic (check default configuration [here](cfg/.coveragerc)).
+So you don't need to include a `.coveragerc` into the repository,
 If you do it, it will be simply ignored.
 
 **NOTE:** the current configuration automatically ignores `*_example` modules
@@ -80,7 +88,7 @@ Names used for the test databases
 ---------------------------------
 
 MQT has a nice feature of organizing your testing databases.
-You might want to do that if you want to double them up as 
+You might want to do that if you want to double them up as
 staging DBs or if you want to work with an advanced set of
 templates in order to speed up your CI pipeline.
 Just specify at will:
@@ -110,5 +118,5 @@ Disable test
 If you want to make a build without tests, you can use the following directive:
 `TEST_ENABLE="0"`
 
-You will simply get the databases with packages installed, 
+You will simply get the databases with packages installed,
 but whithout running any tests.

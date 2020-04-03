@@ -1,1 +1,0 @@
-../travis/run_pylint.py
