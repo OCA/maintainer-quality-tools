@@ -29,7 +29,7 @@ fi
 # Install less
 ln -s `which nodejs` $HOME/maintainer-quality-tools/travis/node
 # Remove fixed version after fix https://github.com/odoo/odoo/issues/25632
-npm install -g less@3.0.4 less-plugin-clean-css
+sudo npm install -g less@3.0.4 less-plugin-clean-css
 
 if [ "${WEBSITE_REPO}" == "1" ]; then
     if [ -f ~/.rvm/scripts/rvm ]; then
