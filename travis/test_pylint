@@ -9,6 +9,8 @@ Use the following types of pylint configuration files:
  2) Pull request
  3) Version
  4) Beta
+ 5) Stable
+ 6) Mature
 
 
 1) Global
@@ -40,6 +42,26 @@ Use the following types of pylint configuration files:
   status.
 
   File name: `travis_run_pylint_beta.cfg`
+
+5) Beta - level 1
+
+  Used for enable checks just for modules with deployment_status==Beta where
+  other ones checks are disabled
+
+  File name: `travis_run_pylint_beta.cfg`
+
+5) Stable - level 2
+
+  Used for enable checks just for modules with deployment_status==Stable
+
+  File name: `travis_run_pylint_stable.cfg`
+
+
+5) Mature - level 3
+
+  Used for enable checks just for modules with deployment_status==Mature
+
+  File name: `travis_run_pylint_mature.cfg`
 """
 
 
