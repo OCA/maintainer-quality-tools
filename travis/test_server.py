@@ -366,6 +366,7 @@ def patch_odoo_unlogged_tables(server_path):
     filenames_to_patch = [
         'addons/base/base.sql',
         'addons/base/data/base_data.sql',
+        'addons/base/models/res_users.py',
         'fields.py',
         'models.py',
         'tools/sql.py',
