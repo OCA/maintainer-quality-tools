@@ -290,8 +290,13 @@ def hidden_line(line, main_modules, addons_path_list=None,
         module = lang_regex_search.group('module')
         lang = lang_regex_search.group('lang')
         main_lang = lang[:2]
-        module_path = os.path.dirname(find_module(module.decode(),
-                                                  addons_path_list))
+        manifest_path = find_module(module.decode(), addons_path_list)
+        if not manifest_path:
+            # If a module has __manifest__ but not __init__
+            # WTF Is it possible? Yes, It is:
+            #   https://github.com/odoo/enterprise/tree/e88e4cd/hr_payroll_holidays
+            return True
+        module_path = os.path.dirname(manifest_path)
         i18n_main_lang_path = os.path.join(
             module_path, 'i18n', main_lang.decode() + '.po')
         if module not in main_modules:
