@@ -127,6 +127,7 @@ else
     pip install setuptools-odoo
     setuptools-odoo-make-default --clean --addons-dir .
     SHORT_VERSION=$(echo $VERSION | cut -d '.' -f 1)
+    touch test-requirements.txt
     for addon in $(ls setup/ -I README -I _metapackage) ; do
         addon_dist="odoo${SHORT_VERSION}-addon-${addon}"
         echo "-e file://${PWD}/setup/${addon}#egg=${addon_dist}" >> test-requirements.txt
