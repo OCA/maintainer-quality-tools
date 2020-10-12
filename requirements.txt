@@ -6,8 +6,3 @@ pyyaml; python_version >= '3.5'
 coveralls
 websocket-client
 unittest2
-
-# transifex requirements
-polib
-slumber
-transifex-client
