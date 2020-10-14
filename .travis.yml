@@ -1,6 +1,6 @@
 # WARNING:
 # Do not use this file as a template for you repository TravisCI configuration
-# Instead use the files under the "/sample_files" directory for that purpose.
+# Instead use the template at https://github.com/OCA/oca-addons-repo-template
 language: python
 sudo: false
 cache:
