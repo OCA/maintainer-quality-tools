@@ -12,6 +12,7 @@ omit =
     *__init__.py
     *__openerp__.py
     *__manifest__.py
+    ${EXCLUDE_COVERAGE}
 
 # Regexes for lines to exclude from consideration
 exclude_lines =
@@ -20,3 +21,6 @@ exclude_lines =
     # Don't complain about null context checking
     if context is None:
     ImportError
+
+fail_under = ${COVERAGE_MIN-0}
+precision = ${COVERAGE_PRECISION-0}
