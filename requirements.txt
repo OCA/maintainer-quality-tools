@@ -4,5 +4,5 @@ pyopenssl>=16.2.0
 pyyaml==5.2; python_version <= '3.4'
 pyyaml; python_version >= '3.5'
 coveralls
-websocket-client
+# websocket-client
 unittest2
