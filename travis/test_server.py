@@ -206,7 +206,8 @@ def get_test_dependencies(addons_path, addons_list):
 
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
                  addons_path, install_options, preinstall_modules=None,
-                 unbuffer=True, server_options=None, test_loghandler=None):
+                 unbuffer=True, server_options=None, test_loghandler=None,
+                 stdout_log=None):
     """
     Setup the base module before running the tests
     :param db: Template database name
@@ -260,16 +261,19 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
         pipe = subprocess.Popen(cmd_odoo,
                                 stderr=subprocess.STDOUT,
                                 stdout=subprocess.PIPE)
-        for line in iter(pipe.stdout.readline, ''):
-            if line == b'':
-                break
-            if hidden_line(line, main_modules=[], addons_path_list=[],
-                           hidden_all_no_translation=True):
-                continue
-            # No show a warning from template runtime
-            # if 'openerp.models.schema' in line:
-            #     line = line.replace('DEBUG', 'WARNING')
-            print(print_log(line))
+        if stdout_log:
+            with open(stdout_log, 'wb') as stdout:
+                for line in iter(pipe.stdout.readline, ''):
+                    if line == b'':
+                        break
+                    if hidden_line(line, main_modules=[], addons_path_list=[],
+                                hidden_all_no_translation=True):
+                        continue
+                    # No show a warning from template runtime
+                    # if 'openerp.models.schema' in line:
+                    #     line = line.replace('DEBUG', 'WARNING')
+                    stdout.write(line)
+                    print(print_log(line))
     else:
         print("Using current openerp_template database.")
     return 0
@@ -523,7 +527,7 @@ def main(argv=None):
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons, server_path,
                  script_name, addons_path, install_options, preinstall_modules,
-                 unbuffer, server_options, test_loghandler)
+                 unbuffer, server_options, test_loghandler, stdout_log)
 
     # Running tests
     database = "openerp_test"
@@ -615,7 +619,7 @@ def main(argv=None):
             pipe = subprocess.Popen(command_call,
                                     stderr=subprocess.STDOUT,
                                     stdout=subprocess.PIPE, env=env)
-            with open(stdout_log, 'wb') as stdout:
+            with open(stdout_log, 'ab') as stdout:
                 for line in iter(pipe.stdout.readline, ''):
                     if line == b'':
                         break
