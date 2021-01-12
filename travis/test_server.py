@@ -437,7 +437,8 @@ def main(argv=None):
         else:
             test_loglevel = 'info'
             test_loghandler = ['openerp.tools.yaml_import:DEBUG',
-                               'openerp.models.schema:DEBUG']
+                               'openerp.models.schema:DEBUG',
+                               'odoo.tests.runner:ERROR']
     odoo_full = os.environ.get("ODOO_REPO", "odoo/odoo")
     server_path = get_server_path(
         odoo_full, odoo_branch or odoo_version, travis_home)
