@@ -6,32 +6,14 @@ QA Tools for Odoo maintainers (MQT)
 
 The goal of Maintainer Quality Tools (MQT) is to provide helpers to ensure the quality of Odoo addons.
 
-If you are a developer and are looking to run the pre-commit actions locally,
-you don't need this repository.
-Follow the [pre-commit tool](https://pre-commit.com/#install) installation instructions.
+Sample travis configuration files
+---------------------------------
 
-In a nutshell:
+To configure a repository to use Travis CI with these tools, the easiest is
+to start from the `copier` template in https://github.com/OCA/oca-addons-repo-template.
 
-- Install pre-commit in your system: ``pip3 install --user pre-commit``
-- Install pre-commit on yor repository (must be done inside each OCA repo):
-  ``pre-commit install``
-- If you want to manually run it: ``pre-commit run --all-files``
-
-The OCA-recommended `pre-commit` configuration
-and associated linters configuration files may be found in the [sample_files]
-(https://github.com/OCA/maintainer-quality-tools/tree/master/sample_files/pre-commit-13.0)
-directory of this repo.
-
-More information can be found [here]
-(https://odoo-community.org/blog/the-oca-blog-1/post/black-isort-pre-commit-97).
-
-
-Sample travis configuration file (for version 7.0)
---------------------------------------------------
-
-In order to setup TravisCI continuous integration for your project, just copy the
-content of the [`/sample_files`](https://github.com/OCA/maintainer-quality-tools/tree/master/sample_files)
-to your project’s root directory.
+Dependencies on other OCA repositories
+--------------------------------------
 
 If your project depends on other OCA or other Github repositories, create a file called `oca_dependencies.txt` at the root of your project and list the dependencies there. One per line like so:
 
@@ -40,8 +22,10 @@ If your project depends on other OCA or other Github repositories, create a file
 During testbed setup, MQT will automatically download and place these repositories accordingly into the addon path.
 Note on addons path ordering: They will be placed after your own repo, but before the odoo core repo.
 
-Check your .travis file for syntax issues.
-------------------------------------------
+TODO: document MQT_DEP=PIP mode
+
+Check your .travis file for syntax issues
+-----------------------------------------
 
 You can test your .travis file in [this linter](http://lint.travis-ci.org/).
 This is very useful when you are improving your file.
