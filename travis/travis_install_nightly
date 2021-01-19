@@ -25,6 +25,10 @@ if [ "${LINT_CHECK}" != "0" ]; then
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_vauxoo_light_beta.cfg -O ${HOME}/maintainer-quality-tools/travis/cfg/travis_run_pylint_beta.cfg
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/.jslintrc -O ${HOME}/maintainer-quality-tools/travis/cfg/.jslintrc
     # Ugly patch to apply https://github.com/PyCQA/pylint/pull/1055
+    # For pylint >= 2.2.0:
+    wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_pr1055_2.patch -O /tmp/pylint_pr1055_2.patch
+    patch -f -p0 $(python -c "from __future__ import print_function; from pylint.checkers import similar; print(similar.__file__.rstrip('c'))") -i /tmp/pylint_pr1055_2.patch
+    # For older ones:
     wget -q https://raw.githubusercontent.com/Vauxoo/pylint-conf/master/conf/pylint_pr1055.patch -O /tmp/pylint_pr1055.patch
     patch -f -p0 $(python -c "from __future__ import print_function; from pylint.checkers import similar; print(similar.__file__.rstrip('c'))") -i /tmp/pylint_pr1055.patch
 fi
