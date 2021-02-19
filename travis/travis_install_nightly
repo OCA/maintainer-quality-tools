@@ -98,6 +98,9 @@ if [ ! -f ${ODOO_PATH}/requirements.txt ]; then
     wget https://raw.githubusercontent.com/odoo/odoo/8.0/requirements.txt -O ${ODOO_PATH}/requirements.txt
 fi
 
+# Make sure this file exists
+touch test-requirements.txt
+
 MQT_DEP=${MQT_DEP:-OCA}
 if [[ "${MQT_DEP}" == "OCA" ]] ; then
     # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
@@ -127,15 +130,15 @@ else
     pip install setuptools-odoo
     setuptools-odoo-make-default --clean --addons-dir .
     SHORT_VERSION=$(echo $VERSION | cut -d '.' -f 1)
-    touch test-requirements.txt
     for addon in $(ls setup/ -I README -I _metapackage) ; do
         addon_dist="odoo${SHORT_VERSION}-addon-${addon}"
         echo "-e file://${PWD}/setup/${addon}#egg=${addon_dist}" >> test-requirements.txt
     done
-    # use OCA wheelhouse because it is slightly fresher than PyPI
-    pip install --pre -r test-requirements.txt \
-        --extra-index-url https://wheelhouse.odoo-community.org/oca-simple/
 fi
+
+# use OCA wheelhouse because it is slightly fresher than PyPI
+pip install --pre -r test-requirements.txt \
+    --extra-index-url https://wheelhouse.odoo-community.org/oca-simple/
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
