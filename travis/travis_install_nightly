@@ -79,14 +79,17 @@ if [ -d "${REPO_CACHED}/odoo" ]; then
 else
     echo "Downloading Odoo"
     git clone --depth=50 https://${REPO_PLATFORM:=github}.com/$REMOTE/$REPO_NAME.git -b $BRANCH ${ODOO_PATH}
+    echo "Work tree 1"
     git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git remote rename origin $REMOTE
 fi
 if [ "x${PULL_REQUEST}" == "x" ] ; then
+    echo "Not Is PULLREQUEST"
     git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git fetch --depth=1 ${REMOTE} ${BRANCH} \
         && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git config --local --bool core.bare false \
         && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git checkout -b ${BRANCH}-${REMOTE} -qf ${REMOTE}/${BRANCH}
 else
     # Is a pull request
+    echo "Is PULLREQUEST"
     git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git reset --hard
     git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git fetch --depth=1 ${REMOTE} $PULL_REQUEST/head:${BRANCH}-${REMOTE} \
         && git --work-tree=${ODOO_PATH} --git-dir=${ODOO_PATH}/.git config --local --bool core.bare false \
