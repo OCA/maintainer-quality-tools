@@ -129,11 +129,8 @@ else
     done
 fi
 
-# Use a package index that redirects to the OCA wheelhouse for Odoo addons,
-# and to pypi.org for all other packages. This is to make sure we don't
-# inadvertently accepts non-OCA addons in dependencies.
-pip install --pre -r test-requirements.txt \
-    --index-url https://wheelhouse.odoo-community.org/oca-simple-and-pypi/
+# Install requirements from PyPI
+pip install --pre -r test-requirements.txt
 
 # Use reference .coveragerc
 cp ${HOME}/maintainer-quality-tools/cfg/.coveragerc .
