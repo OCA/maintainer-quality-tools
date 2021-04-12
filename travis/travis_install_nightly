@@ -105,7 +105,7 @@ MQT_DEP=${MQT_DEP:-OCA}
 if [[ "${MQT_DEP}" == "OCA" ]] ; then
     # Workaround to force using system site packages (see https://github.com/Shippable/support/issues/241#issuecomment-57947925)
     rm -f $VIRTUAL_ENV/lib/python2.7/no-global-site-packages.txt
-    pip install --upgrade pip
+    pip install --upgrade pip setuptools
     pip install -q -r ${HOME}/maintainer-quality-tools/requirements.txt
 
     # Remove python-ldap from odoo requirements because is not a common module used
