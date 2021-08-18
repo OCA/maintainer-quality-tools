@@ -109,7 +109,7 @@ def main(argv=None, database=None):
     print("Pushing .pot files changes to GitHub")
     r = subprocess.call([
         'git', 'push',
-        'https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/'
+        'https://x-access-token:{GITHUB_TOKEN}@github.com/'
         '{TRAVIS_REPO_SLUG}'.format(**os.environ),
         'HEAD:{TRAVIS_BRANCH}'.format(**os.environ),
     ])
