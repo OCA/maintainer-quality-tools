@@ -136,6 +136,16 @@ else
     done
 fi
 
+# runbot only
+if [ "x${CI}" == "x" ] ; then
+    # https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/
+    # Remove expired root certificate so that the new chain could be properly validated on Trusty
+    sed -e '/Issuer: CN=DST Root CA X3/,+26d' /usr/local/lib/python2.7/dist-packages/certifi/cacert.pem > ${HOME}/cacert.pem
+
+    # Force requests (used by pip) to use the fixed system bundle
+    export REQUESTS_CA_BUNDLE=${HOME}/cacert.pem
+fi
+
 # Use a package index that redirects to the OCA wheelhouse for Odoo addons,
 # and to pypi.org for all other packages. This is to make sure we don't
 # inadvertently accepts non-OCA addons in dependencies.
