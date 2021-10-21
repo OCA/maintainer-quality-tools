@@ -170,9 +170,12 @@ def pylint_run(is_pr, version, dir):
     res = dict(
         (key, value) for key, value in (real_errors.get(
             'by_msg') or {}).items() if key not in beta_msgs)
-    count_errors = get_count_fails(real_errors, list(beta_msgs))
+    fails_list = get_fails(real_errors, list(beta_msgs))
+    count_errors = get_count_fails(fails_list)
     count_info = "count_errors %s" % count_errors
     print(count_info)
+    print("Pylint errors:")
+    print(fails_list)
     if is_pr:
         print(travis_helpers.green(
             'Starting lint check only for modules changed'))
@@ -192,7 +195,7 @@ def pylint_run(is_pr, version, dir):
             (key, value) for key, value in (pr_real_errors.get(
                 'by_msg') or {}).items() if key not in beta_msgs)
         if pr_stats:
-            pr_errors = get_count_fails(pr_real_errors, list(beta_msgs))
+            pr_errors = get_count_fails(get_fails(pr_real_errors, list(beta_msgs)))
             print(travis_helpers.yellow(
                 "Found %s errors in modules changed." % (pr_errors)))
             if pr_errors < 0:
@@ -207,16 +210,24 @@ def pylint_run(is_pr, version, dir):
     return res
 
 
-def get_count_fails(linter_stats, msgs_no_count=None):
+def get_fails(linter_stats, msgs_no_count=None):
     """Verify the dictionary statistics to get number of errors.
     :param linter_stats: Dict of type pylint.lint.Run().linter.stats
     :param no_count: List of messages that will not add to the failure count.
-    :return: Integer with quantity of fails found.
+    :return: List of failure messages
     """
-    return sum([
+    return [
         linter_stats['by_msg'][msg]
         for msg in (linter_stats.get('by_msg') or {})
-        if msg not in msgs_no_count])
+        if msg not in msgs_no_count]
+
+
+def get_count_fails(fails_list):
+    """Verify the dictionary statistics to get number of errors.
+    :param fails_list: List of failture messages
+    :return: Integer with quantity of fails found.
+    """
+    return sum(fails_list)
 
 
 def is_installable_module(path):
