@@ -210,7 +210,7 @@ def cmd_strip_secret(cmd):
 
 
 def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
-                 addons_path, install_options, preinstall_modules=None,
+                 addons_path, install_options, setup_dbtemplate, preinstall_modules=None,
                  unbuffer=True, server_options=None):
     """
     Setup the base module before running the tests
@@ -222,6 +222,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
     :param script_name: name of the main server file
     :param addons_path: Addons path
     :param install_options: Install options (travis parameter)
+    :param setup_dbtemplate: use an alternative database template
     :param preinstall_modules: (list) Modules that should be preinstalled
     :param unbuffer: keeps output colors
     :param server_options: (list) Add these flags to the Odoo server init
@@ -232,7 +233,7 @@ def setup_server(db, odoo_unittest, tested_addons, server_path, script_name,
         server_options = []
     print("\nCreating instance:")
     try:
-        subprocess.check_call(["createdb", db])
+        subprocess.check_call(["createdb", "-T", setup_dbtemplate, db])
     except subprocess.CalledProcessError:
         print("Using previous openerp_template database.")
     else:
@@ -315,6 +316,7 @@ def main(argv=None):
     data_dir = os.path.expanduser(os.environ.get("DATA_DIR", '~/data_dir'))
     test_enable = str2bool(os.environ.get('TEST_ENABLE', True))
     dbtemplate = os.environ.get('MQT_TEMPLATE_DB', 'openerp_template')
+    setup_dbtemplate = os.environ.get('SETUP_TEMPLATE_DB', 'template0')
     database = os.environ.get('MQT_TEST_DB', 'openerp_test')
     if not odoo_version:
         # For backward compatibility, take version from parameter
@@ -367,8 +369,8 @@ def main(argv=None):
         os.environ.get('TRAVIS_BUILD_DIR')))) or ['base']
     print("Modules to preinstall: %s" % preinstall_modules)
     setup_server(dbtemplate, odoo_unittest, tested_addons_list, server_path,
-                 script_name, addons_path, install_options, preinstall_modules,
-                 unbuffer, server_options)
+                 script_name, addons_path, install_options, setup_dbtemplate,
+                 preinstall_modules, unbuffer, server_options)
 
     # Running tests
     cmd_odoo_test = ["coverage", "run",
