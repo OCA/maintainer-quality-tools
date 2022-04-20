@@ -68,6 +68,9 @@ install:
   - cp -r ../maintainer-quality-tools/ $HOME
   - cp -r tests/test_repo/* ./
   - export PATH=$HOME/maintainer-quality-tools/travis:$PATH
+  # Fix AttributeError: 'str' object has no attribute 'name'
+  #   https://stackoverflow.com/a/59549323/3753497
+  - pip install -U --force-reinstall pluggy
    # Force install lint requirements in all cases of MQT for self_test script.
   - pip install coverage
   - LINT_CHECK="1" travis_install_nightly 8.0 # only used if VERSION not set in env
