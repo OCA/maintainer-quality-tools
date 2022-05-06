@@ -286,6 +286,9 @@ def run_pylint(paths, cfg, beta_msgs=None, sys_paths=None, extra_params=None):
         pylint_res = pylint.lint.Run(cmd, do_exit=False)
     else:
         pylint_res = pylint.lint.Run(cmd, exit=False)
+    if hasattr(pylint_res.linter.stats, 'by_msg'):
+        # pylint>2.12 compatibility
+        pylint_res.linter.stats = {'by_msg': pylint_res.linter.stats.by_msg}
     return pylint_res.linter.stats
 
 
