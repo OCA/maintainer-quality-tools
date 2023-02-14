@@ -39,6 +39,7 @@ def main(argv=None, database=None):
     travis_home = os.environ.get("HOME", "~/")
     travis_dependencies_dir = os.path.join(travis_home, 'dependencies')
     travis_build_dir = os.environ.get("TRAVIS_BUILD_DIR", "../..")
+    setup_dbtemplate = os.environ.get('SETUP_TEMPLATE_DB', 'template0')
     server_path = os.environ.get("PYTHONPATH")
     # when installing with pip we don't need 
     if os.environ.get("MQT_DEP", "OCA") == "OCA":
@@ -62,7 +63,8 @@ def main(argv=None, database=None):
         print("\nInitializing db %s to generate .pot for: %s" % (database, addons))
         script_name = get_server_script(server_path)
         setup_server(database, odoo_unittest, addons_list, server_path,
-                     script_name, addons_path, install_options, addons_list)
+                     script_name, addons_path, install_options, setup_dbtemplate,
+                     addons_list)
     else:
         print("\nUsing db %s to generate .pot" % (database, ))
 
