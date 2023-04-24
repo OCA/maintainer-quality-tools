@@ -6,7 +6,12 @@ if [ "${LINT_CHECK}" != "0" ]; then
     pip install -Uq flake8=="3.4.1" Click pylint-mccabe pbr
 
     # Install pylint plugin depends without lxml
-    wget -q https://raw.githubusercontent.com/OCA/pylint-odoo/master/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
+    # The 7.0.4 tag is used here because the master branch contains
+    # incompatible changes (and Travis in being deprecated anyway) (see
+    # https://github.com/OCA/maintainer-quality-tools/issues/712 for an
+    # explanation). This allows to ensure that CI still passes on old branches
+    # that still use Travis.
+    wget -q https://raw.githubusercontent.com/OCA/pylint-odoo/7.0.4/requirements.txt -O ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade -r ${HOME}/maintainer-quality-tools/travis/pylint_odoo_requirements.txt
     pip install --upgrade --pre --no-deps git+https://github.com/OCA/pylint-odoo.git   # To use last version ever
     npm install -g eslint  # Extra package for pylint-odoo plugin
